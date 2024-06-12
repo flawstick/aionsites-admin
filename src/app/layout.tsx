@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
+import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   description: "Aionsites Admin Dashboard",

@@ -18,19 +18,19 @@ export function MainNav({
         Overview
       </Link>
       <Link
-        href="/examples/dashboard"
+        href="/orders"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        Customers
+        Orders
       </Link>
       <Link
-        href="/examples/dashboard"
+        href="/menu"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
-        Products
+        Menu
       </Link>
       <Link
-        href="/examples/dashboard"
+        href="/settings"
         className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
       >
         Settings

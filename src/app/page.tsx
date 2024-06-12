@@ -17,6 +17,7 @@ import { RecentSales } from "@/components/recent-sales";
 import { Search } from "@/components/search";
 import TeamSwitcher from "@/components/team-switcher";
 import { UserNav } from "@/components/user-nav";
+import AuthProvider from "@/components/auth-provider";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function DashboardPage() {
   return (
-    <>
+    <AuthProvider>
       <div className="md:hidden">
         <Image
           src="/examples/dashboard-light.png"
@@ -203,6 +204,6 @@ export default function DashboardPage() {
           </Tabs>
         </div>
       </div>
-    </>
+    </AuthProvider>
   );
 }

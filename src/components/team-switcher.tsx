@@ -44,7 +44,7 @@ import {
 } from "@/components/ui/select";
 import useAuth from "@/lib/hooks/useAuth";
 import RegisterRestaurant from "./create-resturant";
-import { useRestaurantStore } from "@/lib/store/resturantStore";
+import { useRestaurantStore } from "@/lib/store/restaurantStore";
 
 type Team = {
   label: string;

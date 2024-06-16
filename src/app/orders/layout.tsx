@@ -6,8 +6,8 @@ import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  description: "Aionsites Admin Dashboard",
-  title: "Aionsites Admin",
+  description: "Aionsites Restaurant Orders",
+  title: "Aionsites - My Orders",
 };
 
 const fontSans = FontSans({

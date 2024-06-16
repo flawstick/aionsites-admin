@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import mongoose from "mongoose";
 import axios from "axios";
 
 interface Coordinates {
@@ -16,7 +17,7 @@ interface Restaurant {
 }
 
 interface MenuItem {
-  id: string;
+  _id?: any;
   name: string;
   price: number;
   description?: string;
@@ -40,7 +41,11 @@ interface RestaurantState {
   updateRestaurant: (restaurant: Restaurant) => void;
   setRestaurants: (restaurants: Restaurant[]) => void;
   setSelectedRestaurant: (jwt: string, restaurantId: string) => void;
-  createMenu: (jwt: string) => void;
+  createMenu: (jwt: string) => Promise<void>;
+  addMenuItem: (menuItem: MenuItem) => void;
+  removeMenuItem: (menuItemId: string) => void;
+  saveMenu: (jwt: string, menu?: MenuItem[]) => Promise<boolean | undefined>;
+  loadFromCache: () => void;
 }
 
 export const useRestaurantStore = create<RestaurantState>((set, get) => ({
@@ -91,6 +96,15 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
       set({
         menu: { restaurantId: selectedRestaurant._id, items: menuItems },
       });
+
+      // Save menu to localStorage
+      localStorage.setItem(
+        "menu",
+        JSON.stringify({
+          restaurantId: selectedRestaurant._id,
+          items: menuItems,
+        }),
+      );
     } catch (error) {
       console.error("Error fetching menu:", error);
     }
@@ -140,6 +154,70 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
       }
     } catch (error) {
       console.error("Error creating menu:", error);
+    }
+  },
+  addMenuItem: (menuItem: MenuItem) => {
+    set((state) => {
+      const menuItemWithId = {
+        ...menuItem,
+        _id: new mongoose.Types.ObjectId(),
+      };
+      const updatedItems = state.menu.items
+        ? [...state.menu.items, menuItemWithId]
+        : [menuItemWithId];
+      const updatedMenu = { ...state.menu, items: updatedItems };
+
+      // Save updated menu to localStorage
+      localStorage.setItem("menu", JSON.stringify(updatedMenu));
+
+      return { menu: updatedMenu };
+    });
+  },
+  removeMenuItem: (menuItemId: string) => {
+    set((state) => {
+      const updatedItems = state.menu.items
+        ? state.menu.items.filter((item) => item._id !== menuItemId)
+        : [];
+      const updatedMenu = { ...state.menu, items: updatedItems };
+
+      // Save updated menu to localStorage
+      localStorage.setItem("menu", JSON.stringify(updatedMenu));
+
+      return { menu: updatedMenu };
+    });
+  },
+  saveMenu: async (jwt: string, menuItems?: MenuItem[]) => {
+    const selectedRestaurant = get().selectedRestaurant;
+    if (!selectedRestaurant) return;
+
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/restaurants/${selectedRestaurant._id}/menu`,
+        { items: menuItems ? menuItems : get().menu.items },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt}`,
+          },
+        },
+      );
+
+      if (response.status !== 200) {
+        console.error("Error saving menu:", response.data);
+        return false;
+      } else {
+        // Clear the saved menu in localStorage after successful save
+        localStorage.removeItem("menu");
+        return true;
+      }
+    } catch (error) {
+      console.error("Error saving menu:", error);
+    }
+  },
+  loadFromCache: () => {
+    const cachedMenu = localStorage.getItem("menu");
+    if (cachedMenu) {
+      set({ menu: JSON.parse(cachedMenu) });
     }
   },
 }));

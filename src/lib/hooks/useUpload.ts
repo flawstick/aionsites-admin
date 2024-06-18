@@ -13,7 +13,7 @@ const useUpload = () => {
       formData.append("file", file); // Ensure the key matches what multer is expecting
 
       const response = await axios.post(
-        "http://localhost:8080/upload/image",
+        "https://api.aionsites.com/upload/image",
         formData,
         {
           headers: {

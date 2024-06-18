@@ -74,7 +74,7 @@ export default function RegisterRestaurant({
     event.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:8080/restaurants/create",
+        "https://api.aionsites.com/restaurants/create",
         {
           name,
           contactEmail: email,

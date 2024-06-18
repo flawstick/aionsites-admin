@@ -15,9 +15,12 @@ const handler = NextAuth({
   callbacks: {
     async signIn({ user, account, profile }: any) {
       try {
-        const response = await axios.post("http://localhost:8080/auth/google", {
-          profile,
-        });
+        const response = await axios.post(
+          "https://api.aionsites.com/auth/google",
+          {
+            profile,
+          },
+        );
 
         if (response.status === 200) {
           // Attach the JWT token to the user object
@@ -50,7 +53,7 @@ const handler = NextAuth({
       // Fetch user data from backend using the JWT token
       try {
         const response = await axios.get(
-          `http://localhost:8080/accounts/${token.jwt}`,
+          `http://api.aionsites.com/accounts/${token.jwt}`,
           {
             headers: {
               "Content-Type": "application/json",

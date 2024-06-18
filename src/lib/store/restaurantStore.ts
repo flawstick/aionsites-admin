@@ -55,7 +55,7 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
   fetchRestaurants: async (jwt: string, accountId: string) => {
     try {
       const response = await axios.get(
-        `http://localhost:8080/accounts/${accountId}/restaurants`,
+        `https://api.aionsites.com/accounts/${accountId}/restaurants`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -82,7 +82,7 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
 
     try {
       const response = await axios.get(
-        `http://localhost:8080/restaurants/${selectedRestaurant._id}/menu`,
+        `https://api.aionsites.com/restaurants/${selectedRestaurant._id}/menu`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -137,7 +137,7 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
 
     try {
       const response = await axios.post(
-        `http://localhost:8080/restaurants/${selectedRestaurant._id}/menu/create`,
+        `https://api.aionsites.com/restaurants/${selectedRestaurant._id}/menu/create`,
         {},
         {
           headers: {
@@ -192,7 +192,7 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
 
     try {
       const response = await axios.put(
-        `http://localhost:8080/restaurants/${selectedRestaurant._id}/menu`,
+        `https://api.aionsites.com/restaurants/${selectedRestaurant._id}/menu`,
         { items: menuItems ? menuItems : get().menu.items },
         {
           headers: {

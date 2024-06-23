@@ -16,7 +16,7 @@ const handler = NextAuth({
     async signIn({ user, account, profile }: any) {
       try {
         const response = await axios.post(
-          "https://api.aionsites.com/auth/google",
+          "https://api.aionsites.com/auth/app/google",
           {
             profile,
           },

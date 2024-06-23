@@ -22,7 +22,7 @@ interface MenuItem {
   price: number;
   description?: string;
   category?: string;
-  additions?: string[];
+  additions?: [{ name: string; price: number }];
   sold?: number;
 }
 

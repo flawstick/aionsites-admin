@@ -81,7 +81,7 @@ export function Menu() {
         {!menu.items && (
           <div className="flex items-center justify-center flex-col my-10">
             <p className="text-lg text-gray-500">
-              Your restaurant doesn't have a menu yet
+              Your restaurant doesn&apos;t have a menu yet
             </p>
             <p className="text-lg font-bold text-gray-700">Create one?</p>
             <Button

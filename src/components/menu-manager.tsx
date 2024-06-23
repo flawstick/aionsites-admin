@@ -37,6 +37,7 @@ export default function MenuManager() {
     removeMenuItem,
     fetchMenu,
     saveMenu,
+    selectedRestaurant,
     loadFromCache,
   } = useRestaurantStore();
   const { uploadImage, error: uploadError } = useUpload();
@@ -102,14 +103,13 @@ export default function MenuManager() {
     }
 
     const newItem = {
+      restaurantId: selectedRestaurant?._id,
       name: newItemName,
       description: newItemDescription,
       price: newItemPrice,
       category: newItemCategory,
       imageUrl,
-      additions: mealAdditions
-        .filter((addition) => addition.name && addition.price)
-        .map((addition) => addition.name),
+      additions: mealAdditions as [{ name: string; price: number }],
     };
 
     addMenuItem(newItem);
@@ -121,7 +121,7 @@ export default function MenuManager() {
     setNewItemImage(null);
     setNewItemImageUrl("");
     setMealAdditions([{ name: "", price: 0 }]);
-    setValidationError(""); // Clear any previous errors
+    setValidationError("");
   };
 
   const handleDeleteItem = (itemId: string) => {

@@ -115,8 +115,8 @@ export default function RegisterRestaurant({
             Register Your Restaurant
           </DialogTitle>
           <DialogDescription className="text-center">
-            Fill out the form below to register your restaurant with us. We'll
-            get in touch with you shortly after.
+            Fill out the form below to register your restaurant with us.
+            We&apos;ll get in touch with you shortly after.
           </DialogDescription>
         </motion.div>
       </DialogHeader>

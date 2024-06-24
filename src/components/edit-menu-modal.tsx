@@ -112,8 +112,9 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
     if (itemImage) {
       try {
         imageUrl = (await uploadImage(itemImage)) as string;
-        if (!imageUrl) {
-          throw new Error("Image upload failed.");
+        if (uploadError) {
+          setValidationError("Failed to upload image.");
+          return;
         }
       } catch (error) {
         setValidationError("Failed to upload image.");
@@ -135,7 +136,12 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
     setSaveLoading(true);
     updateMenuItem(updatedItem as any);
     setSaveLoading(false);
+    handleClose();
+  };
+
+  const handleClose = () => {
     onClose();
+    setValidationError("");
   };
 
   return (

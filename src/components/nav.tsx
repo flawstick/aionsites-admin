@@ -2,6 +2,7 @@ import TeamSwitcher from "@/components/team-switcher";
 import { MainNav } from "@/components/main-nav";
 import { Search } from "@/components/search";
 import { UserNav } from "@/components/user-nav";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
   return (
@@ -11,6 +12,7 @@ export function Header() {
         <MainNav className="mx-6" />
         <div className="ml-auto flex items-center space-x-4">
           <Search />
+          <ThemeToggle />
           <UserNav />
         </div>
       </div>

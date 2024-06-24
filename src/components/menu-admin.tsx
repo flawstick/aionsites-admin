@@ -6,13 +6,10 @@ import {
   PackageIcon,
   LayersIcon,
 } from "@/components/icons";
-import TeamSwitcher from "@/components/team-switcher";
-import { MainNav } from "@/components/main-nav";
-import { Search } from "@/components/search";
-import { UserNav } from "@/components/user-nav";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import useAuth from "@/lib/hooks/useAuth";
-import MenuManager from "./menu-manager";
+import MenuManager from "@/components/menu-manager";
+import { Header } from "@/components/nav";
 
 export function Menu() {
   const { session }: any = useAuth();
@@ -20,16 +17,7 @@ export function Menu() {
 
   return (
     <div className="grid min-h-screen grid-rows-[auto_1fr]">
-      <header className="border-b">
-        <div className="flex h-16 items-center px-4">
-          <TeamSwitcher />
-          <MainNav className="mx-6" />
-          <div className="ml-auto flex items-center space-x-4">
-            <Search />
-            <UserNav />
-          </div>
-        </div>
-      </header>
+      <Header />
       <div className="grid grid-cols-[280px_1fr]">
         <div className="border-r bg-white/40 dark:bg-gray-800/40">
           <div className="flex h-full max-h-screen flex-col gap-2">

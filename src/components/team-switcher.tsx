@@ -69,10 +69,8 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
   } = useRestaurantStore();
 
   React.useEffect(() => {
-    if (session) {
-      fetchRestaurants(session.jwt, session.user._id);
-    }
-  }, [session]);
+    if (session) fetchRestaurants(session.jwt, session.user._id);
+  }, []);
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>

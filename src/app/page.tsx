@@ -18,6 +18,7 @@ import { Search } from "@/components/search";
 import TeamSwitcher from "@/components/team-switcher";
 import { UserNav } from "@/components/user-nav";
 import AuthProvider from "@/components/auth-provider";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -50,6 +51,7 @@ export default function DashboardPage() {
             <MainNav className="mx-6" />
             <div className="ml-auto flex items-center space-x-4">
               <Search />
+              <ThemeToggle />
               <UserNav />
             </div>
           </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useTheme } from "next-themes";
 import { toast, Toaster as Sonner } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
@@ -25,6 +24,10 @@ const SaveMenuButton = ({ ...props }: ToasterProps) => {
 
     if (success) {
       toast("Menu saved successfully", {
+        actionButtonStyle: {
+          backgroundColor: "hsl(var(--primary))",
+          color: "hsl(var(--primary-foreground))",
+        },
         action: {
           label: "Undo",
           onClick: handleUndo,

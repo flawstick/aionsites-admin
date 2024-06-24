@@ -4,6 +4,7 @@ import "@/styles/globals.css";
 import { Inter as FontSans } from "next/font/google";
 
 import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   description: "Aionsites Restaurant Orders",
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           fontSans.variable,
         )}
       >
-        {children}
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

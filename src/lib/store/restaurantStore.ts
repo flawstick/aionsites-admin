@@ -43,6 +43,7 @@ interface RestaurantState {
   setSelectedRestaurant: (jwt: string, restaurantId: string) => void;
   createMenu: (jwt: string) => Promise<void>;
   addMenuItem: (menuItem: MenuItem) => void;
+  updateMenuItem: (menuItem: MenuItem) => void;
   removeMenuItem: (menuItemId: string) => void;
   saveMenu: (jwt: string, menu?: MenuItem[]) => Promise<boolean | undefined>;
   loadFromCache: () => void;
@@ -67,9 +68,13 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
       const restaurants = response.data;
       set({ restaurants });
       if (restaurants.length > 0) {
-        const selectedRestaurant = restaurants[0];
-        set({ selectedRestaurant });
-        set({ menu: { restaurantId: selectedRestaurant._id, items: [] } });
+        if (!get().selectedRestaurant)
+          set({ selectedRestaurant: restaurants[0] });
+
+        set({
+          // @ts-ignore
+          menu: { restaurantId: get().selectedRestaurant._id, items: [] },
+        });
         await get().fetchMenu(jwt);
       }
     } catch (error) {
@@ -173,6 +178,21 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
       return { menu: updatedMenu };
     });
   },
+  updateMenuItem: (updatedItem: MenuItem) => {
+    set((state) => {
+      const updatedItems = state.menu.items
+        ? state.menu.items.map((item) =>
+            item._id === updatedItem._id ? updatedItem : item,
+          )
+        : [];
+      const updatedMenu = { ...state.menu, items: updatedItems };
+
+      // Save updated menu to localStorage
+      localStorage.setItem("menu", JSON.stringify(updatedMenu));
+
+      return { menu: updatedMenu };
+    });
+  },
   removeMenuItem: (menuItemId: string) => {
     set((state) => {
       const updatedItems = state.menu.items
@@ -193,7 +213,7 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
     try {
       const response = await axios.put(
         `https://api.aionsites.com/restaurants/${selectedRestaurant._id}/menu`,
-        { items: menuItems ? menuItems : get().menu.items },
+        { items: !!menuItems ? menuItems : get().menu.items },
         {
           headers: {
             "Content-Type": "application/json",

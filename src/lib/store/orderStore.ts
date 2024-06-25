@@ -1,21 +1,15 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
+import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import axios from "axios";
 
-interface OrderItem {
+export interface Order {
   _id: string;
-  quantity: number;
-}
-
-interface Order {
-  _id: string;
-  restaurantId: string;
-  customerName: string;
+  userId: string;
+  restaurants: [restaurantId: [item: any]];
   date: string;
-  items: OrderItem[];
   total: number;
   status: "pending" | "shipped" | "done" | "cancelled";
-  imageSrc: string;
 }
 
 interface OrderState {
@@ -33,9 +27,19 @@ const useOrderStore = create<OrderState>()(
       (set) => ({
         orders: [],
         fetchOrders: async () => {
+          const { selectedRestaurant } = useRestaurantStore.getState();
+
           try {
-            const response = await axios.get("/api/orders");
-            set({ orders: response.data });
+            const response = await axios.get(
+              `https://api.aionsites.com/orders/restaurant/${selectedRestaurant?._id}`,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("jwt")}` || "",
+                },
+              },
+            );
+            set(() => ({ orders: response.data }));
           } catch (error) {
             console.error("Failed to fetch orders:", error);
           }
@@ -45,9 +49,18 @@ const useOrderStore = create<OrderState>()(
           status: "pending" | "shipped" | "done" | "cancelled",
         ) => {
           try {
-            const response = await axios.put(`/api/orders/${orderId}`, {
-              status,
-            }); // Adjust this URL to your backend endpoint
+            const response = await axios.put(
+              `https://api.aionsites.com/${orderId}/status`,
+              {
+                status,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("jwt")}` || "",
+                },
+              },
+            ); // Adjust this URL to your backend endpoint
             set((state) => ({
               orders: state.orders.map((order) =>
                 order._id === orderId

@@ -11,6 +11,12 @@ const useAuth = () => {
     if (!session) router.push("/login"); // Redirect to login if not authenticated
   }, [session as any, status, router]);
 
+  useEffect(() => {
+    if (session)
+      // @ts-ignore
+      localStorage.setItem("jwt", session.jwt);
+  }, [session]);
+
   return { session, status };
 };
 

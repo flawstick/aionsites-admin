@@ -1,16 +1,14 @@
-// /components/OrderListItem.tsx
+"use client";
 
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { Order } from "@/lib/store/orderStore";
 import {
   ClockIcon,
   CircleCheckIcon,
   CheckIcon,
   CircleXIcon,
-  PrinterIcon,
 } from "lucide-react";
-import { Order } from "@/lib/store/orderStore";
-import { TableRow, TableCell } from "@/components/ui/table";
 
 interface OrderListItemProps {
   order: Order;
@@ -34,34 +32,24 @@ const getStatusIcon = (status: string) => {
 
 export function OrderListItem({ order, onHover }: OrderListItemProps) {
   return (
-    <TableRow className="hover:bg-gray-100" onMouseEnter={() => onHover(order)}>
-      <TableCell className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <div className="text-sm font-medium">{order._id}</div>
-        </div>
+    <TableRow onMouseEnter={() => onHover(order)}>
+      <TableCell>
+        <div className="text-sm font-medium">{order.userId}</div>
+        <div className="text-sm text-muted-foreground">{order._id}</div>
       </TableCell>
-      <TableCell className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm">{order.userId}</div>
-        <div className="text-sm text-muted-foreground">{order.date}</div>
+      <TableCell className="hidden sm:table-cell">
+        <div className="text-sm">balls</div>
       </TableCell>
-      <TableCell className="px-6 py-4 whitespace-nowrap">
+      <TableCell className="hidden sm:table-cell">
         <div className="flex items-center gap-1">
           {getStatusIcon(order.status)}
           <Badge>{order.status}</Badge>
         </div>
       </TableCell>
-      <TableCell className="px-6 py-4 whitespace-nowrap text-sm">
-        ${order.total}
+      <TableCell className="hidden md:table-cell">
+        <div className="text-sm">{order.date}</div>
       </TableCell>
-      <TableCell className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-        <Button variant="outline" size="sm">
-          <PrinterIcon className="w-4 h-4 mr-2" />
-          Print Receipt
-        </Button>
-        <Button variant="destructive" size="sm">
-          Cancel Order
-        </Button>
-      </TableCell>
+      <TableCell className="text-right text-sm">${order.total}</TableCell>
     </TableRow>
   );
 }

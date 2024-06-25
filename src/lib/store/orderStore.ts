@@ -3,10 +3,22 @@ import { devtools, persist } from "zustand/middleware";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import axios from "axios";
 
+export interface OrderItem {
+  _id?: any;
+  restaurantId?: any;
+  name: string;
+  price: number;
+  description?: string;
+  imageUrl?: string;
+  category?: string;
+  additions?: [{ name: string; price: number }];
+  quantity: number;
+}
+
 export interface Order {
   _id: string;
   userId: string;
-  restaurants: [restaurantId: [item: any]];
+  items: any;
   date: string;
   total: number;
   status: "pending" | "shipped" | "done" | "cancelled";

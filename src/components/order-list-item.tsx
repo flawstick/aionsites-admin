@@ -9,6 +9,15 @@ import {
   CheckIcon,
   CircleXIcon,
 } from "lucide-react";
+import { CalendarDays } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { IconBxShekel } from "./icons";
 
 interface OrderListItemProps {
   order: Order;
@@ -18,38 +27,107 @@ interface OrderListItemProps {
 const getStatusIcon = (status: string) => {
   switch (status) {
     case "pending":
-      return <ClockIcon className="w-5 h-5" />;
+      return <ClockIcon className="w-3 h-3 mr-1" />;
     case "shipped":
-      return <CircleCheckIcon className="w-5 h-5" />;
+      return <CircleCheckIcon className="w-3 h-3 mr-1" />;
     case "done":
-      return <CheckIcon className="w-5 h-5" />;
+      return <CheckIcon className="w-3 h-3 mr-1" />;
     case "cancelled":
-      return <CircleXIcon className="w-5 h-5" />;
+      return <CircleXIcon className="w-3 h-3 mr-1" />;
     default:
       return null;
   }
 };
 
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "pending":
+      return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
+    case "confirmed":
+      return "bg-blue-100 text-blue-800 hover:bg-blue-200";
+    case "done":
+      return "bg-green-100 text-green-800 hover:bg-green-200";
+    case "cancelled":
+      return "bg-red-100 text-red-800 hover:bg-red-200";
+    default:
+      return null;
+  }
+};
+
+function formatDate(dateString: string) {
+  const date = new Date(dateString);
+  const formattedDate = date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const formattedTime = date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${formattedDate} at ${formattedTime}`;
+}
+
 export function OrderListItem({ order, onHover }: OrderListItemProps) {
   return (
     <TableRow onMouseEnter={() => onHover(order)}>
       <TableCell>
-        <div className="text-sm font-medium">{order.userId}</div>
+        <OrderUserHoverCard order={order} />
         <div className="text-sm text-muted-foreground">{order._id}</div>
       </TableCell>
       <TableCell className="hidden sm:table-cell">
-        <div className="text-sm">balls</div>
-      </TableCell>
-      <TableCell className="hidden sm:table-cell">
         <div className="flex items-center gap-1">
-          {getStatusIcon(order.status)}
-          <Badge>{order.status}</Badge>
+          <Badge
+            className={`flex flex-row items-center justify-center duration-300 ${getStatusColor(
+              order.status,
+            )}`}
+          >
+            {getStatusIcon(order.status)}
+            <span className="mb-1 text-xs">{order.status}</span>
+          </Badge>
         </div>
       </TableCell>
       <TableCell className="hidden md:table-cell">
-        <div className="text-sm">{order.date}</div>
+        <div className="text-sm">{formatDate(order.createdAt)}</div>
       </TableCell>
-      <TableCell className="text-right text-sm">${order.total}</TableCell>
+      <TableCell className="flex flex-row justify-end items-center">
+        <IconBxShekel className="w-4 h-4 " />
+        {order.totalPrice}
+      </TableCell>
     </TableRow>
+  );
+}
+
+interface OrderUserHoverCardProps {
+  order: Order;
+}
+
+export function OrderUserHoverCard({ order }: OrderUserHoverCardProps) {
+  return (
+    <HoverCard>
+      <HoverCardTrigger asChild>
+        <div className="text-sm font-medium cursor-pointer hover:underline underline-offset-4">
+          {order.user.name}
+        </div>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-70">
+        <div className="flex justify-between space-x-4">
+          <Avatar>
+            <AvatarImage src={order.user.profile.profilePicture} />
+            <AvatarFallback>{order.user.name[0]}</AvatarFallback>
+          </Avatar>
+          <div className="space-y-1">
+            <h4 className="text-sm font-semibold">{order.user.name}</h4>
+            <p className="text-sm">{order.user.profile.bio}</p>
+            <div className="flex items-center pt-2">
+              <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
+              <span className="text-xs text-muted-foreground">
+                Joined {formatDate(order.user.createdAt)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
   );
 }

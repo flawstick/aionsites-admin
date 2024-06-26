@@ -40,14 +40,16 @@ import {
 } from "@/components/ui/table";
 import { OrderListItem } from "@/components/order-list-item";
 import { Header } from "@/components/nav";
+import { useRestaurantStore } from "@/lib/store/restaurantStore";
 
 export default function OrderLayout() {
   const { orders, fetchOrders } = useOrderStore();
+  const { restaurants } = useRestaurantStore();
   const [hoveredOrder, setHoveredOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     fetchOrders();
-  }, [fetchOrders]);
+  }, [fetchOrders, restaurants]);
 
   return (
     <Header>
@@ -154,9 +156,6 @@ export default function OrderLayout() {
                         <TableRow>
                           <TableHead>Customer</TableHead>
                           <TableHead className="hidden sm:table-cell">
-                            Type
-                          </TableHead>
-                          <TableHead className="hidden sm:table-cell">
                             Status
                           </TableHead>
                           <TableHead className="hidden md:table-cell">
@@ -166,15 +165,21 @@ export default function OrderLayout() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {orders
-                          .filter((order) => order.status === "live")
-                          .map((order) => (
-                            <OrderListItem
-                              key={order._id}
-                              order={order}
-                              onHover={setHoveredOrder}
-                            />
-                          ))}
+                        {orders.length > 0
+                          ? orders
+                              .filter(
+                                (order) =>
+                                  order.status === "confirmed" ||
+                                  order.status === "pending",
+                              )
+                              .map((order) => (
+                                <OrderListItem
+                                  key={order._id}
+                                  order={order}
+                                  onHover={setHoveredOrder}
+                                />
+                              ))
+                          : null}
                       </TableBody>
                     </Table>
                   </CardContent>
@@ -194,9 +199,6 @@ export default function OrderLayout() {
                         <TableRow>
                           <TableHead>Customer</TableHead>
                           <TableHead className="hidden sm:table-cell">
-                            Type
-                          </TableHead>
-                          <TableHead className="hidden sm:table-cell">
                             Status
                           </TableHead>
                           <TableHead className="hidden md:table-cell">
@@ -206,15 +208,17 @@ export default function OrderLayout() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {orders
-                          .filter((order) => order.status === "done")
-                          .map((order) => (
-                            <OrderListItem
-                              key={order._id}
-                              order={order}
-                              onHover={setHoveredOrder}
-                            />
-                          ))}
+                        {orders.length > 0
+                          ? orders
+                              .filter((order) => order.status === "done")
+                              .map((order) => (
+                                <OrderListItem
+                                  key={order._id}
+                                  order={order}
+                                  onHover={setHoveredOrder}
+                                />
+                              ))
+                          : null}
                       </TableBody>
                     </Table>
                   </CardContent>
@@ -234,9 +238,6 @@ export default function OrderLayout() {
                         <TableRow>
                           <TableHead>Customer</TableHead>
                           <TableHead className="hidden sm:table-cell">
-                            Type
-                          </TableHead>
-                          <TableHead className="hidden sm:table-cell">
                             Status
                           </TableHead>
                           <TableHead className="hidden md:table-cell">
@@ -246,13 +247,15 @@ export default function OrderLayout() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {orders.map((order) => (
-                          <OrderListItem
-                            key={order._id}
-                            order={order}
-                            onHover={setHoveredOrder}
-                          />
-                        ))}
+                        {orders.length > 0
+                          ? orders.map((order) => (
+                              <OrderListItem
+                                key={order._id}
+                                order={order}
+                                onHover={setHoveredOrder}
+                              />
+                            ))
+                          : null}
                       </TableBody>
                     </Table>
                   </CardContent>
@@ -309,7 +312,7 @@ export default function OrderLayout() {
                   <div className="grid gap-3">
                     <div className="font-semibold">Order Details</div>
                     <ul className="grid gap-3">
-                      {hoveredOrder.items.map((item: any, index: any) => (
+                      {hoveredOrder.items?.map((item: any, index: any) => (
                         <li
                           key={index}
                           className="flex items-center justify-between"

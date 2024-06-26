@@ -18,10 +18,12 @@ export interface OrderItem {
 export interface Order {
   _id: string;
   userId: string;
+  user: any;
   items: any;
   date: string;
-  total: number;
-  status: "pending" | "shipped" | "done" | "cancelled";
+  totalPrice: number;
+  status: "pending" | "confirmed" | "done" | "cancelled";
+  createdAt: string;
 }
 
 interface OrderState {
@@ -29,7 +31,7 @@ interface OrderState {
   fetchOrders: () => void;
   updateOrderStatus: (
     orderId: string,
-    status: "pending" | "shipped" | "done" | "cancelled",
+    status: "pending" | "confirmed" | "done" | "cancelled",
   ) => void;
 }
 
@@ -58,7 +60,7 @@ const useOrderStore = create<OrderState>()(
         },
         updateOrderStatus: async (
           orderId: string,
-          status: "pending" | "shipped" | "done" | "cancelled",
+          status: "pending" | "confirmed" | "done" | "cancelled",
         ) => {
           try {
             const response = await axios.put(
@@ -72,7 +74,7 @@ const useOrderStore = create<OrderState>()(
                   Authorization: `Bearer ${localStorage.getItem("jwt")}` || "",
                 },
               },
-            ); // Adjust this URL to your backend endpoint
+            );
             set((state) => ({
               orders: state.orders.map((order) =>
                 order._id === orderId
@@ -86,7 +88,7 @@ const useOrderStore = create<OrderState>()(
         },
       }),
       {
-        name: "order-storage", // Persisted state key
+        name: "order-storage",
       },
     ),
   ),

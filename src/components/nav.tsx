@@ -10,9 +10,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 interface HeaderProps {
   children: React.ReactNode;
   bg?: string;
+  noBorder?: boolean;
 }
 
-export function Header({ children, bg }: HeaderProps) {
+export function Header({ children, bg, noBorder }: HeaderProps) {
   const ref = useRef<HTMLElement>(null);
   const [isIntersecting, setIntersecting] = useState(true);
 
@@ -30,8 +31,10 @@ export function Header({ children, bg }: HeaderProps) {
     <>
       <header ref={ref}>
         <div
-          className={`fixed flex h-16 inset-x-0 px-4 items-center top-0 z-50 backdrop-blur duration-200 border-b  ${
-            isIntersecting ? (bg ? bg : "bg-zinc-900/0") : "bg-transparent"
+          className={`fixed flex h-16 inset-x-0 px-4 items-center top-0 z-50 backdrop-blur duration-200 border-b ${
+            isIntersecting
+              ? `${bg ? bg : "bg-zinc-900/0"} ${noBorder && "border-none"}`
+              : `bg-transparent `
           }`}
         >
           <TeamSwitcher />

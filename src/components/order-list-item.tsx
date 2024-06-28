@@ -11,13 +11,13 @@ import {
 } from "lucide-react";
 import { CalendarDays } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { IconBxShekel } from "./icons";
+import { IconBxShekel } from "@/components/icons";
+import { formatDate } from "@/lib/utils";
 
 interface OrderListItemProps {
   order: Order;
@@ -53,20 +53,6 @@ const getStatusColor = (status: string) => {
       return null;
   }
 };
-
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  const formattedDate = date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-  const formattedTime = date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return `${formattedDate} at ${formattedTime}`;
-}
 
 export function OrderListItem({ order, onHover }: OrderListItemProps) {
   return (

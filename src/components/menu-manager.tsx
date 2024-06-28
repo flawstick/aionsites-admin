@@ -30,10 +30,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Trash2Icon, FilePenIcon, RefreshIcon } from "./icons";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
+import { SaveMenuButton } from "./save-menu-button";
 import useAuth from "@/lib/hooks/useAuth";
 import AddItemModal from "./add-menu-modal";
 import EditMenuModal from "./edit-menu-modal";
-import { SaveMenuButton } from "./save-menu-button";
 
 export default function MenuManager() {
   const { session }: any = useAuth();
@@ -46,6 +46,9 @@ export default function MenuManager() {
   // Edit item modal state
   const [editItemModal, setEditItemModal] = useState(false);
   const [editItemData, setEditItemData] = useState<any>(null);
+
+  // Animation keuframer
+  const [isSpinning, setSpinning] = useState(false);
 
   useEffect(() => {
     if (session) fetchMenu(session.jwt);
@@ -72,6 +75,12 @@ export default function MenuManager() {
     removeMenuItem(itemId);
   };
 
+  const refreshMenu = () => {
+    setSpinning(true);
+    fetchMenu(session.jwt);
+    setTimeout(() => setSpinning(false), 500);
+  };
+
   if (!menu.items) return null;
   const categories = Array.from(
     new Set(menu.items.map((item: any) => item.category)),
@@ -87,7 +96,8 @@ export default function MenuManager() {
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={() => fetchMenu(session.jwt)}
+                onClick={refreshMenu}
+                className={`${isSpinning ? "animate-spin" : ""}`}
               >
                 <RefreshIcon className="w-6" />
               </Button>

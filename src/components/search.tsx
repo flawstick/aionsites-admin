@@ -7,6 +7,7 @@ export function Search() {
         type="search"
         placeholder="Search..."
         className="md:w-[100px] lg:w-[300px]"
+        style={{ background: "hsl(var(--background))" }}
       />
     </div>
   );

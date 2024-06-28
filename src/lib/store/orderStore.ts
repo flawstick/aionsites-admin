@@ -1,21 +1,29 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
+import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import axios from "axios";
 
-interface OrderItem {
-  _id: string;
+export interface OrderItem {
+  _id?: any;
+  restaurantId?: any;
+  name: string;
+  price: number;
+  description?: string;
+  imageUrl?: string;
+  category?: string;
+  additions?: [{ name: string; price: number }];
   quantity: number;
 }
 
-interface Order {
+export interface Order {
   _id: string;
-  restaurantId: string;
-  customerName: string;
+  userId: string;
+  user: any;
+  items: any;
   date: string;
-  items: OrderItem[];
-  total: number;
-  status: "pending" | "shipped" | "done" | "cancelled";
-  imageSrc: string;
+  totalPrice: number;
+  status: "pending" | "confirmed" | "done" | "cancelled";
+  createdAt: string;
 }
 
 interface OrderState {
@@ -23,7 +31,7 @@ interface OrderState {
   fetchOrders: () => void;
   updateOrderStatus: (
     orderId: string,
-    status: "pending" | "shipped" | "done" | "cancelled",
+    status: "pending" | "confirmed" | "done" | "cancelled",
   ) => void;
 }
 
@@ -33,21 +41,40 @@ const useOrderStore = create<OrderState>()(
       (set) => ({
         orders: [],
         fetchOrders: async () => {
+          const { selectedRestaurant } = useRestaurantStore.getState();
+
           try {
-            const response = await axios.get("/api/orders");
-            set({ orders: response.data });
+            const response = await axios.get(
+              `https://api.aionsites.com/orders/restaurant/${selectedRestaurant?._id}`,
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("jwt")}` || "",
+                },
+              },
+            );
+            set(() => ({ orders: response.data }));
           } catch (error) {
             console.error("Failed to fetch orders:", error);
           }
         },
         updateOrderStatus: async (
           orderId: string,
-          status: "pending" | "shipped" | "done" | "cancelled",
+          status: "pending" | "confirmed" | "done" | "cancelled",
         ) => {
           try {
-            const response = await axios.put(`/api/orders/${orderId}`, {
-              status,
-            }); // Adjust this URL to your backend endpoint
+            const response = await axios.put(
+              `https://api.aionsites.com/${orderId}/status`,
+              {
+                status,
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("jwt")}` || "",
+                },
+              },
+            );
             set((state) => ({
               orders: state.orders.map((order) =>
                 order._id === orderId
@@ -61,7 +88,7 @@ const useOrderStore = create<OrderState>()(
         },
       }),
       {
-        name: "order-storage", // Persisted state key
+        name: "order-storage",
       },
     ),
   ),

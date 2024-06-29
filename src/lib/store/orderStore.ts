@@ -11,7 +11,7 @@ export interface OrderItem {
   description?: string;
   imageUrl?: string;
   category?: string;
-  additions?: [{ name: string; price: number }];
+  modifiers?: any;
   quantity: number;
 }
 

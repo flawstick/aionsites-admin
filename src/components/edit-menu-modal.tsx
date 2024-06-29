@@ -14,20 +14,27 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2Icon } from "@/components/icons";
+import { MoreHorizontal } from "lucide-react";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import useUpload from "@/lib/hooks/useUpload";
 
-interface Addition {
+interface ModifierOption {
   name: string;
   price: number;
+}
+
+interface Modifier {
+  name: string;
+  required: boolean;
+  multiple: boolean;
+  options: ModifierOption[];
 }
 
 interface EditMenuModalProps {
@@ -40,7 +47,7 @@ interface EditMenuModalProps {
     price: number;
     category: string;
     imageUrl: string;
-    additions: Addition[];
+    modifiers: Modifier[];
   } | null;
   onSave: (data: any) => void;
 }
@@ -58,7 +65,7 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
   const [itemPrice, setItemPrice] = useState(0);
   const [itemCategory, setItemCategory] = useState("");
   const [itemImage, setItemImage] = useState<File | null>(null);
-  const [mealAdditions, setMealAdditions] = useState<Addition[]>([]);
+  const [modifiers, setModifiers] = useState<Modifier[]>([]);
   const [validationError, setValidationError] = useState("");
   const [itemImageUrl, setItemImageUrl] = useState("");
   const [saveLoading, setSaveLoading] = useState(false);
@@ -70,7 +77,7 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
       setItemPrice(itemData.price);
       setItemCategory(itemData.category);
       setItemImageUrl(itemData.imageUrl);
-      setMealAdditions(itemData.additions);
+      setModifiers(itemData.modifiers || []);
     }
   }, [itemData]);
 
@@ -83,23 +90,59 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
     }
   };
 
-  const handleAdditionChange = (
+  const handleModifierChange = (
     index: number,
+    field: string,
+    value: string | boolean,
+  ) => {
+    const newModifiers = [...modifiers];
+    newModifiers[index] = { ...newModifiers[index], [field]: value };
+    setModifiers(newModifiers);
+  };
+
+  const handleOptionChange = (
+    modifierIndex: number,
+    optionIndex: number,
     field: string,
     value: string | number,
   ) => {
-    const newAdditions = [...mealAdditions];
-    newAdditions[index] = { ...newAdditions[index], [field]: value };
-    setMealAdditions(newAdditions);
+    const newModifiers = [...modifiers];
+    newModifiers[modifierIndex].options[optionIndex] = {
+      ...newModifiers[modifierIndex].options[optionIndex],
+      [field]: value,
+    };
+    setModifiers(newModifiers);
   };
 
-  const handleRemoveAddition = (index: number) => {
-    const newAdditions = mealAdditions.filter((_, i) => i !== index);
-    setMealAdditions(newAdditions);
+  const handleAddModifier = () => {
+    setModifiers([
+      ...modifiers,
+      {
+        name: "",
+        required: false,
+        multiple: false,
+        options: [{ name: "", price: 0 }],
+      },
+    ]);
   };
 
-  const handleAddAddition = () => {
-    setMealAdditions([...mealAdditions, { name: "", price: 0 }]);
+  const handleRemoveModifier = (index: number) => {
+    const newModifiers = modifiers.filter((_, i) => i !== index);
+    setModifiers(newModifiers);
+  };
+
+  const handleAddOption = (modifierIndex: number) => {
+    const newModifiers = [...modifiers];
+    newModifiers[modifierIndex].options.push({ name: "", price: 0 });
+    setModifiers(newModifiers);
+  };
+
+  const handleRemoveOption = (modifierIndex: number, optionIndex: number) => {
+    const newModifiers = [...modifiers];
+    newModifiers[modifierIndex].options = newModifiers[
+      modifierIndex
+    ].options.filter((_, i) => i !== optionIndex);
+    setModifiers(newModifiers);
   };
 
   const handleSaveEditedItem = async () => {
@@ -130,7 +173,7 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
       price: itemPrice,
       category: itemCategory,
       imageUrl,
-      additions: mealAdditions,
+      modifiers,
     };
 
     setSaveLoading(true);
@@ -146,7 +189,7 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="min-w-[70vh]">
         <DialogHeader>
           <DialogTitle>Edit Menu Item</DialogTitle>
           <DialogDescription>
@@ -215,27 +258,105 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
             )}
           </div>
           <div className="grid gap-1">
-            <Label>Meal Additions</Label>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mealAdditions.map((addition, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <Input
-                        value={addition.name}
-                        onChange={(e) =>
-                          handleAdditionChange(index, "name", e.target.value)
+            <Label>Modifiers</Label>
+            {modifiers.map((modifier, modifierIndex) => (
+              <div key={modifierIndex} className="border p-2 rounded mb-2">
+                <div className="grid gap-1">
+                  <Label htmlFor={`modifier-name-${modifierIndex}`}>
+                    Modifier Name
+                  </Label>
+                  <div className="flex flex-row gap-1">
+                    <Input
+                      id={`modifier-name-${modifierIndex}`}
+                      value={modifier.name}
+                      onChange={(e) =>
+                        handleModifierChange(
+                          modifierIndex,
+                          "name",
+                          e.target.value,
+                        )
+                      }
+                    />
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="self-end"
+                        >
+                          <MoreHorizontal className="w-4 h-4" />
+                          <span className="sr-only">Open menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem
+                          onClick={() => handleRemoveModifier(modifierIndex)}
+                        >
+                          <Trash2Icon className="w-4 h-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+                <div className="flex w-full items-center px-2 mt-1 mb-4">
+                  <div className="flex flex-row items-center gap-4">
+                    <div className="flex items-center my-2">
+                      <Checkbox
+                        id={`modifier-required-${modifierIndex}`}
+                        checked={modifier.required}
+                        onCheckedChange={(checked) =>
+                          handleModifierChange(
+                            modifierIndex,
+                            "required",
+                            checked,
+                          )
                         }
                       />
-                    </TableCell>
-                    <TableCell>
+                      <Label
+                        htmlFor={`modifier-required-${modifierIndex}`}
+                        className="ml-2"
+                      >
+                        Required
+                      </Label>
+                    </div>
+                    <div className="flex items-center my-2">
+                      <Checkbox
+                        id={`modifier-multiple-${modifierIndex}`}
+                        checked={modifier.multiple}
+                        onCheckedChange={(checked) =>
+                          handleModifierChange(
+                            modifierIndex,
+                            "multiple",
+                            checked,
+                          )
+                        }
+                      />
+                      <Label
+                        htmlFor={`modifier-multiple-${modifierIndex}`}
+                        className="ml-2"
+                      >
+                        Multiple
+                      </Label>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid gap-1">
+                  <Label>Options</Label>
+                  {modifier.options.map((option, optionIndex) => (
+                    <div key={optionIndex} className="flex items-center mb-2">
+                      <Input
+                        value={option.name}
+                        onChange={(e) =>
+                          handleOptionChange(
+                            modifierIndex,
+                            optionIndex,
+                            "name",
+                            e.target.value,
+                          )
+                        }
+                        className="mr-2"
+                      />
                       <div className="flex items-center">
                         <span className="mr-2 text-xl mb-2 text-gray-500">
                           ₪
@@ -244,31 +365,43 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
                           type="number"
                           min="0"
                           step="0.01"
-                          value={addition.price}
+                          value={option.price}
                           onChange={(e) => {
                             const value = parseFloat(e.target.value);
                             if (value >= 0)
-                              handleAdditionChange(index, "price", value);
+                              handleOptionChange(
+                                modifierIndex,
+                                optionIndex,
+                                "price",
+                                value,
+                              );
                           }}
+                          className="mr-2"
                         />
                       </div>
-                    </TableCell>
-                    <TableCell>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleRemoveAddition(index)}
+                        onClick={() =>
+                          handleRemoveOption(modifierIndex, optionIndex)
+                        }
                       >
                         <Trash2Icon className="w-4 h-4" />
                         <span className="sr-only">Remove</span>
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <Button variant="outline" onClick={handleAddAddition}>
-              Add Addition
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    onClick={() => handleAddOption(modifierIndex)}
+                  >
+                    Add Option
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button variant="outline" onClick={handleAddModifier}>
+              Add Modifier
             </Button>
           </div>
         </div>

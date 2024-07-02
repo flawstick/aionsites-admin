@@ -217,12 +217,12 @@ export default function OrderLayout() {
                           ? orders
                               .filter(
                                 (order) =>
-                                  order.status === "confirmed" ||
-                                  order.status === "pending",
+                                  order?.status === "confirmed" ||
+                                  order?.status === "pending",
                               )
                               .map((order) => (
                                 <OrderListItem
-                                  key={order._id}
+                                  key={order?._id}
                                   order={order}
                                   onHover={setHoveredOrder}
                                 />
@@ -261,7 +261,7 @@ export default function OrderLayout() {
                       <TableBody>
                         {orders.length > 0
                           ? orders
-                              .filter((order) => order.status === "done")
+                              .filter((order) => order?.status === "done")
                               .map((order) => (
                                 <OrderListItem
                                   key={order._id}
@@ -411,9 +411,9 @@ const OrderCard: React.FC<{ hoveredOrder: any }> = ({ hoveredOrder }) => {
               {hoveredOrder?.items.map((item: any, index: number) => (
                 <li key={index} className="flex items-center justify-between">
                   <span className="text-muted-foreground">
-                    {item.name} x {item.quantity}
+                    {item?.name} x {item?.quantity}
                   </span>
-                  <span>₪{item.price}</span>
+                  <span>₪{item?.price}</span>
                 </li>
               ))}
             </ul>

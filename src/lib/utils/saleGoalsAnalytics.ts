@@ -40,7 +40,11 @@ export function calculateSaleGoals() {
   let totalCurrentMonth = 0;
   let totalPreviousMonth = 0;
 
-  orders.forEach((order) => {
+  const deliveredOrders = orders.filter(
+    (order) => order.status === "delivered",
+  );
+
+  deliveredOrders.forEach((order) => {
     const orderDate = new Date(order.createdAt);
     const orderAmount = order.totalPrice;
 

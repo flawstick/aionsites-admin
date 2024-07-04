@@ -16,7 +16,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { IconBxShekel } from "@/components/icons";
+import { IconBxShekel, TruckIcon } from "@/components/icons";
 import { formatDate } from "@/lib/utils";
 
 interface OrderListItemProps {
@@ -28,12 +28,14 @@ const getStatusIcon = (status: string) => {
   switch (status) {
     case "pending":
       return <ClockIcon className="w-3 h-3 mr-1" />;
-    case "shipped":
+    case "confirmed":
       return <CircleCheckIcon className="w-3 h-3 mr-1" />;
     case "done":
       return <CheckIcon className="w-3 h-3 mr-1" />;
     case "cancelled":
       return <CircleXIcon className="w-3 h-3 mr-1" />;
+    case "delivered":
+      return <TruckIcon className="w-3 h-3 mr-1" />;
     default:
       return null;
   }
@@ -44,11 +46,13 @@ const getStatusColor = (status: string) => {
     case "pending":
       return "bg-yellow-100 text-yellow-800 hover:bg-yellow-200";
     case "confirmed":
-      return "bg-blue-100 text-blue-800 hover:bg-blue-200";
-    case "done":
       return "bg-green-100 text-green-800 hover:bg-green-200";
+    case "done":
+      return "bg-blue-100 text-blue-800 hover:bg-blue-200";
     case "cancelled":
       return "bg-red-100 text-red-800 hover:bg-red-200";
+    case "delivered":
+      return "bg-purple-100 text-purple-800 hover:bg-purple-200";
     default:
       return null;
   }
@@ -69,12 +73,12 @@ export function OrderListItem({ order, onHover }: OrderListItemProps) {
             )}`}
           >
             {getStatusIcon(order.status)}
-            <span className="mb-1 text-xs">{order.status}</span>
+            <span className="text-xs">{order.status}</span>
           </Badge>
         </div>
       </TableCell>
       <TableCell className="hidden md:table-cell">
-        <div className="text-sm">{formatDate(order.createdAt)}</div>
+        <div className="text-sm ">{formatDate(order.createdAt)}</div>
       </TableCell>
       <TableCell className="flex flex-row justify-end items-center">
         <IconBxShekel className="w-4 h-4 " />

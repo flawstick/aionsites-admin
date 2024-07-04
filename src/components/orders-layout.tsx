@@ -36,7 +36,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { File, ListFilter, Truck, MoreVertical, Copy } from "lucide-react";
+import {
+  File,
+  ListFilter,
+  Truck,
+  MoreVertical,
+  Copy,
+  ArrowUpRightIcon,
+} from "lucide-react";
 import { RefreshIcon } from "@/components/icons";
 import { OrderListItem } from "@/components/order-list-item";
 import { Header } from "@/components/nav";
@@ -79,15 +86,20 @@ export default function OrderLayout() {
               <Card className="sm:col-span-2">
                 <CardHeader className="pb-3">
                   <CardTitle>
-                    <span>Your Orders</span>
+                    <span className="text-lg">Live Order Feed</span>
                   </CardTitle>
                   <CardDescription className="max-w-lg text-balance leading-relaxed">
-                    Introducing Our Dynamic Orders Dashboard for Seamless
-                    Management and Insightful Analysis.
+                    Introducing Our Dynamic Live Orders page. Get Real-Time
+                    Updates on Orders Placed by Your Customers.
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
-                  <Button>Create New Order</Button>
+                  <Button
+                    onClick={() => (window.location.href = "/orders/live")}
+                  >
+                    Go To Live Orders
+                    <ArrowUpRightIcon className="h-4 w-4 ml-1" />
+                  </Button>
                 </CardFooter>
               </Card>
               {analytics ? (
@@ -367,15 +379,24 @@ const OrderCard: React.FC<{ hoveredOrder: any }> = ({ hoveredOrder }) => {
               <span className="truncate w-[25vh]">
                 Order {hoveredOrder?._id}
               </span>
-              <Button
-                size="icon"
-                variant="outline"
-                className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={() => navigator.clipboard.writeText(hoveredOrder?._id)}
-              >
-                <Copy className="h-3 w-3" />
-                <span className="sr-only">Copy Order ID</span>
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="outline"
+                      className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
+                      onClick={() =>
+                        navigator.clipboard.writeText(hoveredOrder?._id)
+                      }
+                    >
+                      <Copy className="h-3 w-3" />
+                      <span className="sr-only">Copy Order ID</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Copy Order ID</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </CardTitle>
             <CardDescription>
               {formatDate(hoveredOrder?.createdAt)}

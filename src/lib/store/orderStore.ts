@@ -22,7 +22,7 @@ export interface Order {
   items: any;
   date: string;
   totalPrice: number;
-  status: "pending" | "confirmed" | "done" | "cancelled";
+  status: "pending" | "confirmed" | "done" | "cancelled" | "delivered";
   createdAt: string;
 }
 
@@ -31,7 +31,7 @@ interface OrderState {
   fetchOrders: () => void;
   updateOrderStatus: (
     orderId: string,
-    status: "pending" | "confirmed" | "done" | "cancelled",
+    status: "pending" | "confirmed" | "done" | "cancelled" | "delivered",
   ) => void;
 }
 
@@ -60,11 +60,11 @@ const useOrderStore = create<OrderState>()(
         },
         updateOrderStatus: async (
           orderId: string,
-          status: "pending" | "confirmed" | "done" | "cancelled",
+          status: "pending" | "confirmed" | "done" | "cancelled" | "delivered",
         ) => {
           try {
             const response = await axios.put(
-              `https://api.aionsites.com/${orderId}/status`,
+              `https://api.aionsites.com/orders/${orderId}/status`,
               {
                 status,
               },

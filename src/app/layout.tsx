@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   description: "Aionsites Admin Dashboard",
-  title: "Aionsites - Admin",
+  title: "Aionsites - Restaurant Admin",
 };
 
 const fontSans = FontSans({
@@ -24,7 +24,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" suppressHydrationWarning>
       <head />
       <body
-        className={cn("min-h-screen font-sans antialiased", fontSans.variable)}
+        className={cn(
+          "min-h-screen font-sans bg-muted/40 antialiased",
+          fontSans.variable,
+        )}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}

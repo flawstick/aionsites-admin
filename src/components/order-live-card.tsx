@@ -146,10 +146,8 @@ export default function OrderLiveCard({ order }: any) {
                   <div className="pl-4">
                     <ul className="grid gap-3 mt-2">
                       {item.modifiers.map((modifier: any, modIndex: number) => (
-                        <div className="flex flex-col mt-2">
-                          <span key={modIndex} className="font-semibold">
-                            {modifier.name}
-                          </span>
+                        <div key={modIndex} className="flex flex-col mt-2">
+                          <span className="font-semibold">{modifier.name}</span>
                           {modifier.options.map(
                             (option: any, optIndex: number) => (
                               <li

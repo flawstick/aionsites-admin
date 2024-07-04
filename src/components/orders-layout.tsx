@@ -155,12 +155,12 @@ export default function OrderLayout() {
                 </>
               ) : null}
             </div>
-            <Tabs defaultValue="live">
+            <Tabs defaultValue="all">
               <div className="flex items-center">
                 <TabsList>
+                  <TabsTrigger value="all">All</TabsTrigger>
                   <TabsTrigger value="live">Live</TabsTrigger>
                   <TabsTrigger value="done">Done</TabsTrigger>
-                  <TabsTrigger value="all">All</TabsTrigger>
                 </TabsList>
                 <div className="ml-auto flex items-center gap-2">
                   <DropdownMenu>

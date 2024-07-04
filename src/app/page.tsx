@@ -20,11 +20,6 @@ import { UserNav } from "@/components/user-nav";
 import AuthProvider from "@/components/auth-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Example dashboard app built using the components.",
-};
-
 export default function DashboardPage() {
   return (
     <AuthProvider>

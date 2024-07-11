@@ -65,9 +65,11 @@ const handler = NextAuth({
         if (response.status === 200) {
           session.user = response.data; // Attach user data to the session object
         } else {
+          session.status = "unverified";
           console.error("Error fetching user data:", response.data);
         }
       } catch (error) {
+        session.status = "unverified";
         console.error("Error fetching user data:", error);
       }
 

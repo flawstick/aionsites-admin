@@ -24,6 +24,7 @@ export interface Order {
   totalPrice: number;
   status: "pending" | "confirmed" | "done" | "cancelled" | "delivered";
   createdAt: string;
+  updatedAt: string;
 }
 
 interface OrderState {

@@ -1,6 +1,7 @@
-import { Metadata } from "next";
-import Image from "next/image";
+"use client";
 
+import React from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,8 +20,15 @@ import TeamSwitcher from "@/components/team-switcher";
 import { UserNav } from "@/components/user-nav";
 import AuthProvider from "@/components/auth-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { DateRange } from "react-day-picker";
+import { addDays } from "date-fns";
 
 export default function DashboardPage() {
+  const [date, setDate] = React.useState<DateRange | undefined>({
+    from: new Date(2023, 0, 20),
+    to: addDays(new Date(2023, 0, 20), 20),
+  });
+
   return (
     <AuthProvider>
       <div className="md:hidden">
@@ -55,7 +63,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
             <div className="flex items-center space-x-2">
-              <CalendarDateRangePicker />
+              <CalendarDateRangePicker date={date} setDate={setDate} />
               <Button>Download</Button>
             </div>
           </div>

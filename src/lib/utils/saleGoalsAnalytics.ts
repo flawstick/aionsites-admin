@@ -41,7 +41,7 @@ export function calculateSaleGoals() {
   let totalPreviousMonth = 0;
 
   const deliveredOrders = orders.filter(
-    (order) => order.status === "delivered",
+    (order) => order.status === "done",
   );
 
   deliveredOrders.forEach((order) => {

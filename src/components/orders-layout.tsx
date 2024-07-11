@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { DateRange } from "react-day-picker";
+import { addDays } from "date-fns";
 import useOrderStore, { Order } from "@/lib/store/orderStore";
 import {
   Card,
@@ -13,10 +15,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -37,8 +37,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  File,
-  ListFilter,
+  FileText,
+  FileSpreadsheet,
+  ChevronDown,
   Truck,
   MoreVertical,
   Copy,
@@ -47,8 +48,14 @@ import {
 import { RefreshIcon } from "@/components/icons";
 import { OrderListItem } from "@/components/order-list-item";
 import { Header } from "@/components/nav";
+import { CalendarDateRangePicker } from "@/components/date-range-picker";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
-import { calculateSaleGoals, formatDate } from "@/lib/utils";
+import {
+  calculateSaleGoals,
+  formatDate,
+  exportAsDOCX,
+  exportAsXLSX,
+} from "@/lib/utils";
 
 export default function OrderLayout() {
   const { orders, fetchOrders } = useOrderStore();
@@ -60,9 +67,12 @@ export default function OrderLayout() {
     monthlyTotal: any;
     monthlyIncrease: any;
   } | null>(null);
-
-  // Animation keyframes
   const [isSpinning, setSpinning] = useState(false);
+
+  const [date, setDate] = React.useState<DateRange | undefined>({
+    from: addDays(new Date(), -20),
+    to: new Date(),
+  });
 
   const refreshOrders = () => {
     setSpinning(true);
@@ -163,40 +173,42 @@ export default function OrderLayout() {
                   <TabsTrigger value="done">Done</TabsTrigger>
                 </TabsList>
                 <div className="ml-auto flex items-center gap-2">
+                  <CalendarDateRangePicker setDate={setDate} date={date} />
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 gap-1 text-sm"
-                      >
-                        <ListFilter className="h-3.5 w-3.5" />
-                        <span className="sr-only sm:not-sr-only">Filter</span>
+                      <Button size="sm" className="h-7 gap-1 text-sm">
+                        <FileText className="h-3.5 w-3.5" />
+                        <span className="sr-only sm:not-sr-only">Export</span>
+                        <ChevronDown className="h-3.5 w-3.5 ml-1" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuCheckboxItem>
-                        Confirmed
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>
-                        Pending
-                      </DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>Done</DropdownMenuCheckboxItem>
-                      <DropdownMenuCheckboxItem>
-                        Cancelled
-                      </DropdownMenuCheckboxItem>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          exportAsXLSX(
+                            orders,
+                            date?.from as Date,
+                            date?.to as Date,
+                          )
+                        }
+                      >
+                        <FileSpreadsheet className="h-4 w-4 mr-2" />
+                        Excel Spreadsheet
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          exportAsDOCX(
+                            orders,
+                            date?.from as Date,
+                            date?.to as Date,
+                          )
+                        }
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Word Document
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 gap-1 text-sm"
-                  >
-                    <File className="h-3.5 w-3.5" />
-                    <span className="sr-only sm:not-sr-only">Export</span>
-                  </Button>
                 </div>
               </div>
               <TabsContent value="live">

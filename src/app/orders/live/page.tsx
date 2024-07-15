@@ -9,11 +9,19 @@ import { ArrowLeftIcon } from "lucide-react";
 import { Header } from "@/components/nav";
 import AuthProvider from "@/components/auth-provider";
 
-export default function Component() {
-  const { orders } = useOrderStore();
+export default function LiveOrders() {
+  const { orders, fetchOrders } = useOrderStore();
   const pendingOrders = orders.filter(
     (order: any) => order.status === "pending" || order.status === "confirmed",
   );
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 50000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <AuthProvider>

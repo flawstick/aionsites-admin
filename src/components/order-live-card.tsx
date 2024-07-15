@@ -152,7 +152,12 @@ export default function OrderLiveCard({ order }: any) {
                             (option: any, optIndex: number) => (
                               <li
                                 key={optIndex}
-                                className="flex items-center justify-between"
+                                className={`flex items-center justify-between ${
+                                  item.currentModifiers[modifier.name] ===
+                                  option.name
+                                    ? "font-bold"
+                                    : "hidden"
+                                }`}
                               >
                                 <span className="ml-3 text-foreground">
                                   {option.name}

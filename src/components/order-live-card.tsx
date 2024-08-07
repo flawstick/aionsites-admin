@@ -90,7 +90,7 @@ export default function OrderLiveCard({ order }: any) {
       <CardHeader className="flex flex-row items-start bg-muted/50 px-4 py-3">
         <div className="grid gap-0.5">
           <CardTitle className="group flex items-center gap-2 text-lg">
-            <span className="truncate w-2/3">Order {order._id}</span>
+            <span className="truncate w-1/2">Order {order._id}</span>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

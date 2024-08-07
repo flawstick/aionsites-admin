@@ -89,8 +89,8 @@ export default function OrderLayout() {
 
   return (
     <Header noBorder>
-      <div className="flex min-h-screen w-full flex-col">
-        <main className="grid flex-1 mt-4 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
+      <div className="flex min-h-screen flex-col">
+        <main className="grid flex-1 mt-4 items-start gap-4 p-4 sm:px-6 sm:py-2 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
           <div className="lg:col-span-2">
             <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 mb-4">
               <Card className="sm:col-span-2">
@@ -167,11 +167,6 @@ export default function OrderLayout() {
             </div>
             <Tabs defaultValue="all">
               <div className="flex items-center">
-                <TabsList>
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="live">Live</TabsTrigger>
-                  <TabsTrigger value="done">Done</TabsTrigger>
-                </TabsList>
                 <div className="ml-auto flex items-center gap-2">
                   <CalendarDateRangePicker setDate={setDate} date={date} />
                   <DropdownMenu>

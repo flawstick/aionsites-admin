@@ -11,7 +11,6 @@ import {
 } from "docx";
 import * as XLSX from "xlsx";
 
-// Hebrew headers mapping
 const hebrewHeaders = {
   "Order ID": "מספר הזמנה",
   "User Name": "שם משתמש",

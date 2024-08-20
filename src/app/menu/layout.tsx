@@ -22,9 +22,7 @@ interface RootLayoutProps {
 
 export default function MenuLayout({ children }: RootLayoutProps) {
   return (
-    <body
-      className={cn("bg-muted/40 font-sans antialiased", fontSans.variable)}
-    >
+    <body className={cn("font-sans antialiased", fontSans.variable)}>
       <ThemeProvider>{children}</ThemeProvider>
     </body>
   );

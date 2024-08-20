@@ -23,7 +23,7 @@ interface RootLayoutProps {
 export default function OrdersLayout({ children }: RootLayoutProps) {
   return (
     <body
-      className={cn("bg-muted/40 font-sans antialiased", fontSans.variable)}
+      className={cn("font-sans antialiased", fontSans.variable)}
     >
       <ThemeProvider>{children}</ThemeProvider>
     </body>

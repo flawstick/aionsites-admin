@@ -1,4 +1,13 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
+import { withExpo } from '@expo/next-adapter';
 
-export default nextConfig;
+const nextConfig = {
+  // Enable SWC for faster builds
+  experimental: {
+    forceSwcTransforms: true,
+  },
+  // Transpile React Native and Expo packages
+  transpilePackages: ['react-native', 'expo'],
+};
+
+export default withExpo(nextConfig);
+

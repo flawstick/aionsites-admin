@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@expo/next-adapter": "^6.0.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-avatar": "^1.1.0",
     "@radix-ui/react-checkbox": "^1.1.1",
@@ -35,6 +36,7 @@
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
     "docx": "^8.5.0",
+    "expo": "^51.0.29",
     "framer-motion": "^11.3.21",
     "lucide-react": "^0.396.0",
     "mongoose": "^8.5.2",
@@ -46,6 +48,7 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-lottie": "^1.2.4",
+    "react-native-web": "^0.19.12",
     "react-spinners": "^0.13.8",
     "recharts": "^2.12.7",
     "sonner": "^1.5.0",

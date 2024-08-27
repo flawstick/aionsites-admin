@@ -18,7 +18,7 @@ export default function LiveOrders() {
   React.useEffect(() => {
     const interval = setInterval(() => {
       fetchOrders();
-    }, 50000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);

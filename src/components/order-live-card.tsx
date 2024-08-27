@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Copy, CircleCheckIcon, CircleXIcon, ClockIcon } from "lucide-react";
 import useOrderStore from "@/lib/store/orderStore";
+import { AlertDialogCancel } from "@radix-ui/react-alert-dialog";
 
 export default function OrderLiveCard({ order }: any) {
   const { updateOrderStatus } = useOrderStore();
@@ -48,9 +49,11 @@ export default function OrderLiveCard({ order }: any) {
     updateOrderStatus(orderId, "done");
   };
 
+  const [copied, setCopied] = React.useState<boolean>(false);
   const handleCopyOrderId = (orderId: string) => {
     navigator.clipboard.writeText(orderId);
   };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pending":
@@ -98,13 +101,23 @@ export default function OrderLiveCard({ order }: any) {
                     size="icon"
                     variant="outline"
                     className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
-                    onClick={() => handleCopyOrderId(order._id)}
+                    onClick={() => {
+                      handleCopyOrderId(order._id);
+                      setCopied(true);
+                      setTimeout(() => {
+                        setCopied(false);
+                      }, 1000);
+                    }}
                   >
-                    <Copy className="h-4 w-4" />
+                    {copied ? (
+                      <CheckIcon className="h-3 w-3" />
+                    ) : (
+                      <Copy className="h-3 w-3" />
+                    )}
                     <span className="sr-only">Copy Order ID</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Copy Order ID</TooltipContent>
+                <TooltipContent>Copy</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </CardTitle>
@@ -142,40 +155,63 @@ export default function OrderLiveCard({ order }: any) {
                   </div>
                   <span>&#8362;{item.price?.toFixed(2)}</span>
                 </div>
-                {item.modifiers?.length > 0 && (
-                  <div className="pl-4">
+                {item.currentModifiers?.length > 0 && (
+                  <div className="pl-4" dir="rtl">
                     <ul className="grid gap-3 mt-2">
-                      {item.modifiers.map((modifier: any, modIndex: number) => (
-                        <div key={modIndex} className="flex flex-col mt-2">
-                          <span className="font-semibold">{modifier.name}</span>
-                          {modifier.options.map(
-                            (option: any, optIndex: number) => (
-                              <li
-                                key={optIndex}
-                                className={`flex items-center justify-between ${
-                                  item.currentModifiers[modifier.name] ===
-                                  option.name
-                                    ? "font-bold"
-                                    : "hidden"
-                                }`}
-                              >
-                                <span className="ml-3 text-foreground">
-                                  {option.name}
-                                </span>
-                                <span>&#8362;{option.price?.toFixed(2)}</span>
-                              </li>
-                            ),
-                          )}
-                        </div>
-                      ))}
+                      {item.currentModifiers.map(
+                        (
+                          modifier: { options: Record<string, string> },
+                          modIndex: number,
+                        ) => (
+                          <div key={modIndex} className="flex flex-col mt-2">
+                            {Object.entries(modifier.options).map(
+                              ([key, value], optIndex) => (
+                                <li
+                                  key={optIndex}
+                                  className={`flex items-center justify-between ${
+                                    item.currentModifiers[modIndex]?.options[
+                                      key
+                                    ] === value
+                                      ? "font-bold"
+                                      : "hidden"
+                                  }`}
+                                >
+                                  <span className="font-semibold">{key}</span>
+                                  <span className="ml-3 text-foreground">
+                                    {value}
+                                  </span>
+                                </li>
+                              ),
+                            )}
+                          </div>
+                        ),
+                      )}
                     </ul>
+                  </div>
+                )}
+                {item.preferences && (
+                  <div className="mt-8 transition-transform duration-300 ease-in-out transform hover:scale-105 group">
+                    <Card className="overflow-hidden transform transition-all duration-300 hover:shadow hover:shadow-primary">
+                      <CardContent className="p-4 text-sm">
+                        <div className="text-center text-muted-foreground">
+                          העדפות לקוח
+                        </div>
+                        <Separator className="my-2" />
+                        <div
+                          className="text-sm transform transition-all duration-300 group-hover:text-lg text-foreground text-right "
+                          dir="rtl"
+                        >
+                          {item.preferences}
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 )}
               </li>
             ))}
           </ul>
           <Separator className="my-2" />
-          <div className="flex items-center justify-between font-semibold">
+          <div className="flex items-center justify-between font-semiboldu px-2">
             <span className="text-muted-foreground">Total</span>
             <span>&#8362;{order.totalPrice.toFixed(2)}</span>
           </div>
@@ -186,11 +222,7 @@ export default function OrderLiveCard({ order }: any) {
           <>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button
-                  onClick={() => handleCancel(order._id)}
-                  variant="ghost"
-                  className="text-red-500"
-                >
+                <Button variant="ghost" className="text-red-500">
                   <XIcon className="h-4 w-4 mr-2" />
                   Reject
                 </Button>
@@ -198,15 +230,22 @@ export default function OrderLiveCard({ order }: any) {
               <AlertDialogContent>
                 <p>Are you sure you want to reject this order?</p>
                 <AlertDialogFooter>
-                  <Button variant="outline">Cancel</Button>
-                  <Button variant="destructive">Reject</Button>
+                  <AlertDialogCancel asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </AlertDialogCancel>
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleCancel(order._id)}
+                  >
+                    Reject
+                  </Button>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
             <Button
               onClick={() => handleAccept(order._id)}
               variant="ghost"
-              className="text-green-200"
+              className="flex flex-row items-center text-green-200"
             >
               <CheckIcon className="h-4 w-4 mr-2" />
               Accept
@@ -216,11 +255,7 @@ export default function OrderLiveCard({ order }: any) {
           <>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button
-                  onClick={() => handleCancel(order._id)}
-                  variant="ghost"
-                  className="text-red-500"
-                >
+                <Button variant="ghost" className="text-red-500">
                   <XIcon className="h-4 w-4 mr-2" />
                   Cancel
                 </Button>
@@ -228,7 +263,9 @@ export default function OrderLiveCard({ order }: any) {
               <AlertDialogContent>
                 <p>Are you sure you want to cancel this order?</p>
                 <AlertDialogFooter>
-                  <Button variant="outline">Cancel</Button>
+                  <AlertDialogCancel asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </AlertDialogCancel>
                   <Button
                     variant="destructive"
                     onClick={() => handleCancel(order._id)}

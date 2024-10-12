@@ -8,10 +8,15 @@ interface Coordinates {
 }
 
 interface Restaurant {
-  _id: string;
-  name: string;
-  contactEmail: string;
-  contactPhone: string;
+  _id?: string;
+  name?: string;
+  profile?: {
+    name: string;
+    picture: string;
+    banner: string;
+  };
+  contactEmail?: string;
+  contactPhone?: string;
   address?: string;
   configurableUrl?: string;
   operatingData?: {
@@ -24,7 +29,6 @@ interface Restaurant {
     saturday: { open: string; close: string; isClosed?: boolean };
     sunday: { open: string; close: string; isClosed?: boolean };
   };
-
   coordinates?: Coordinates;
 }
 

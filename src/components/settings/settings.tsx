@@ -12,20 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  ChevronsUpDown,
-  UtensilsCrossed,
-  Clock,
-  MapPin,
-  DollarSign,
-  Image,
-  Bell,
-  Mail,
-  Phone,
-} from "lucide-react";
+import { ChevronsUpDown, UtensilsCrossed, Clock, Bell } from "lucide-react";
 import { Header } from "../nav";
 import OperatingHours from "./operating-hours";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
+import RestaurantProfileSettings from "./general";
 
 export default function RestaurantSettings() {
   const [activeSection, setActiveSection] = useState("general");
@@ -34,52 +25,7 @@ export default function RestaurantSettings() {
   const renderContent = () => {
     switch (activeSection) {
       case "general":
-        return (
-          <div className="space-y-8 max-w-2xl mx-auto">
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Restaurant Name</h2>
-              <p className="text-gray-600 mb-2">
-                This is your restaurant's visible name within the platform.
-              </p>
-              <Input placeholder="Enter restaurant name" className="max-w-md" />
-              <p className="text-sm text-gray-500 mt-2">
-                Please use 32 characters at maximum.
-              </p>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Restaurant URL</h2>
-              <p className="text-gray-600 mb-2">
-                This is your restaurant's URL on our platform.
-              </p>
-              <div className="flex max-w-md">
-                <span className="inline-flex items-center px-3 text-sm bg-muted border border-r-0 border-muted rounded-l-md">
-                  grubapp.co/
-                </span>
-                <Input
-                  placeholder="your-restaurant"
-                  value={selectedRestaurant?.configurableUrl}
-                  className="rounded-l-none"
-                />
-              </div>
-              <p className="text-sm text-gray-500 mt-2">
-                Please use 48 characters at maximum.
-              </p>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold mb-4">Restaurant Banner</h2>
-              <p className="text-gray-600 mb-2">
-                This banner will be displayed at the top of your restaurant
-                page.
-              </p>
-              <div className="flex items-center space-x-4">
-                <div className="w-64 h-24 bg-gray-200 rounded flex items-center justify-center">
-                  <Image className="h-10 w-10 text-gray-400" />
-                </div>
-                <Button>Change Banner</Button>
-              </div>
-            </div>
-          </div>
-        );
+        return <RestaurantProfileSettings />;
       case "details":
         return (
           <div className="space-y-6 max-w-2xl mx-auto">

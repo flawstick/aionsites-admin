@@ -120,7 +120,7 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
       let menuItems = null;
       if (response.status === 200) menuItems = response.data;
       set({
-        menu: { restaurantId: selectedRestaurant._id, items: menuItems },
+        menu: { restaurantId: selectedRestaurant._id as string, items: menuItems },
       });
 
       // Save menu to localStorage
@@ -226,7 +226,7 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
       );
 
       if (response.status === 200) {
-        set({ menu: { restaurantId: selectedRestaurant._id, items: [] } });
+        set({ menu: { restaurantId: selectedRestaurant._id as string, items: [] } });
       } else {
         console.error("Error creating menu:", response.data);
       }

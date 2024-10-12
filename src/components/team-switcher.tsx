@@ -83,7 +83,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
                     <CommandItem
                       key={team._id}
                       onSelect={() => {
-                        setSelectedRestaurant(session.jwt, team._id);
+                        setSelectedRestaurant(session.jwt, team._id as string);
                         setOpen(false);
                       }}
                       className="text-sm"

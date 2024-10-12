@@ -13,6 +13,18 @@ interface Restaurant {
   contactEmail: string;
   contactPhone: string;
   address?: string;
+  configurableUrl?: string;
+  operatingData?: {
+    status: "open" | "closed";
+    monday: { open: string; close: string; isClosed?: boolean };
+    tuesday: { open: string; close: string; isClosed?: boolean };
+    wednesday: { open: string; close: string; isClosed?: boolean };
+    thursday: { open: string; close: string; isClosed?: boolean };
+    friday: { open: string; close: string; isClosed?: boolean };
+    saturday: { open: string; close: string; isClosed?: boolean };
+    sunday: { open: string; close: string; isClosed?: boolean };
+  };
+
   coordinates?: Coordinates;
 }
 
@@ -38,9 +50,14 @@ interface RestaurantState {
   fetchRestaurants: (jwt: string, accountId: string) => Promise<void>;
   fetchMenu: (jwt: string) => Promise<void>;
   addRestaurant: (restaurant: Restaurant) => void;
-  updateRestaurant: (restaurant: Restaurant) => void;
+  updateRestaurant: (
+    jwt: string,
+    data: Restaurant,
+    restaurantId: string,
+  ) => Promise<void>;
   setRestaurants: (restaurants: Restaurant[]) => void;
   setSelectedRestaurant: (jwt: string, restaurantId: string) => void;
+  fetchSelectedRestaurant: (jwt: string) => Promise<void>;
   createMenu: (jwt: string) => Promise<void>;
   addMenuItem: (menuItem: MenuItem) => void;
   updateMenuItem: (menuItem: MenuItem) => void;
@@ -119,13 +136,38 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
       restaurants: [...state.restaurants, restaurant],
     }));
   },
-  updateRestaurant: (restaurant: Restaurant) => {
-    set((state) => ({
-      restaurants: state.restaurants.map((r) =>
-        r._id === restaurant._id ? restaurant : r,
-      ),
-    }));
+  // Update a restaurant with a PUT request
+  updateRestaurant: async (
+    jwt: string,
+    data: Restaurant,
+    restaurantId: string,
+  ) => {
+    try {
+      const response = await axios.put(
+        `https://api.aionsites.com/restaurants/${restaurantId}/settings/`,
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt}`,
+          },
+        },
+      );
+
+      if (response.status === 200) {
+        set((state) => ({
+          restaurants: state.restaurants.map((r) =>
+            r._id === data._id ? data : r,
+          ),
+        }));
+      } else {
+        console.error("Error updating restaurant:", response.data);
+      }
+    } catch (error) {
+      console.error("Error updating restaurant:", error);
+    }
   },
+
   setRestaurants: (restaurants: Restaurant[]) => {
     set({ restaurants });
   },
@@ -136,6 +178,33 @@ export const useRestaurantStore = create<RestaurantState>((set, get) => ({
     }));
     await get().fetchMenu(jwt);
   },
+  fetchSelectedRestaurant: async (jwt: string) => {
+    const selectedRestaurant = get().selectedRestaurant;
+    if (!selectedRestaurant) return;
+
+    try {
+      const response = await axios.get(
+        `https://api.aionsites.com/restaurants/${selectedRestaurant._id}/data/`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt}`,
+          },
+        },
+      );
+
+      if (response.status === 200) {
+        set({
+          selectedRestaurant: { ...selectedRestaurant, ...response.data },
+        });
+      } else {
+        console.error("Error fetching selected restaurant:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching selected restaurant:", error);
+    }
+  },
+
   createMenu: async (jwt: string) => {
     const selectedRestaurant = get().selectedRestaurant;
     if (!selectedRestaurant) return;

@@ -71,7 +71,7 @@ export default function RestaurantProfileSettings() {
       <div>
         <h2 className="text-2xl font-bold mb-4">Restaurant Name</h2>
         <p className="text-gray-600 mb-2">
-          This is your restaurant's visible name within the platform.
+          This is your restaurant&apos;s visible name within the platform.
         </p>
         <Input
           placeholder="Enter restaurant name"
@@ -86,7 +86,7 @@ export default function RestaurantProfileSettings() {
       <div>
         <h2 className="text-2xl font-bold mb-4">Restaurant URL</h2>
         <p className="text-gray-600 mb-2">
-          This is your restaurant's URL on our platform.
+          This is your restaurant&apos;s URL on our platform.
         </p>
         <div className="flex max-w-md">
           <span className="inline-flex items-center px-3 text-sm bg-muted border border-r-0 border-muted rounded-l-md">

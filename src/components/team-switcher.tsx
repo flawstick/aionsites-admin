@@ -62,7 +62,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
           >
             <Avatar className="mr-2 h-5 w-5">
               <AvatarImage
-                src={`https://avatar.vercel.sh/${selectedRestaurant?.name}.png`}
+                src={selectedRestaurant?.profile?.picture}
                 alt={selectedRestaurant?.name}
                 className="grayscale"
               />
@@ -90,7 +90,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
                     >
                       <Avatar className="mr-2 h-5 w-5">
                         <AvatarImage
-                          src={`https://avatar.vercel.sh/${team.name}.png`}
+                          src={team?.profile?.picture}
                           alt={team.name}
                           className="grayscale"
                         />

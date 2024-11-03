@@ -7,6 +7,11 @@ import { Search } from "@/components/search";
 import { UserNav } from "@/components/user-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "./mobile-nav";
+import { GrubIcon } from "@/components/icons";
+import { CopySlash, Slash } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 interface HeaderProps {
   children: React.ReactNode;
@@ -28,17 +33,29 @@ export function Header({ children, bg, noBorder }: HeaderProps) {
     return () => observer.disconnect();
   }, []);
 
+  const router = useRouter();
+  const theme = useTheme();
+
   return (
     <>
       <header ref={ref}>
         <div
-          className={`fixed flex h-16 inset-x-0 px-4 items-center top-0 z-50 backdrop-blur duration-200 border-b ${
+          className={`fixed flex h-16 inset-x-0 px-4 items-center top-0 z-50 backdrop-blur-2xl duration-200 border-b ${
             isIntersecting
               ? `${bg ? bg : "bg-zinc-900/0"} ${noBorder && "border-none"}`
               : `bg-transparent `
           }`}
         >
           <MobileNav />
+          <span
+            className="flex cursor-pointer invert-[0.75] dark:invert-0"
+            onClick={() => router.push("/")}
+          >
+            <GrubIcon className="h-[3.75rem] w-[4.25rem]" />
+          </span>
+          <span className="text-2xl font-bold -ml-2 mr-2 text-gray-500">
+            <Slash className="h-5 w-5 -rotate-[20deg]" />
+          </span>
           <TeamSwitcher />
           <MainNav className="hidden md:flex mx-6" />
           <div className="ml-auto flex items-center space-x-4">

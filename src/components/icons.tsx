@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface DefaultIconProps {
   className?: string;
   style?: React.CSSProperties;
@@ -386,5 +388,11 @@ export function XIcon(props: DefaultIconProps) {
       <path d="M18 6 6 18" />
       <path d="m6 6 12 12" />
     </svg>
+  );
+}
+
+export function GrubIcon(props: DefaultIconProps) {
+  return (
+    <Image src="/grub-logo.png" alt="Grub" width={40} height={40} {...props} />
   );
 }

@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  description: "",
-  title: "Redirecting...",
+  description: "Grub restaurant admin menu modifiers page",
+  title: "Grub - Modifiers",
 };
 
 const fontSans = FontSans({

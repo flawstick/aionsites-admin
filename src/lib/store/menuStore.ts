@@ -46,6 +46,7 @@ interface MenuState {
   categories: string[];
   fetchMenuItems: () => void;
   fetchModifiers: () => void;
+  setCategories: (categories: string[]) => void;
 }
 
 const useMenuStore = create<MenuState>()(
@@ -88,6 +89,7 @@ const useMenuStore = create<MenuState>()(
             console.error("Failed to fetch modifiers:", error);
           }
         },
+        setCategories: (categories: string[]) => set({ categories }),
       }),
       {
         name: "menu-storage",

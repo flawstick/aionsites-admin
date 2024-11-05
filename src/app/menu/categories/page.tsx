@@ -1,7 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { GripVertical, Plus } from "lucide-react";
+import {
+  Edit,
+  GripVertical,
+  MoreHorizontal,
+  Move,
+  MoveDown,
+  MoveUp,
+  MoveVertical,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -14,25 +24,34 @@ import AuthProvider from "@/components/auth-provider";
 import { MenuSidebar } from "@/components/menu-sidebar";
 import { Header } from "@/components/nav";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
+import useMenuStore from "@/lib/store/menuStore";
+import { useRestaurantStore } from "@/lib/store/restaurantStore";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuTrigger,
+  DropdownMenuSubTrigger,
+} from "@/components/ui/dropdown-menu";
 
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-}
-
-const initialCategories: Category[] = [
-  { id: "cat1", name: "Electronics", description: "Gadgets and devices" },
-  { id: "cat2", name: "Clothing", description: "Apparel and accessories" },
-  { id: "cat3", name: "Books", description: "Literature and textbooks" },
-  { id: "cat4", name: "Home & Garden", description: "Furniture and decor" },
-  { id: "cat5", name: "Sports", description: "Athletic equipment" },
-];
+type Category = string;
 
 export default function MenuManager() {
-  const [categories, setCategories] = React.useState(initialCategories);
+  const { categories, fetchMenuItems, setCategories } = useMenuStore();
+  const { selectedRestaurant } = useRestaurantStore();
   const [draggedItem, setDraggedItem] = React.useState<Category | null>(null);
   const [dragOverIndex, setDragOverIndex] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    if (!selectedRestaurant) return;
+    fetchMenuItems();
+  }, [selectedRestaurant]);
 
   const onDragStart = (
     e: React.DragEvent<HTMLLIElement>,
@@ -40,12 +59,12 @@ export default function MenuManager() {
   ) => {
     setDraggedItem(category);
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", category.id);
+    e.dataTransfer.setData("text/plain", category);
   };
 
   const onDragOver = (e: React.DragEvent<HTMLLIElement>, index: number) => {
     e.preventDefault();
-    if (draggedItem && draggedItem.id !== categories[index].id) {
+    if (draggedItem && draggedItem !== categories[index]) {
       setDragOverIndex(index);
     }
   };
@@ -57,9 +76,7 @@ export default function MenuManager() {
   const onDrop = (e: React.DragEvent<HTMLLIElement>, index: number) => {
     e.preventDefault();
     if (draggedItem) {
-      const newCategories = categories.filter(
-        (cat) => cat.id !== draggedItem.id,
-      );
+      const newCategories = categories.filter((cat) => cat !== draggedItem);
       newCategories.splice(index, 0, draggedItem);
       setCategories(newCategories);
     }
@@ -73,11 +90,7 @@ export default function MenuManager() {
   };
 
   const addCategory = () => {
-    const newCategory: Category = {
-      id: `cat${categories.length + 1}`,
-      name: `New Category ${categories.length + 1}`,
-      description: "Description pending",
-    };
+    const newCategory: Category = "New Category";
     setCategories([...categories, newCategory]);
   };
 
@@ -105,28 +118,69 @@ export default function MenuManager() {
                   <ul className="space-y-2">
                     {categories.map((category, index) => (
                       <li
-                        key={category.id}
+                        key={category}
                         draggable
                         onDragStart={(e) => onDragStart(e, category)}
                         onDragOver={(e) => onDragOver(e, index)}
                         onDragLeave={onDragLeave}
                         onDrop={(e) => onDrop(e, index)}
                         onDragEnd={onDragEnd}
-                        className={`flex items-center justify-between p-4 rounded-lg bg-background hover:bg-accent/50 cursor-grab active:cursor-grabbing ${
+                        className={`group flex items-center justify-between p-4 rounded-lg bg-background hover:bg-accent/50 cursor-grab active:cursor-grabbing ${
                           dragOverIndex === index
                             ? "border-2 border-dashed border-accent"
                             : ""
                         } ${
-                          draggedItem && draggedItem.id === category.id
+                          draggedItem && draggedItem === category
                             ? "opacity-50"
                             : ""
                         }`}
                       >
-                        <div className="flex-1 mr-4">
-                          <h3 className="font-medium">{category.name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {19} items
-                          </p>
+                        <div className="flex flex-row justify-center items-center gap-1 mr-4">
+                          <h3 className="font-medium">{category}</h3>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                              >
+                                <MoreHorizontal className="h-5 w-5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem>
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuSub>
+                                  <DropdownMenuSubTrigger>
+                                    <MoveVertical className="h-4 w-4 mr-2" />
+                                    Move...
+                                  </DropdownMenuSubTrigger>
+                                  <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                      <DropdownMenuItem>
+                                        <MoveUp className="h-4 w-4 mr-2" />
+                                        Up
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem>
+                                        <MoveDown className="h-4 w-4 mr-2" />
+                                        Down
+                                      </DropdownMenuItem>
+                                    </DropdownMenuSubContent>
+                                  </DropdownMenuPortal>
+                                </DropdownMenuSub>
+                              </DropdownMenuGroup>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem className="text-red-500">
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                         <div className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted">
                           <GripVertical className="h-5 w-5" />
@@ -139,8 +193,7 @@ export default function MenuManager() {
                       <Plus className="mr-2 h-4 w-4" /> Add Category
                     </Button>
                     <div className="text-sm text-muted-foreground">
-                      Current order:{" "}
-                      {categories.map((cat) => cat.name).join(", ")}
+                      Current order: {categories.map((cat) => cat).join(", ")}
                     </div>
                   </div>
                 </CardContent>

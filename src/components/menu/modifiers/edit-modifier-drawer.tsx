@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { Plus, Trash2, Hash, Flame, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -101,6 +99,17 @@ export function EditModifierDrawer({
     }));
   };
 
+  // set the document to pointer-events: auto
+  useEffect(() => {
+    if (open) {
+      document.body.style.pointerEvents = "auto";
+    }
+
+    return () => {
+      document.body.style.pointerEvents = "auto";
+    };
+  }, [open]);
+
   const removeOption = (index: number) => {
     setModifier((prev) => ({
       ...prev,
@@ -189,12 +198,14 @@ export function EditModifierDrawer({
   };
 
   useEffect(() => {
-    setModifier(modifierData);
-  }, [modifierData]);
+    if (open && modifierData) {
+      setModifier(modifierData);
+    }
+  }, [open, modifierData]);
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="flex w-screen h-full max-h-[100vh] items-center">
+      <DrawerContent className="flex w-screen h-full h-screen items-center">
         <div className="flex flex-col h-full min-w-[80%]">
           <DrawerHeader className="border-b border-border">
             <DrawerTitle className="text-2xl font-bold">

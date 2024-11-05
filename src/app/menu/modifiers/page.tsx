@@ -35,8 +35,9 @@ import useMenuStore, { MenuItem, Modifier } from "@/lib/store/menuStore";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import { EditModifierDrawer } from "@/components/menu/modifiers/edit-modifier-drawer";
 import { useModifiers } from "@/lib/hooks/useModifiers";
-import { Toaster as Sonner } from "sonner";
+import { Toaster as Sonner, toast } from "sonner";
 import { AddModifierButton } from "@/components/menu/modifiers/add-modifier-button";
+import { DeleteModifier } from "@/components/menu/modifiers/detele-modifier";
 
 // Constants
 const MAX_ENTRIES = 20;
@@ -52,6 +53,7 @@ function ModifierManagement() {
   );
   const [open, setOpen] = useState<boolean>(false);
   const [editOpen, setEditOpen] = useState<boolean>(false);
+  const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
   const [selectedModifier, setSelectedModifier] = useState<Modifier | null>(
     null,
   );
@@ -94,13 +96,13 @@ function ModifierManagement() {
   };
 
   const handleDeleteModifier = (modifier: Modifier) => {
-    deleteModifier(modifier._id);
+    setSelectedModifier(modifier);
+    setDeleteOpen(true);
   };
-  const handleUndoDeleteModifier = (modifier: Modifier) => {
-    undoDeleteModifier(modifier._id);
-  };
-  const handleDuplicateModifier = (modifier: Modifier) => {
-    createModifier(modifier);
+  const handleDuplicateModifier = async (modifier: Modifier) => {
+    if (await createModifier(modifier))
+      toast(`Duplicated ${modifier.name} successfully`);
+    else toast(`Failed to duplicate ${modifier.name}`);
   };
 
   const getModifiersForItem = (itemId: string) => {
@@ -340,8 +342,22 @@ function ModifierManagement() {
       <CreateModifierDrawer open={open} onOpenChange={setOpen} />
       <EditModifierDrawer
         open={editOpen}
-        onOpenChange={setEditOpen}
+        onOpenChange={(open) => {
+          setEditOpen(open);
+          if (!open) {
+            setSelectedModifier(null);
+          }
+        }}
         modifierData={selectedModifier as any}
+      />
+      <DeleteModifier
+        open={deleteOpen}
+        onOpenChange={(open) => {
+          setDeleteOpen(open);
+        }}
+        handleDelete={deleteModifier}
+        handleUndo={undoDeleteModifier as any}
+        modifierId={selectedModifier?._id as any}
       />
       <Sonner
         className="toaster group z-50 bottom-20 right-4 fixed"

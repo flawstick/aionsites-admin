@@ -3,6 +3,7 @@ import { devtools, persist } from "zustand/middleware";
 import axios from "axios";
 import { useModifiers } from "@/lib/hooks/useModifiers"; // Assuming `useMenu` is in this path
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
+import { useCategories } from "../hooks/useCategories";
 
 export interface Addition {
   name: string;
@@ -40,13 +41,21 @@ export interface MenuItem {
   vegan?: boolean;
 }
 
+export interface Category {
+  _id: string;
+  name: string;
+  description: string;
+  index: number;
+}
+
 interface MenuState {
   menuItems: MenuItem[];
   modifiers: Modifier[];
-  categories: string[];
+  categories: Category[];
   fetchMenuItems: () => void;
   fetchModifiers: () => void;
-  setCategories: (categories: string[]) => void;
+  fetchCategories: () => void;
+  setCategories: (categories: Category[]) => void;
 }
 
 const useMenuStore = create<MenuState>()(
@@ -89,7 +98,17 @@ const useMenuStore = create<MenuState>()(
             console.error("Failed to fetch modifiers:", error);
           }
         },
-        setCategories: (categories: string[]) => set({ categories }),
+        fetchCategories: async () => {
+          const { fetchCategories } = useCategories();
+
+          try {
+            let categories = await fetchCategories();
+            set(() => ({ categories: categories as any }));
+          } catch (error) {
+            console.error("Failed to fetch categories:", error);
+          }
+        },
+        setCategories: (categories: Category[]) => set({ categories }),
       }),
       {
         name: "menu-storage",

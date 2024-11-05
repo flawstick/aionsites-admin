@@ -80,8 +80,9 @@ const useMenuStore = create<MenuState>()(
 
         fetchModifiers: async () => {
           const { fetchModifiers } = useModifiers();
+
           try {
-            const modifiers = await fetchModifiers();
+            const modifiers: any = await fetchModifiers();
             set(() => ({ modifiers }));
           } catch (error) {
             console.error("Failed to fetch modifiers:", error);

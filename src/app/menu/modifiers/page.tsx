@@ -30,11 +30,16 @@ import {
 import { Header } from "@/components/nav";
 import AuthProvider from "@/components/auth-provider";
 import { MenuSidebar } from "@/components/menu-sidebar";
-import { CreateModifierDrawer } from "@/components/add-modifier-drawer";
+import { CreateModifierDrawer } from "@/components/menu/modifiers/add-modifier-drawer";
 import useMenuStore, { MenuItem, Modifier } from "@/lib/store/menuStore";
+import { useRestaurantStore } from "@/lib/store/restaurantStore";
+import { EditModifierDrawer } from "@/components/menu/modifiers/edit-modifier-drawer";
+import { useModifiers } from "@/lib/hooks/useModifiers";
+import { Toaster as Sonner } from "sonner";
+import { AddModifierButton } from "@/components/menu/modifiers/add-modifier-button";
 
 // Constants
-const MAX_ENTRIES = 10;
+const MAX_ENTRIES = 20;
 
 interface Category {
   name: string;
@@ -46,17 +51,22 @@ function ModifierManagement() {
     "categories",
   );
   const [open, setOpen] = useState<boolean>(false);
+  const [editOpen, setEditOpen] = useState<boolean>(false);
+  const [selectedModifier, setSelectedModifier] = useState<Modifier | null>(
+    null,
+  );
   const [categories, setCategories] = useState<Category[]>([]);
   const items = useMenuStore((state) => state.menuItems);
-  const modifiers = useMenuStore((state) => state.modifiers);
-  const fetchMenuItems = useMenuStore((state) => state.fetchMenuItems);
-  const fetchModifiers = useMenuStore((state) => state.fetchModifiers);
+  let { modifiers, fetchMenuItems, fetchModifiers } = useMenuStore();
+  const { createModifier, deleteModifier, undoDeleteModifier } = useModifiers();
+  const { selectedRestaurant } = useRestaurantStore();
 
   // Fetch data on mount
   useEffect(() => {
+    if (!selectedRestaurant) return;
     fetchMenuItems();
     fetchModifiers();
-  }, []);
+  }, [selectedRestaurant]);
 
   // Categorize items
   useEffect(() => {
@@ -76,11 +86,26 @@ function ModifierManagement() {
     );
   }, [items]);
 
-  const handleRowClick = (modifier: Modifier) => {
-    console.log("Row clicked:", modifier);
+  const handleRowClick = (modifier: Modifier) => {};
+
+  const handleEditModifier = (modifier: Modifier) => {
+    setSelectedModifier(modifier);
+    setEditOpen(true);
+  };
+
+  const handleDeleteModifier = (modifier: Modifier) => {
+    deleteModifier(modifier._id);
+  };
+  const handleUndoDeleteModifier = (modifier: Modifier) => {
+    undoDeleteModifier(modifier._id);
+  };
+  const handleDuplicateModifier = (modifier: Modifier) => {
+    createModifier(modifier);
   };
 
   const getModifiersForItem = (itemId: string) => {
+    if (!modifiers) return [];
+
     return modifiers
       .filter((modifier) => modifier.options.some((opt) => opt.name === itemId))
       .slice(0, MAX_ENTRIES);
@@ -102,12 +127,15 @@ function ModifierManagement() {
       <Tabs
         value={activeTab}
         onValueChange={(value) => setActiveTab(value as "categories" | "all")}
-        className="mb-4 sm:mb-6"
+        className="mb-4 sm:mb-6 "
       >
-        <TabsList>
-          <TabsTrigger value="categories">By Category</TabsTrigger>
-          <TabsTrigger value="all">All Modifiers</TabsTrigger>
-        </TabsList>
+        <div className="flex items-center justify-between mb-6">
+          <TabsList>
+            <TabsTrigger value="categories">By Category</TabsTrigger>
+            <TabsTrigger value="all">All Modifiers</TabsTrigger>
+          </TabsList>
+          <AddModifierButton onClick={() => setOpen(true)} />
+        </div>
 
         <TabsContent value="categories">
           <Accordion type="single" collapsible className="w-full space-y-4">
@@ -170,7 +198,7 @@ function ModifierManagement() {
                                       <DropdownMenuItem
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          console.log("Edit", modifier);
+                                          handleEditModifier(modifier);
                                         }}
                                       >
                                         Edit
@@ -178,7 +206,7 @@ function ModifierManagement() {
                                       <DropdownMenuItem
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          console.log("Duplicate", modifier);
+                                          handleDuplicateModifier(modifier);
                                         }}
                                       >
                                         Duplicate
@@ -187,7 +215,7 @@ function ModifierManagement() {
                                       <DropdownMenuItem
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          console.log("Delete", modifier);
+                                          handleDeleteModifier(modifier);
                                         }}
                                         className="text-red-600"
                                       >
@@ -232,7 +260,7 @@ function ModifierManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {modifiers.slice(0, MAX_ENTRIES).map((modifier) => {
+                  {modifiers?.slice(0, MAX_ENTRIES).map((modifier) => {
                     const assignedItems = items.filter((item) =>
                       modifier.options.some((opt) => opt.name === item._id),
                     );
@@ -273,7 +301,7 @@ function ModifierManagement() {
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  console.log("Edit", modifier);
+                                  handleEditModifier(modifier);
                                 }}
                               >
                                 Edit
@@ -281,7 +309,7 @@ function ModifierManagement() {
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  console.log("Duplicate", modifier);
+                                  handleDuplicateModifier(modifier);
                                 }}
                               >
                                 Duplicate
@@ -290,7 +318,7 @@ function ModifierManagement() {
                               <DropdownMenuItem
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  console.log("Delete", modifier);
+                                  handleDeleteModifier(modifier);
                                 }}
                                 className="text-red-600"
                               >
@@ -309,13 +337,26 @@ function ModifierManagement() {
         </TabsContent>
       </Tabs>
 
-      <Button
-        onClick={() => setOpen(true)}
-        className="flex flex-row mt-4 sm:mt-6 w-32 items-center justify-center"
-      >
-        <Plus className="h-4 w-4" /> Add Modifier
-      </Button>
       <CreateModifierDrawer open={open} onOpenChange={setOpen} />
+      <EditModifierDrawer
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        modifierData={selectedModifier as any}
+      />
+      <Sonner
+        className="toaster group z-50 bottom-20 right-4 fixed"
+        toastOptions={{
+          classNames: {
+            toast:
+              "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+            description: "group-[.toast]:text-muted-foreground",
+            actionButton:
+              "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+            cancelButton:
+              "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+          },
+        }}
+      />
     </main>
   );
 }

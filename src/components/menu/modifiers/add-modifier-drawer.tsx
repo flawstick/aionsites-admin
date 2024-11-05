@@ -172,17 +172,17 @@ export function CreateModifierDrawer({
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (createModifier(modifier)) {
-        toast("Menu saved successfully", {
+      if (await createModifier(modifier)) {
+        toast("Modifier Added Successfully", {
           actionButtonStyle: {
             backgroundColor: "hsl(var(--primary))",
             color: "hsl(var(--primary-foreground))",
           },
           action: {
-            label: "Undo",
+            label: "Yay!",
             onClick: () => {},
           },
         });
@@ -521,20 +521,6 @@ export function CreateModifierDrawer({
           </div>
         </DrawerContent>
       </Drawer>
-      <Sonner
-        className="toaster group z-50 bottom-20 right-4 fixed"
-        toastOptions={{
-          classNames: {
-            toast:
-              "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-            description: "group-[.toast]:text-muted-foreground",
-            actionButton:
-              "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-            cancelButton:
-              "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
-          },
-        }}
-      />
     </>
   );
 }

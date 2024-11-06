@@ -141,7 +141,7 @@ function ModifierManagement() {
 
         <TabsContent value="categories">
           <Accordion type="single" collapsible className="w-full space-y-4">
-            {categories.map((category, index) => (
+            {categories?.map((category, index) => (
               <AccordionItem value={`category-${index}`} key={index}>
                 <AccordionTrigger>{category.name}</AccordionTrigger>
                 <AccordionContent>

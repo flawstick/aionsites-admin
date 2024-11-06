@@ -99,10 +99,10 @@ const useMenuStore = create<MenuState>()(
           }
         },
         fetchCategories: async () => {
-          const { fetchCategories } = useCategories();
+          const { getCategories } = useCategories();
 
           try {
-            let categories = await fetchCategories();
+            let categories = await getCategories();
             set(() => ({ categories: categories as any }));
           } catch (error) {
             console.error("Failed to fetch categories:", error);

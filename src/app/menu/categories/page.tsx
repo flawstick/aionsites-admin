@@ -11,7 +11,6 @@ import {
   Trash2,
   MoveVertical,
 } from "lucide-react";
-import { Toaster as Sonner } from "sonner";
 import {
   Card,
   CardContent,
@@ -24,8 +23,10 @@ import AuthProvider from "@/components/auth-provider";
 import { MenuSidebar } from "@/components/menu-sidebar";
 import { Header } from "@/components/nav";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import useMenuStore from "@/lib/store/menuStore";
-import { useRestaurantStore } from "@/lib/store/restaurantStore";
+import { Toaster as Sonner, toast } from "sonner";
+import { useCategories } from "@/lib/hooks/useCategories";
+import { Input } from "@/components/ui/input";
+
 import {
   Dialog,
   DialogContent,
@@ -40,14 +41,15 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+import useMenuStore from "@/lib/store/menuStore";
+import { useRestaurantStore } from "@/lib/store/restaurantStore";
 
 type Category = {
   _id: string;
@@ -57,7 +59,13 @@ type Category = {
 };
 
 export default function MenuManager() {
-  const { categories, fetchMenuItems, setCategories } = useMenuStore();
+  const {
+    createCategory,
+    editCategory: updateCategory,
+    deleteCategory,
+    undoDeleteCategory,
+  } = useCategories();
+  const { categories, setCategories, fetchCategories } = useMenuStore();
   const { selectedRestaurant } = useRestaurantStore();
 
   const [draggedItem, setDraggedItem] = React.useState<Category | null>(null);
@@ -70,16 +78,20 @@ export default function MenuManager() {
   });
 
   React.useEffect(() => {
+    if (!selectedRestaurant) return;
+    fetchCategories();
+
+    return () => {
+      setCategories([]);
+    };
+  }, [selectedRestaurant]);
+
+  React.useEffect(() => {
     document.body.style.pointerEvents = "auto";
     return () => {
       document.body.style.pointerEvents = "auto";
     };
   }, [editDialogOpen]);
-
-  React.useEffect(() => {
-    if (!selectedRestaurant) return;
-    fetchMenuItems();
-  }, [selectedRestaurant]);
 
   const onDragStart = (
     e: React.DragEvent<HTMLLIElement>,
@@ -97,29 +109,33 @@ export default function MenuManager() {
     }
   };
 
-  const onDrop = (e: React.DragEvent<HTMLLIElement>, index: number) => {
+  const onDrop = async (e: React.DragEvent<HTMLLIElement>, index: number) => {
     e.preventDefault();
     if (draggedItem) {
       const reorderedCategories = categories.filter(
         (cat) => cat._id !== draggedItem._id,
       );
       reorderedCategories.splice(index, 0, draggedItem);
-      reorderedCategories.forEach((cat, i) => (cat.index = i)); // Update indices
+      reorderedCategories.forEach((cat, i) => (cat.index = i));
       setCategories(reorderedCategories);
     }
     setDraggedItem(null);
     setDragOverIndex(null);
   };
 
-  const addCategory = () => {
+  const handleAddCategory = async () => {
     if (newCategoryData.name.trim() === "") return;
     const newCategory = {
-      _id: `${Date.now()}`, // Placeholder ID
       name: newCategoryData.name,
       description: newCategoryData.description,
       index: categories.length,
     };
-    setCategories([...categories, newCategory]);
+
+    if (await createCategory(newCategory)) {
+      toast("Category added successfully");
+    } else {
+      toast("Failed to add category");
+    }
     setNewCategoryData({ name: "", description: "" });
     setEditDialogOpen(false);
   };
@@ -133,35 +149,48 @@ export default function MenuManager() {
     setEditDialogOpen(true);
   };
 
-  const saveCategory = () => {
+  const handleSaveCategory = async () => {
     if (!editCategory || newCategoryData.name.trim() === "") return;
-    const updatedCategories = categories.map((cat) =>
-      cat._id === editCategory._id ? { ...cat, ...newCategoryData } : cat,
-    );
-    setCategories(updatedCategories);
+    const updatedCategory = { ...editCategory, ...newCategoryData };
+
+    if (await updateCategory(updatedCategory)) {
+      toast("Category updated successfully");
+    } else {
+      toast("Failed to update category");
+    }
     setEditDialogOpen(false);
   };
 
-  const deleteCategory = (categoryId: string) => {
-    setCategories(categories.filter((cat) => cat._id !== categoryId));
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (await deleteCategory(categoryId)) {
+      toast("Category deleted successfully", {
+        actionButtonStyle: {
+          backgroundColor: "hsl(var(--primary))",
+          color: "hsl(var(--primary-foreground))",
+        },
+        action: {
+          label: "Undo",
+          onClick: async () => {
+            if (await undoDeleteCategory(categoryId))
+              toast("Deletion undone successfully");
+          },
+        },
+      });
+    } else {
+      toast("Failed to delete category");
+    }
   };
 
-  const moveCategoryUp = (index: number) => {
-    if (index === 0) return;
-    const reorderedCategories = [...categories];
-    [reorderedCategories[index - 1], reorderedCategories[index]] = [
-      reorderedCategories[index],
-      reorderedCategories[index - 1],
-    ];
-    reorderedCategories.forEach((cat, i) => (cat.index = i));
-    setCategories(reorderedCategories);
-  };
+  const handleMoveCategory = async (
+    index: number,
+    direction: "up" | "down",
+  ) => {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= categories.length) return;
 
-  const moveCategoryDown = (index: number) => {
-    if (index === categories.length - 1) return;
     const reorderedCategories = [...categories];
-    [reorderedCategories[index], reorderedCategories[index + 1]] = [
-      reorderedCategories[index + 1],
+    [reorderedCategories[index], reorderedCategories[targetIndex]] = [
+      reorderedCategories[targetIndex],
       reorderedCategories[index],
     ];
     reorderedCategories.forEach((cat, i) => (cat.index = i));
@@ -189,89 +218,95 @@ export default function MenuManager() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2">
-                    {categories
-                      .sort((a, b) => a.index - b.index)
-                      .map((category, index) => (
-                        <li
-                          key={category._id}
-                          draggable
-                          onDragStart={(e) => onDragStart(e, category)}
-                          onDragOver={(e) => onDragOver(e, index)}
-                          onDrop={(e) => onDrop(e, index)}
-                          onDragEnd={() => setDraggedItem(null)}
-                          className={`group flex items-center justify-between p-4 rounded-lg bg-background hover:bg-accent/50 cursor-grab active:cursor-grabbing ${
-                            dragOverIndex === index
-                              ? "border-2 border-dashed border-accent"
-                              : ""
-                          } ${
-                            draggedItem && draggedItem._id === category._id
-                              ? "opacity-50"
-                              : ""
-                          }`}
-                        >
-                          <div className="flex flex-row justify-center items-center gap-1 mr-4">
-                            <h3 className="font-medium">{category.name}</h3>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                                >
-                                  <MoreHorizontal className="h-5 w-5" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent>
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuGroup>
-                                  <DropdownMenuItem
-                                    onClick={() => openEditDialog(category)}
+                  {categories?.length > 0 && (
+                    <ul className="space-y-2">
+                      {categories
+                        ?.sort((a, b) => a.index - b.index)
+                        .map((category, index) => (
+                          <li
+                            key={category._id}
+                            draggable
+                            onDragStart={(e) => onDragStart(e, category)}
+                            onDragOver={(e) => onDragOver(e, index)}
+                            onDrop={(e) => onDrop(e, index)}
+                            onDragEnd={() => setDraggedItem(null)}
+                            className={`group flex items-center justify-between p-4 rounded-lg bg-background hover:bg-accent/50 cursor-grab active:cursor-grabbing ${
+                              dragOverIndex === index
+                                ? "border-2 border-dashed border-accent"
+                                : ""
+                            } ${
+                              draggedItem && draggedItem._id === category._id
+                                ? "opacity-50"
+                                : ""
+                            }`}
+                          >
+                            <div className="flex flex-row justify-center items-center gap-1 mr-4">
+                              <h3 className="font-medium">{category.name}</h3>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                                   >
-                                    <Edit className="h-4 w-4 mr-2" /> Edit
+                                    <MoreHorizontal className="h-5 w-5" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuGroup>
+                                    <DropdownMenuItem
+                                      onClick={() => openEditDialog(category)}
+                                    >
+                                      <Edit className="h-4 w-4 mr-2" /> Edit
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSub>
+                                      <DropdownMenuSubTrigger>
+                                        <MoveVertical className="h-4 w-4 mr-2" />{" "}
+                                        Move...
+                                      </DropdownMenuSubTrigger>
+                                      <DropdownMenuPortal>
+                                        <DropdownMenuSubContent>
+                                          <DropdownMenuItem
+                                            onClick={() =>
+                                              handleMoveCategory(index, "up")
+                                            }
+                                          >
+                                            <MoveUp className="h-4 w-4 mr-2" />{" "}
+                                            Move Up
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem
+                                            onClick={() =>
+                                              handleMoveCategory(index, "down")
+                                            }
+                                          >
+                                            <MoveDown className="h-4 w-4 mr-2" />{" "}
+                                            Move Down
+                                          </DropdownMenuItem>
+                                        </DropdownMenuSubContent>
+                                      </DropdownMenuPortal>
+                                    </DropdownMenuSub>
+                                  </DropdownMenuGroup>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-red-500"
+                                    onClick={() =>
+                                      handleDeleteCategory(category._id)
+                                    }
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" /> Delete
                                   </DropdownMenuItem>
-                                  <DropdownMenuSub>
-                                    <DropdownMenuSubTrigger>
-                                      <MoveVertical className="h-4 w-4 mr-2" />{" "}
-                                      Move...
-                                    </DropdownMenuSubTrigger>
-                                    <DropdownMenuPortal>
-                                      <DropdownMenuSubContent>
-                                        <DropdownMenuItem
-                                          onClick={() => moveCategoryUp(index)}
-                                        >
-                                          <MoveUp className="h-4 w-4 mr-2" />{" "}
-                                          Move Up
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                          onClick={() =>
-                                            moveCategoryDown(index)
-                                          }
-                                        >
-                                          <MoveDown className="h-4 w-4 mr-2" />{" "}
-                                          Move Down
-                                        </DropdownMenuItem>
-                                      </DropdownMenuSubContent>
-                                    </DropdownMenuPortal>
-                                  </DropdownMenuSub>
-                                </DropdownMenuGroup>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  className="text-red-500"
-                                  onClick={() => deleteCategory(category._id)}
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" /> Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted">
-                            <GripVertical className="h-5 w-5" />
-                          </div>
-                        </li>
-                      ))}
-                  </ul>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted">
+                              <GripVertical className="h-5 w-5" />
+                            </div>
+                          </li>
+                        ))}
+                    </ul>
+                  )}
                   <div className="mt-4 space-y-4">
                     <Dialog
                       open={editDialogOpen}
@@ -315,17 +350,23 @@ export default function MenuManager() {
                         />
                         <DialogFooter>
                           <Button
-                            onClick={editCategory ? saveCategory : addCategory}
+                            onClick={
+                              editCategory
+                                ? handleSaveCategory
+                                : handleAddCategory
+                            }
                           >
                             {editCategory ? "Save" : "Add"}
                           </Button>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
-                    <div className="text-sm text-muted-foreground">
-                      Current order:{" "}
-                      {categories.map((cat) => cat.name).join(", ")}
-                    </div>
+                    {categories.length > 0 && (
+                      <div className="text-sm text-muted-foreground">
+                        Current order:{" "}
+                        {categories?.map((cat) => cat.name).join(", ")}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

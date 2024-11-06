@@ -100,7 +100,7 @@ export function useCategories() {
     return await createCategory(deletedCategories[categoryId]);
   }
 
-  async function fetchCategories(): Promise<AxiosResponse> {
+  async function getCategories(): Promise<AxiosResponse> {
     let response: any;
     try {
       response = await axios.get(
@@ -116,7 +116,7 @@ export function useCategories() {
       console.error(error);
     }
 
-    return response?.data;
+    return response?.data?.categories || [];
   }
 
   return {
@@ -124,6 +124,6 @@ export function useCategories() {
     editCategory,
     deleteCategory,
     undoDeleteCategory,
-    fetchCategories,
+    getCategories,
   };
 }

@@ -8,7 +8,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster as Sonner, toast } from "sonner";
 import { useCategories } from "@/lib/hooks/useCategories";
 

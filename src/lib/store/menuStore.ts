@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { useModifiers } from "@/lib/hooks/useModifiers"; // Assuming `useMenu` is in this path
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import { useCategories } from "../hooks/useCategories";
@@ -89,24 +89,43 @@ const useMenuStore = create<MenuState>()(
         },
 
         fetchModifiers: async () => {
-          const { fetchModifiers } = useModifiers();
-
+          const { selectedRestaurant } = useRestaurantStore.getState();
+          let response: any;
           try {
-            const modifiers: any = await fetchModifiers();
-            set(() => ({ modifiers }));
+            response = await axios.get(
+              `https://api.aionsites.com/menu/${selectedRestaurant?._id}/modifiers`,
+
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("jwt")}` || "",
+                  "Content-Type": "application/json",
+                },
+              },
+            );
           } catch (error) {
-            console.error("Failed to fetch modifiers:", error);
+            console.error(error);
           }
+          let modifiers = response?.data?.modifiers;
+          set(() => ({ modifiers }));
         },
         fetchCategories: async () => {
-          const { getCategories } = useCategories();
-
+          const { selectedRestaurant } = useRestaurantStore.getState();
+          let response: any;
           try {
-            let categories = await getCategories();
-            set(() => ({ categories: categories as any }));
+            response = await axios.get(
+              `https://api.aionsites.com/menu/${selectedRestaurant?._id}/categories`,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("jwt")}` || "",
+                  "Content-Type": "application/json",
+                },
+              },
+            );
           } catch (error) {
-            console.error("Failed to fetch categories:", error);
+            console.error(error);
           }
+
+          return response?.data?.categories || [];
         },
         setCategories: (categories: Category[]) => set({ categories }),
       }),

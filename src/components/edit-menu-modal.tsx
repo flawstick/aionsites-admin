@@ -1,163 +1,145 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { useEffect, useState, useRef } from "react";
+import { Flame, Leaf, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2Icon } from "@/components/icons";
-import { MoreHorizontal } from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import useUpload from "@/lib/hooks/useUpload";
+import useMenuStore from "@/lib/store/menuStore";
+import { useItems } from "@/lib/hooks/useItems";
+import { toast } from "sonner";
 
-interface ModifierOption {
-  name: string;
-  price: number;
-}
+const weekDays = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
-interface Modifier {
-  name: string;
-  required: boolean;
-  multiple: boolean;
-  options: ModifierOption[];
-}
-
-interface EditMenuModalProps {
+interface EditMenuItemDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  itemData: {
-    _id: string;
-    name: string;
-    description: string;
-    price: number;
-    category: string;
-    imageUrl: string;
-    modifiers: Modifier[];
-  } | null;
-  onSave: (data: any) => void;
+  item: any;
 }
 
-const EditMenuModal: React.FC<EditMenuModalProps> = ({
+export default function EditMenuItemDrawer({
   isOpen,
   onClose,
-  itemData,
-}) => {
-  const { updateMenuItem } = useRestaurantStore();
-  const { uploadImage, error: uploadError } = useUpload();
-
-  const [itemName, setItemName] = useState("");
-  const [itemDescription, setItemDescription] = useState("");
-  const [itemPrice, setItemPrice] = useState(0);
-  const [itemCategory, setItemCategory] = useState("");
-  const [itemImage, setItemImage] = useState<File | null>(null);
-  const [modifiers, setModifiers] = useState<Modifier[]>([]);
+  item,
+}: EditMenuItemDrawerProps) {
+  const [name, setName] = useState(item?.name || "");
+  const [description, setDescription] = useState(item?.description || "");
+  const [price, setPrice] = useState(item?.price.toString() || "");
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    item?.imageUrl || null,
+  );
+  const [selectedDays, setSelectedDays] = useState<number[]>(
+    item?.indexDaysAvailable && item.indexDaysAvailable.length > 0
+      ? item.indexDaysAvailable
+      : [0, 1, 2, 3, 4, 5, 6],
+  );
+  const [isSpicy, setIsSpicy] = useState(item?.isSpicy || false);
+  const [isVegan, setIsVegan] = useState(item?.vegan || false);
+  const [category, setCategory] = useState(item?.category || "");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [validationError, setValidationError] = useState("");
-  const [itemImageUrl, setItemImageUrl] = useState("");
-  const [saveLoading, setSaveLoading] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const { selectedRestaurant } = useRestaurantStore();
+  const { uploadImage } = useUpload();
+  const { categories } = useMenuStore();
+  const { editItem } = useItems();
 
   useEffect(() => {
-    if (itemData) {
-      setItemName(itemData.name);
-      setItemDescription(itemData.description);
-      setItemPrice(itemData.price);
-      setItemCategory(itemData.category);
-      setItemImageUrl(itemData.imageUrl);
-      setModifiers(itemData.modifiers || []);
+    if (item) {
+      setName(item?.name);
+      setDescription(item?.description);
+      setPrice(item?.price.toString());
+      setImagePreview(item?.imageUrl || null);
+      setSelectedDays(
+        item?.indexDaysAvailable && item.indexDaysAvailable.length > 0
+          ? item.indexDaysAvailable
+          : [0, 1, 2, 3, 4, 5, 6],
+      );
+      setIsSpicy(item?.isSpicy);
+      setIsVegan(item?.vegan);
+      setCategory(item?.category);
     }
-  }, [itemData]);
+  }, [item]);
+
+  const handleDayChange = (dayIndex: number) => {
+    setSelectedDays((prev) =>
+      prev.includes(dayIndex)
+        ? prev.filter((d) => d !== dayIndex)
+        : [...prev, dayIndex],
+    );
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage(file);
       const reader = new FileReader();
-      reader.onload = () => setItemImageUrl(reader.result as string);
-      reader.readAsDataURL(e.target.files[0]);
-      setItemImage(e.target.files[0]);
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleModifierChange = (
-    index: number,
-    field: string,
-    value: string | boolean,
-  ) => {
-    const newModifiers = [...modifiers];
-    newModifiers[index] = { ...newModifiers[index], [field]: value };
-    setModifiers(newModifiers);
+  const handleRemoveImage = () => {
+    setImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
-  const handleOptionChange = (
-    modifierIndex: number,
-    optionIndex: number,
-    field: string,
-    value: string | number,
-  ) => {
-    const newModifiers = [...modifiers];
-    newModifiers[modifierIndex].options[optionIndex] = {
-      ...newModifiers[modifierIndex].options[optionIndex],
-      [field]: value,
-    };
-    setModifiers(newModifiers);
+  const resetForm = () => {
+    setName("");
+    setDescription("");
+    setPrice("");
+    setImage(null);
+    setImagePreview(null);
+    setSelectedDays([0, 1, 2, 3, 4, 5, 6]);
+    setIsSpicy(false);
+    setIsVegan(false);
+    setCategory("");
+    setValidationError("");
   };
 
-  const handleAddModifier = () => {
-    setModifiers([
-      ...modifiers,
-      {
-        name: "",
-        required: false,
-        multiple: false,
-        options: [{ name: "", price: 0 }],
-      },
-    ]);
-  };
-
-  const handleRemoveModifier = (index: number) => {
-    const newModifiers = modifiers.filter((_, i) => i !== index);
-    setModifiers(newModifiers);
-  };
-
-  const handleAddOption = (modifierIndex: number) => {
-    const newModifiers = [...modifiers];
-    newModifiers[modifierIndex].options.push({ name: "", price: 0 });
-    setModifiers(newModifiers);
-  };
-
-  const handleRemoveOption = (modifierIndex: number, optionIndex: number) => {
-    const newModifiers = [...modifiers];
-    newModifiers[modifierIndex].options = newModifiers[
-      modifierIndex
-    ].options.filter((_, i) => i !== optionIndex);
-    setModifiers(newModifiers);
-  };
-
-  const handleSaveEditedItem = async () => {
-    if (!itemName || !itemDescription || itemPrice < 0 || !itemCategory) {
-      setValidationError("Please fill in all fields correctly.");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name || !description || !price || !category) {
+      setValidationError("All fields must be filled.");
       return;
     }
 
-    let imageUrl = itemImageUrl;
-    if (itemImage) {
+    // Optional: Prevent submission if no days are selected
+    if (selectedDays.length === 0) {
+      setValidationError("Please select at least one available day.");
+      return;
+    }
+
+    let imageUrl = imagePreview;
+    if (image) {
       try {
-        imageUrl = (await uploadImage(itemImage)) as string;
-        if (uploadError) {
-          setValidationError("Failed to upload image.");
-          return;
+        imageUrl = (await uploadImage(image)) as string;
+        if (!imageUrl) {
+          throw new Error("Image upload failed.");
         }
       } catch (error) {
         setValidationError("Failed to upload image.");
@@ -165,257 +147,225 @@ const EditMenuModal: React.FC<EditMenuModalProps> = ({
       }
     }
 
-    setValidationError("");
+    setEditLoading(true);
+
     const updatedItem = {
-      ...itemData,
-      name: itemName,
-      description: itemDescription,
-      price: itemPrice,
-      category: itemCategory,
+      _id: item._id,
+      restaurantId: selectedRestaurant?._id,
+      name,
+      description,
+      price: parseFloat(price),
+      category,
       imageUrl,
-      modifiers,
+      isSpicy,
+      vegan: !!isVegan,
+      indexDaysAvailable: selectedDays,
+      modifiers: [],
+      quantity: 1,
     };
 
-    setSaveLoading(true);
-    updateMenuItem(updatedItem as any);
-    setSaveLoading(false);
-    handleClose();
-  };
-
-  const handleClose = () => {
-    onClose();
-    setValidationError("");
+    try {
+      if (await editItem(updatedItem)) {
+        toast("Menu item updated successfully", {
+          actionButtonStyle: {
+            backgroundColor: "hsl(var(--primary))",
+            color: "hsl(var(--primary-foreground))",
+          },
+          action: { label: "yay!", onClick: () => {} },
+        });
+      } else {
+        toast("Failed to update menu item", {
+          actionButtonStyle: {
+            backgroundColor: "hsl(var(--destructive))",
+            color: "hsl(var(--primary-foreground))",
+          },
+          action: {
+            label: "Retry",
+            onClick: () => {
+              handleSubmit(e);
+            },
+          },
+        });
+      }
+      onClose();
+    } catch (error) {
+      setValidationError("Failed to edit menu item.");
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="min-w-[70vh]">
-        <DialogHeader>
-          <DialogTitle>Edit Menu Item</DialogTitle>
-          <DialogDescription>
-            Update the details below to edit the item in the menu.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 max-h-[60vh] px-3 overflow-y-auto">
-          {validationError && (
-            <div className="text-red-500">{validationError}</div>
-          )}
-          <div className="grid gap-1">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-1">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={itemDescription}
-              onChange={(e) => setItemDescription(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-1">
-            <Label htmlFor="price">Price</Label>
-            <div className="flex items-center">
-              <span className="mr-2 text-xl mb-2 text-gray-500">₪</span>
-              <Input
-                id="price"
-                type="number"
-                min="0"
-                step="0.01"
-                value={itemPrice}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value);
-                  if (value >= 0) setItemPrice(value);
-                }}
-              />
+    <Drawer open={isOpen} onOpenChange={onClose}>
+      <DrawerContent className="h-screen flex flex-col">
+        <div className="mx-auto w-full xl:max-w-[80vw] h-full flex flex-col">
+          <form onSubmit={handleSubmit} className="flex flex-col h-full">
+            <div className="px-4 py-4 border-b">
+              <h2 className="text-lg font-semibold">Edit Menu Item</h2>
+              <p className="text-sm text-muted-foreground">
+                Update the details for the menu item.
+              </p>
             </div>
-          </div>
-          <div className="grid gap-1">
-            <Label htmlFor="category">Category</Label>
-            <Input
-              id="category"
-              value={itemCategory}
-              onChange={(e) => setItemCategory(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-1">
-            <Label htmlFor="image">Image</Label>
-            <Input
-              id="image"
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-            {itemImageUrl && (
-              <img
-                src={itemImageUrl}
-                alt="Item"
-                className="w-24 h-24 object-cover rounded mt-2"
-              />
-            )}
-          </div>
-          <div className="grid gap-1">
-            <Label>Modifiers</Label>
-            {modifiers.map((modifier, modifierIndex) => (
-              <div key={modifierIndex} className="border p-2 rounded mb-2">
-                <div className="grid gap-1">
-                  <Label htmlFor={`modifier-name-${modifierIndex}`}>
-                    Modifier Name
-                  </Label>
-                  <div className="flex flex-row gap-1">
+            <ScrollArea className="flex-grow px-4 py-4">
+              <div className="space-y-6 pr-2 mx-2">
+                {validationError && (
+                  <div className="text-red-500">{validationError}</div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="price">Price</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="image">Image</Label>
+                  <div className="flex items-center space-x-2">
                     <Input
-                      id={`modifier-name-${modifierIndex}`}
-                      value={modifier.name}
-                      onChange={(e) =>
-                        handleModifierChange(
-                          modifierIndex,
-                          "name",
-                          e.target.value,
-                        )
-                      }
+                      id="image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      ref={fileInputRef}
                     />
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="self-end"
-                        >
-                          <MoreHorizontal className="w-4 h-4" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem
-                          onClick={() => handleRemoveModifier(modifierIndex)}
-                        >
-                          <Trash2Icon className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-                <div className="flex w-full items-center px-2 mt-1 mb-4">
-                  <div className="flex flex-row items-center gap-4">
-                    <div className="flex items-center my-2">
-                      <Checkbox
-                        id={`modifier-required-${modifierIndex}`}
-                        checked={modifier.required}
-                        onCheckedChange={(checked) =>
-                          handleModifierChange(
-                            modifierIndex,
-                            "required",
-                            checked,
-                          )
-                        }
-                      />
-                      <Label
-                        htmlFor={`modifier-required-${modifierIndex}`}
-                        className="ml-2"
-                      >
-                        Required
-                      </Label>
-                    </div>
-                    <div className="flex items-center my-2">
-                      <Checkbox
-                        id={`modifier-multiple-${modifierIndex}`}
-                        checked={modifier.multiple}
-                        onCheckedChange={(checked) =>
-                          handleModifierChange(
-                            modifierIndex,
-                            "multiple",
-                            checked,
-                          )
-                        }
-                      />
-                      <Label
-                        htmlFor={`modifier-multiple-${modifierIndex}`}
-                        className="ml-2"
-                      >
-                        Multiple
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-                <div className="grid gap-1">
-                  <Label>Options</Label>
-                  {modifier.options.map((option, optionIndex) => (
-                    <div key={optionIndex} className="flex items-center mb-2">
-                      <Input
-                        value={option.name}
-                        onChange={(e) =>
-                          handleOptionChange(
-                            modifierIndex,
-                            optionIndex,
-                            "name",
-                            e.target.value,
-                          )
-                        }
-                        className="mr-2"
-                      />
-                      <div className="flex items-center">
-                        <span className="mr-2 text-xl mb-2 text-gray-500">
-                          ₪
-                        </span>
-                        <Input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={option.price}
-                          onChange={(e) => {
-                            const value = parseFloat(e.target.value);
-                            if (value >= 0)
-                              handleOptionChange(
-                                modifierIndex,
-                                optionIndex,
-                                "price",
-                                value,
-                              );
-                          }}
-                          className="mr-2"
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Select Image
+                    </Button>
+                    {imagePreview && (
+                      <div className="relative">
+                        <img
+                          src={imagePreview}
+                          alt="Menu item preview"
+                          className="w-16 h-16 object-cover rounded"
                         />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6"
+                          onClick={handleRemoveImage}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() =>
-                          handleRemoveOption(modifierIndex, optionIndex)
-                        }
-                      >
-                        <Trash2Icon className="w-4 h-4" />
-                        <span className="sr-only">Remove</span>
-                      </Button>
-                    </div>
-                  ))}
-                  <Button
-                    variant="outline"
-                    onClick={() => handleAddOption(modifierIndex)}
-                  >
-                    Add Option
-                  </Button>
+                    )}
+                  </div>
                 </div>
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat._id} value={cat._id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Properties</Label>
+                  <div className="flex space-x-4">
+                    <Button
+                      type="button"
+                      variant={isSpicy ? "default" : "outline"}
+                      className="flex items-center space-x-2"
+                      onClick={() => setIsSpicy(!isSpicy)}
+                    >
+                      <Flame
+                        className={`h-4 w-4 ${
+                          isSpicy ? "text-red-100 drop-shadow-md" : ""
+                        }`}
+                      />
+                      <span className={`${isSpicy ? "drop-shadow-md" : ""}`}>
+                        Spicy
+                      </span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={isVegan ? "default" : "outline"}
+                      className="flex items-center space-x-2"
+                      onClick={() => setIsVegan(!isVegan)}
+                    >
+                      <Leaf
+                        className={`h-4 w-4 ${isVegan ? "text-green-500" : ""}`}
+                      />
+                      <span className={`${isVegan ? "drop-shadow-md" : ""}`}>
+                        Vegan
+                      </span>
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Available Days</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {weekDays.map((day, index) => (
+                      <Button
+                        key={day}
+                        type="button"
+                        variant={
+                          selectedDays.includes(index) ? "default" : "outline"
+                        }
+                        onClick={() => handleDayChange(index)}
+                        className="px-3 py-2 flex items-center space-x-2"
+                      >
+                        <span>{day}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <Button type="button" variant="outline" className="w-full">
+                  Select Modifiers
+                </Button>
               </div>
-            ))}
-            <Button variant="outline" onClick={handleAddModifier}>
-              Add Modifier
-            </Button>
-          </div>
+            </ScrollArea>
+            <div className="flex flex-row px-4 py-4 mb-2 border-t items-center justify-end gap-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  resetForm();
+                  onClose();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={editLoading}>
+                {editLoading ? "Updating..." : "Update Item"}
+              </Button>
+            </div>
+          </form>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button disabled={saveLoading} onClick={handleSaveEditedItem}>
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   );
-};
-
-export default EditMenuModal;
+}

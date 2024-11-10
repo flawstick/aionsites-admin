@@ -6,10 +6,12 @@ import AuthProvider from "@/components/auth-provider";
 import useAuth from "@/lib/hooks/useAuth";
 import Loading from "@/components/loading";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
+import useMenuStore from "@/lib/store/menuStore";
 
 const RestaurantMenu = () => {
   const { session }: any = useAuth();
   const { fetchMenu } = useRestaurantStore();
+  const { fetchMenuItems } = useMenuStore();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -17,6 +19,7 @@ const RestaurantMenu = () => {
       if (session) {
         setLoading(true);
         await fetchMenu(session.jwt);
+        await fetchMenuItems();
         setLoading(false);
       }
     }

@@ -1,16 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  SquareTerminal,
-  Bot,
-  BookOpen,
-  Settings2,
-  LucideMenu,
-  Pizza,
-  Sparkles,
-  Layers3,
-} from "lucide-react";
+import { Pizza, Sparkles, Layers3 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import {
@@ -33,11 +24,9 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbSeparator,
-  BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
-import { IconBxShekel } from "./icons";
+import { ScrollArea } from "./ui/scroll-area";
 
-// This is sample data.
 const data = {
   navMain: [
     {
@@ -110,7 +99,7 @@ export function MenuSidebar({ breadcrumbs, children }: MenuItemProps) {
       <SidebarInset>
         <div className="flex" ref={ref}>
           <header
-            className={`${"fixed"} flex h-16 shrink-0 items-center gap-2 transition-[width,height]
+            className={`${"fixed"} flex flex-row justify-between h-16 shrink-0 items-center gap-2 transition-[width,height]
               ${isIntersecting ? "border-none" : "border-b"}
               ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 backdrop-blur-2xl
               bg-background z-50 w-full`}
@@ -137,7 +126,9 @@ export function MenuSidebar({ breadcrumbs, children }: MenuItemProps) {
             </div>
           </header>
         </div>
-        {children}
+        <ScrollArea className="flex mt-16 mx-8 min-h-screen">
+          {children}
+        </ScrollArea>
       </SidebarInset>
     </SidebarProvider>
   );

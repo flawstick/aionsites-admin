@@ -119,11 +119,42 @@ export function useCategories() {
     return response?.data?.categories || [];
   }
 
+  async function updateCategoryOrder(
+    categories: { _id: string; index: number }[],
+  ) {
+    let response: any;
+    const updatedCategories = categories.map((cat: any, index: number) => ({
+      _id: cat._id,
+      index: index,
+    }));
+
+    try {
+      response = await axios.put(
+        `https://api.aionsites.com/menu/${restaurantId}/categories/order`,
+        {
+          categories: updatedCategories,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+    } catch (error) {
+      console.error(error);
+    }
+
+    if (response?.status === 200) fetchNewCategories();
+    return response?.status === 200;
+  }
+
   return {
     createCategory,
     editCategory,
     deleteCategory,
     undoDeleteCategory,
     getCategories,
+    updateCategoryOrder,
   };
 }

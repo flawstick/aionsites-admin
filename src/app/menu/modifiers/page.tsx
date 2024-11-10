@@ -121,7 +121,7 @@ function ModifierManagement() {
   };
 
   return (
-    <main className="flex flex-col min-h-screen w-full mt-16 mx-auto px-8">
+    <main className="flex flex-col min-h-screen w-full mx-auto">
       <h1 className="mt-12 text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
         Modifier Management
       </h1>

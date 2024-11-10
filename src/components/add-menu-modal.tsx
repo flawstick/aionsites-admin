@@ -1,7 +1,5 @@
-"use client";
-
 import { useState, useRef } from "react";
-import { Plus, Image as ImageIcon, Flame, Leaf, X } from "lucide-react";
+import { Flame, Leaf, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +15,9 @@ import {
 } from "@/components/ui/select";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import useUpload from "@/lib/hooks/useUpload";
-import { Checkbox } from "./ui/checkbox";
+import useMenuStore from "@/lib/store/menuStore";
+import { useItems } from "@/lib/hooks/useItems";
+import { create } from "domain";
 
 const weekDays = [
   "Monday",
@@ -27,13 +27,6 @@ const weekDays = [
   "Friday",
   "Saturday",
   "Sunday",
-];
-const categories = [
-  "Appetizer",
-  "Main Course",
-  "Dessert",
-  "Beverage",
-  "Side Dish",
 ];
 
 interface AddMenuItemDrawerProps {
@@ -60,8 +53,10 @@ export default function AddMenuItemDrawer({
   const [validationError, setValidationError] = useState("");
   const [addLoading, setAddLoading] = useState(false);
 
-  const { addMenuItem, selectedRestaurant } = useRestaurantStore();
+  const { selectedRestaurant } = useRestaurantStore();
   const { uploadImage } = useUpload();
+  const { categories } = useMenuStore();
+  const { createItem } = useItems();
 
   const handleDayChange = (dayIndex: number) => {
     setSelectedDays((prev) =>
@@ -141,7 +136,7 @@ export default function AddMenuItemDrawer({
     };
 
     try {
-      await addMenuItem(newItem);
+      createItem(newItem);
       // Reset form fields after submission
       resetForm();
       onClose(); // Close the drawer after successful submission
@@ -243,8 +238,8 @@ export default function AddMenuItemDrawer({
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((cat) => (
-                        <SelectItem key={cat} value={cat}>
-                          {cat}
+                        <SelectItem key={cat._id} value={cat._id}>
+                          {cat.name}
                         </SelectItem>
                       ))}
                     </SelectContent>

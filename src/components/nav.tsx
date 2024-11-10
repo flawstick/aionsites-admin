@@ -40,7 +40,7 @@ export function Header({ children, bg, noBorder }: HeaderProps) {
     <>
       <header ref={ref}>
         <div
-          className={`fixed flex h-16 inset-x-0 px-4 items-center top-0 z-50 backdrop-blur-2xl duration-200 border-b ${
+          className={`fixed flex h-16 inset-x-0 pr-4 items-center top-0 z-50 backdrop-blur-2xl duration-200 border-b ${
             isIntersecting
               ? `${bg ? bg : "bg-zinc-900/0"} ${noBorder && "border-none"}`
               : `bg-transparent `
@@ -48,7 +48,7 @@ export function Header({ children, bg, noBorder }: HeaderProps) {
         >
           <MobileNav />
           <span
-            className="flex cursor-pointer invert-[0.75] dark:invert-0"
+            className="flex cursor-pointer invert-[0.75] dark:invert-0 -ml-1"
             onClick={() => router.push("/")}
           >
             <GrubIcon className="h-[3.75rem] w-[4.25rem]" />

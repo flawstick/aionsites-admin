@@ -4,6 +4,10 @@ import useAuth from "@/lib/hooks/useAuth";
 import MenuManager from "@/components/menu-manager";
 import { Header } from "@/components/nav";
 import { MenuSidebar } from "./menu-sidebar";
+import useMenuStore from "@/lib/store/menuStore";
+import { AddItemButton } from "./menu/items/add-item-button";
+import { ReactNode, useState } from "react";
+import AddMenuItemDrawer from "./add-menu-modal";
 
 const breadCrumbsPath = [
   { title: "Menu", url: "/menu/items" },
@@ -12,18 +16,19 @@ const breadCrumbsPath = [
 
 export function Menu() {
   const { session }: any = useAuth();
-  const { createMenu, menu } = useRestaurantStore();
+  const { createMenu } = useRestaurantStore();
+  const { menuItems } = useMenuStore();
 
   return (
     <Header>
       <MenuSidebar breadcrumbs={breadCrumbsPath}>
-        <div className="grid min-h-screen grid-rows-[auto_1fr] mt-8">
+        <div className="grid min-h-screen grid-rows-[auto_1fr]">
           <div className="flex flex-col">
-            <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-              {menu.items !== null && <MenuManager />}
+            <main className="flex flex-1 flex-col gap-4 md:gap-8">
+              {menuItems !== null && <MenuManager />}
             </main>
           </div>
-          {!menu.items && (
+          {!menuItems && (
             <div className="flex items-center justify-center flex-col my-10">
               <p className="text-lg text-gray-500">
                 Your restaurant doesn&apos;t have a menu yet

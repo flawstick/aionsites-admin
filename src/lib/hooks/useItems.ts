@@ -1,9 +1,10 @@
+"use client";
+
 import axios, { AxiosResponse } from "axios";
 import { useRestaurantStore } from "../store/restaurantStore";
 import useMenuStore from "../store/menuStore";
 
 export function useItems() {
-  const jwt = localStorage.getItem("jwt");
   const restaurantId =
     useRestaurantStore.getState().selectedRestaurant?._id || "";
   const menuId = useRestaurantStore.getState().selectedRestaurant?.menu;
@@ -11,6 +12,7 @@ export function useItems() {
   const deletedItems: any = {};
 
   async function createItem(item: any) {
+    const jwt = localStorage.getItem("jwt");
     let response: any;
     const schemaItem = {
       ...item,
@@ -39,6 +41,7 @@ export function useItems() {
   }
 
   async function editItem(item: any) {
+    const jwt = localStorage.getItem("jwt");
     let response: any;
     const schemaItem = {
       ...item,
@@ -68,6 +71,7 @@ export function useItems() {
   }
 
   async function deleteItem(itemId: string) {
+    const jwt = localStorage.getItem("jwt");
     let response: any;
     try {
       response = await axios.delete(
@@ -100,6 +104,7 @@ export function useItems() {
   }
 
   async function getItems(): Promise<AxiosResponse> {
+    const jwt = localStorage.getItem("jwt");
     let response: any;
     try {
       response = await axios.get(
@@ -118,11 +123,36 @@ export function useItems() {
     return response?.data?.items || [];
   }
 
+  async function updateModifiers(item: any) {
+    const jwt = localStorage.getItem("jwt");
+    let response: any;
+    try {
+      response = await axios.put(
+        `https://api.aionsites.com/menu/${restaurantId}/items/${item._id}/modifiers`,
+        {
+          modifiers: item.modifiers,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+    } catch (error) {
+      console.error(error);
+    }
+
+    if (response?.status === 200) fetchNewItems();
+    return response?.status === 200;
+  }
+
   return {
     createItem,
     editItem,
     deleteItem,
     undoDeleteItem,
     getItems,
+    updateModifiers,
   };
 }

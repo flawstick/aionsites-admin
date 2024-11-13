@@ -91,6 +91,7 @@ const useMenuStore = create<MenuState>()(
         fetchModifiers: async () => {
           const { selectedRestaurant } = useRestaurantStore.getState();
           let response: any;
+          let modifiers: Modifier[] = [];
           try {
             response = await axios.get(
               `https://api.aionsites.com/menu/${selectedRestaurant?._id}/modifiers`,
@@ -102,10 +103,10 @@ const useMenuStore = create<MenuState>()(
                 },
               },
             );
+            modifiers = response?.data;
           } catch (error) {
             console.error(error);
           }
-          let modifiers = response?.data?.modifiers;
           set(() => ({ modifiers }));
         },
         fetchCategories: async () => {
@@ -121,11 +122,12 @@ const useMenuStore = create<MenuState>()(
                 },
               },
             );
+            set(() => ({ categories: response?.data?.categories }));
           } catch (error) {
             console.error(error);
           }
 
-          return response?.data?.categories || [];
+          return response?.data || [];
         },
         setCategories: (categories: Category[]) => set({ categories }),
       }),

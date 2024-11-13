@@ -131,7 +131,7 @@ function ModifierManagement() {
         onValueChange={(value) => setActiveTab(value as "categories" | "all")}
         className="mb-4 sm:mb-6 "
       >
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 mr-[0.25rem]">
           <TabsList>
             <TabsTrigger value="categories">By Category</TabsTrigger>
             <TabsTrigger value="all">All Modifiers</TabsTrigger>

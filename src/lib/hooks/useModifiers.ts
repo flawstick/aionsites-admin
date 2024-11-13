@@ -1,9 +1,10 @@
+"use client";
+
 import axios, { AxiosResponse } from "axios";
 import { useRestaurantStore } from "../store/restaurantStore";
 import useMenuStore from "../store/menuStore";
 
 export function useModifiers() {
-  let jwt = localStorage.getItem("jwt");
   let restaurantId =
     useRestaurantStore.getState().selectedRestaurant?._id || "";
   let menuId = useRestaurantStore.getState().selectedRestaurant?.menu;
@@ -11,6 +12,7 @@ export function useModifiers() {
   let deletedModifiers: any = {};
 
   async function createModifier(modifier: any) {
+    let jwt = localStorage.getItem("jwt");
     let response: any;
     let schemaModifier: any;
     try {
@@ -42,6 +44,7 @@ export function useModifiers() {
   }
 
   async function editModifier(modifier: any) {
+    let jwt = localStorage.getItem("jwt");
     let response: any;
     let schemaModifier: any;
     try {
@@ -73,6 +76,7 @@ export function useModifiers() {
   }
 
   async function deleteModifier(modifierId: string) {
+    let jwt = localStorage.getItem("jwt");
     let response: any;
     try {
       response = await axios.delete(
@@ -105,6 +109,7 @@ export function useModifiers() {
   }
 
   async function fetchModifiers(): Promise<AxiosResponse> {
+    let jwt = localStorage.getItem("jwt");
     let response: any;
     try {
       response = await axios.get(

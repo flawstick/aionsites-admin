@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { HTMLMotionProps, motion } from "framer-motion";
 import { Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AddItemButtonProps extends HTMLMotionProps<"button"> {}
 
@@ -11,7 +12,7 @@ export function AddItemButton(props: AddItemButtonProps) {
 
   return (
     <motion.button
-      className="relative overflow-hidden px-4 py-2 rounded-full text-white font-semibold text-md shadow-lg"
+      className="group relative overflow-hidden px-4 py-2 rounded-full text-white font-semibold text-md shadow-lg"
       style={{
         background: "linear-gradient(135deg, #fd8000 0%, #ffa500 100%)",
       }}
@@ -51,8 +52,10 @@ export function AddItemButton(props: AddItemButtonProps) {
         ))}
       </motion.div>
       <motion.span
-        className="relative z-10 flex items-center justify-center"
-        animate={isHovered ? { color: "#fd8000" } : { color: "white" }}
+        className={cn(
+          "relative z-10 flex items-center justify-center",
+          "group-hover:drop-shadow-lg transition-all duration-300 ease-in-out",
+        )}
         transition={{ duration: 0.3 }}
       >
         <Plus className="mr-1" size={18} strokeWidth={2.5} />

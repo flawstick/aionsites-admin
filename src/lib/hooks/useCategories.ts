@@ -1,9 +1,10 @@
+"use client";
+
 import axios, { AxiosResponse } from "axios";
 import { useRestaurantStore } from "../store/restaurantStore";
 import useMenuStore from "../store/menuStore";
 
 export function useCategories() {
-  const jwt = localStorage.getItem("jwt");
   const restaurantId =
     useRestaurantStore.getState().selectedRestaurant?._id || "";
   const menuId = useRestaurantStore.getState().selectedRestaurant?.menu;
@@ -11,6 +12,7 @@ export function useCategories() {
   const deletedCategories: any = {};
 
   async function createCategory(category: any) {
+    const jwt = localStorage.getItem("jwt");
     let response: any;
     const schemaCategory = {
       ...category,
@@ -40,6 +42,7 @@ export function useCategories() {
   }
 
   async function editCategory(category: any) {
+    const jwt = localStorage.getItem("jwt");
     let response: any;
     const schemaCategory = {
       ...category,
@@ -69,6 +72,7 @@ export function useCategories() {
   }
 
   async function deleteCategory(categoryId: string) {
+    const jwt = localStorage.getItem("jwt");
     let response: any;
     try {
       response = await axios.delete(
@@ -101,6 +105,7 @@ export function useCategories() {
   }
 
   async function getCategories(): Promise<AxiosResponse> {
+    const jwt = localStorage.getItem("jwt");
     let response: any;
     try {
       response = await axios.get(
@@ -122,6 +127,7 @@ export function useCategories() {
   async function updateCategoryOrder(
     categories: { _id: string; index: number }[],
   ) {
+    const jwt = localStorage.getItem("jwt");
     let response: any;
     const updatedCategories = categories.map((cat: any, index: number) => ({
       _id: cat._id,

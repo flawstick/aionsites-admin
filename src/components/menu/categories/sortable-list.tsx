@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   DndContext,
   closestCenter,
@@ -27,12 +27,14 @@ interface SortableCategoryListProps {
 }
 
 const SortableCategoryList: React.FC<SortableCategoryListProps> = ({
-  categories,
   openEditDialog,
   handleMoveCategory,
   handleDeleteCategory,
 }) => {
-  const { setCategories } = useMenuStore();
+  const { setCategories, categories } = useMenuStore();
+  useEffect(() => {
+    console.log(categories);
+  }, [categories]);
   const { updateCategoryOrder } = useCategories();
 
   // DnD Kit sensors

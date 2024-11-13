@@ -8,6 +8,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster as Sonner, toast } from "sonner";
 import { useCategories } from "@/lib/hooks/useCategories";
 
@@ -139,7 +140,10 @@ export default function MenuManager() {
                   {categories.length > 0 && (
                     <div className="text-sm text-muted-foreground">
                       Current order:{" "}
-                      {categories?.map((cat) => cat.name).join(", ")}
+                      {categories
+                        ?.sort((a, b) => a.index - b.index)
+                        .map((cat) => cat.name)
+                        .join(", ")}
                     </div>
                   )}
                 </div>

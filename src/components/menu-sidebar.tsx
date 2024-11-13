@@ -126,7 +126,7 @@ export function MenuSidebar({ breadcrumbs, children }: MenuItemProps) {
             </div>
           </header>
         </div>
-        <ScrollArea className="flex mt-16 mx-8 min-h-screen">
+        <ScrollArea className="flex mt-16 px-8 min-h-screen">
           {children}
         </ScrollArea>
       </SidebarInset>

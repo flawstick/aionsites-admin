@@ -18,6 +18,7 @@ import useUpload from "@/lib/hooks/useUpload";
 import useMenuStore from "@/lib/store/menuStore";
 import { useItems } from "@/lib/hooks/useItems";
 import { create } from "domain";
+import { IconBxShekel } from "./icons";
 
 const weekDays = [
   "Monday",
@@ -131,8 +132,7 @@ export default function AddMenuItemDrawer({
       isSpicy,
       isVegan,
       availableDays: selectedDays.map((index) => index + 1), // Convert to 1-based indexing if needed
-      modifiers: [], // Empty for now
-      quantity: 1, // Default quantity
+      modifiers: [],
     };
 
     try {
@@ -182,15 +182,18 @@ export default function AddMenuItemDrawer({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    required
-                  />
+                  <div className="flex flex-row items-center gap-2 justify-center">
+                    <IconBxShekel className="h-6 w-6" />
+                    <Input
+                      id="price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="image">Image</Label>

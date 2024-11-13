@@ -18,6 +18,8 @@ import useUpload from "@/lib/hooks/useUpload";
 import useMenuStore from "@/lib/store/menuStore";
 import { useItems } from "@/lib/hooks/useItems";
 import { toast } from "sonner";
+import { IconBxShekel } from "./icons";
+import ItemModifiers from "./menu/items/modifiers-list";
 
 const weekDays = [
   "Monday",
@@ -230,15 +232,18 @@ export default function EditMenuItemDrawer({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="price">Price</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    required
-                  />
+                  <div className="flex flex-row items-center justify-center gap-2 w-full">
+                    <IconBxShekel className="h-6 w-6 text-primary-foreground" />
+                    <Input
+                      id="price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="image">Image</Label>
@@ -344,9 +349,7 @@ export default function EditMenuItemDrawer({
                     ))}
                   </div>
                 </div>
-                <Button type="button" variant="outline" className="w-full">
-                  Select Modifiers
-                </Button>
+                <ItemModifiers item={item} />
               </div>
             </ScrollArea>
             <div className="flex flex-row px-4 py-4 mb-2 border-t items-center justify-end gap-4">

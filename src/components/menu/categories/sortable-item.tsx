@@ -60,9 +60,11 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
 
   return (
     <li
+      {...attributes}
+      {...listeners}
       ref={setNodeRef}
       style={style}
-      className="group flex items-center justify-between p-4 rounded-lg bg-background hover:bg-accent/50"
+      className="group flex items-center justify-between p-4 rounded-lg bg-muted hover:bg-muted/80 transition-colors duration-200"
     >
       <div className="flex flex-row justify-center items-center gap-1 mr-4">
         <h3 className="font-medium">{category.name}</h3>

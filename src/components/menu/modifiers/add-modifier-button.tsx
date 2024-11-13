@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
@@ -27,7 +25,6 @@ export function AddModifierButton({ onClick }: AddModifierButtonProps) {
       }}
       whileHover={{
         scale: 1.05,
-        boxShadow: "0 0 20px rgba(253, 128, 0, 0.6)",
       }}
       whileTap={{
         scale: 0.95,

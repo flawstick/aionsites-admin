@@ -11,7 +11,7 @@ import useMenuStore from "@/lib/store/menuStore";
 const RestaurantMenu = () => {
   const { session }: any = useAuth();
   const { fetchMenu } = useRestaurantStore();
-  const { fetchMenuItems } = useMenuStore();
+  const { fetchMenuItems, fetchModifiers } = useMenuStore();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -20,6 +20,7 @@ const RestaurantMenu = () => {
         setLoading(true);
         await fetchMenu(session.jwt);
         await fetchMenuItems();
+        await fetchModifiers();
         setLoading(false);
       }
     }

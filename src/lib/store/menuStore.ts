@@ -53,8 +53,8 @@ interface MenuState {
   modifiers: Modifier[];
   categories: Category[];
   fetchMenuItems: () => Promise<void>;
-  fetchModifiers: () => void;
-  fetchCategories: () => void;
+  fetchModifiers: () => Promise<void>;
+  fetchCategories: () => Promise<void>;
   setCategories: (categories: Category[]) => void;
 }
 

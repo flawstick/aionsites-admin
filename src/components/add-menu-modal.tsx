@@ -17,8 +17,9 @@ import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import useUpload from "@/lib/hooks/useUpload";
 import useMenuStore from "@/lib/store/menuStore";
 import { useItems } from "@/lib/hooks/useItems";
-import { create } from "domain";
 import { IconBxShekel } from "./icons";
+import { AddModifiersDialog } from "./menu/items/add-item-modifiers-button";
+import ItemModifiers from "./menu/items/modifiers-list";
 
 const weekDays = [
   "Monday",
@@ -42,6 +43,7 @@ export default function AddMenuItemDrawer({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+  const [modifiers, setModifiers] = useState<string[]>([]);
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<number[]>([
@@ -97,6 +99,7 @@ export default function AddMenuItemDrawer({
     setIsSpicy(false);
     setIsVegan(false);
     setCategory("");
+    setModifiers([]);
     setValidationError("");
   };
 
@@ -132,7 +135,7 @@ export default function AddMenuItemDrawer({
       isSpicy,
       isVegan,
       availableDays: selectedDays.map((index) => index + 1), // Convert to 1-based indexing if needed
-      modifiers: [],
+      modifiers: modifiers,
     };
 
     try {
@@ -299,9 +302,7 @@ export default function AddMenuItemDrawer({
                     ))}
                   </div>
                 </div>
-                <Button type="button" variant="outline" className="w-full">
-                  Select Modifiers
-                </Button>
+                <ItemModifiers item={null} updateItemModifiers={setModifiers} />
               </div>
             </ScrollArea>
             <div className="flex flex-row px-4 py-4 mb-2 border-t items-center justify-end gap-4">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,11 +8,18 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { Modifier } from "@/types";
-import { Plus } from "lucide-react";
+import { availableMemory } from "process";
 
 interface AddModifiersDialogProps {
   availableModifiers: Modifier[];
@@ -26,61 +33,101 @@ export const AddModifiersDialog: React.FC<AddModifiersDialogProps> = ({
   onSave,
 }) => {
   const [open, setOpen] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<string[]>(selectedModifierIds);
+  const [tempSelectedIds, setTempSelectedIds] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleModifierToggle = (modifierId: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(modifierId)
-        ? prev.filter((id) => id !== modifierId)
-        : [...prev, modifierId],
-    );
+    setTempSelectedIds((prev) => {
+      const isSelected = prev.includes(modifierId);
+      if (isSelected) {
+        return prev.filter((id) => id !== modifierId);
+      } else {
+        return [...prev, modifierId];
+      }
+    });
   };
 
   const handleSave = () => {
-    onSave(selectedIds);
+    onSave(tempSelectedIds);
     setOpen(false);
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
+      setTempSelectedIds(selectedModifierIds);
+    }
+    setOpen(newOpen);
+  };
+
+  const filteredModifiers = availableModifiers.filter((modifier) =>
+    modifier.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="default" className="mb-4">
-          <Plus size={16} />
+          <Search size={16} />
           Add Modifiers
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Select Modifiers</DialogTitle>
+          <DialogTitle className="text-2xl font-bold mb-4">
+            Add Modifiers
+          </DialogTitle>
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+            <Input
+              type="text"
+              placeholder="Search modifiers..."
+              className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
         </DialogHeader>
-        <ScrollArea className="h-[60vh] pr-4">
-          {availableModifiers.map((modifier) => (
-            <div
-              key={modifier._id}
-              className="flex items-center space-x-2 mb-4"
-            >
-              <Checkbox
-                id={modifier._id}
-                checked={selectedIds.includes(modifier._id)}
-                onCheckedChange={() => handleModifierToggle(modifier._id)}
-              />
-              <Label
-                htmlFor={modifier._id}
-                className="text-sm font-medium leading-none"
-              >
-                {modifier.name}
-                {modifier.required && (
-                  <span className="text-red-500 ml-1">*</span>
-                )}
-                {modifier.multiple && (
-                  <span className="text-blue-500 ml-1">(Multiple)</span>
-                )}
-              </Label>
-            </div>
-          ))}
+        <ScrollArea className="h-[60vh] pr-4 mt-4">
+          {filteredModifiers.length > 0 ? (
+            filteredModifiers.map((modifier) => {
+              const isSelected = tempSelectedIds.includes(modifier._id);
+              return (
+                <Card
+                  key={modifier._id}
+                  className={`mb-4 cursor-pointer ${
+                    isSelected ? "border-primary" : "border-border"
+                  }`}
+                  onClick={() => handleModifierToggle(modifier._id)}
+                >
+                  <CardHeader>
+                    <CardTitle className="text-lg flex justify-between items-center">
+                      {modifier.name}
+                      <div>
+                        {modifier.required && (
+                          <Badge variant="destructive" className="mr-2">
+                            Required
+                          </Badge>
+                        )}
+                        {modifier.multiple && (
+                          <Badge variant="secondary">Multiple</Badge>
+                        )}
+                      </div>
+                    </CardTitle>
+                    <CardDescription>
+                      {isSelected ? "Selected" : "Click to select"}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              );
+            })
+          ) : (
+            <p className="text-center text-muted-foreground">
+              No modifiers found.
+            </p>
+          )}
         </ScrollArea>
         <DialogFooter>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave}>Add Selected Modifiers</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -4,18 +4,19 @@ import React, { useState, useEffect } from "react";
 import {
   DndContext,
   closestCenter,
-  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
   DragEndEvent,
+  KeyboardSensor,
+  MeasuringStrategy,
 } from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
-  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
   useSortable,
+  sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
@@ -34,54 +35,115 @@ import {
   Check,
   X,
   ChevronRight,
-  DollarSign,
   Flame,
+  MoreHorizontal,
+  Trash2Icon,
 } from "lucide-react";
 import useMenuStore from "@/lib/store/menuStore";
 import { AddModifiersDialog } from "./add-item-modifiers-button";
 import { Modifier } from "@/types";
-import { useItems } from "@/lib/hooks/useItems";
 import { Card, CardContent } from "@/components/ui/card";
+import { IconBxShekel } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ItemModifiersProps {
   item: any;
+  updateItemModifiers: (modifiers: any[]) => void;
 }
 
-const SortableItem = ({ id, modifier }: { id: string; modifier: Modifier }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id });
+interface SortableItemProps {
+  id: string;
+  modifier: Modifier;
+  removeItem: (id: string) => void;
+}
+
+const SortableItem: React.FC<SortableItemProps> = ({
+  id,
+  modifier,
+  removeItem,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    zIndex: isDragging ? 2 : 1,
   };
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
+      <div
+        ref={setNodeRef}
+        style={style}
+        className="flex items-center w-full p-4 mb-3 bg-muted border rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-all duration-300 group"
+      >
         <div
-          ref={setNodeRef}
-          style={style}
+          className="mr-3 w-8 flex justify-center items-center py-2 rounded-full hover:bg-gray-500/20 transition-colors duration-200 cursor-move"
           {...attributes}
           {...listeners}
-          className="flex flex-row bg-muted w-full border rounded-lg p-4 mb-3 cursor-move shadow-sm hover:shadow-md transition-all duration-300 flex items-center group"
         >
-          <GripVertical className="mr-3 text-primary-foreground group-hover:text-primary-foreground/80 transition-colors duration-300" />
-          <span className="flex-grow font-medium text-primary-foreground">
-            {modifier.name}
-          </span>
-          <Badge
-            variant={modifier.required ? "default" : "secondary"}
-            className="mr-2"
-          >
-            {modifier.required ? "Required" : "Optional"}
-          </Badge>
-          <ChevronRight className="text-gray-400 group-hover:text-gray-600 transition-colors duration-300" />
+          <GripVertical className="text-primary-foreground transition-colors duration-300" />
         </div>
-      </DialogTrigger>
+        <div className="flex-grow">
+          <span className="flex items-center justify-start font-semibold text-lg text-primary-foreground gap-1">
+            {modifier.name}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="opacity-0 group-hover:opacity-100 transition-all duration-300 "
+                >
+                  <MoreHorizontal />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    className="text-red-500"
+                    onClick={() => removeItem(id)}
+                  >
+                    <Trash2Icon className="w-4 h-4 mr-1" />
+                    Remove
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </span>
+        </div>
+        <Badge
+          variant={modifier.required ? "default" : "secondary"}
+          className="mr-2"
+        >
+          {modifier.required ? "Required" : "Optional"}
+        </Badge>
+        <DialogTrigger asChild>
+          <div className="flex items-center justify-center border bg-background rounded-lg p-1 cursor-pointer">
+            <ChevronRight className="text-primary-foreground/70 group-hover:text-primary-foreground transition-colors duration-300" />
+          </div>
+        </DialogTrigger>
+      </div>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary-foreground bg-clip-text text-transparent">
+          <DialogTitle className="text-3xl font-bold">
             {modifier.name}
           </DialogTitle>
         </DialogHeader>
@@ -107,7 +169,7 @@ const SortableItem = ({ id, modifier }: { id: string; modifier: Modifier }) => {
           </div>
           {modifier.indexDaysAvailable && (
             <div>
-              <Label className="text-sm font-medium text-gray-500 mb-2 block">
+              <Label className="block mb-2 text-sm font-medium text-primary-foreground/50">
                 Available Days
               </Label>
               <div className="flex flex-wrap gap-2">
@@ -131,51 +193,47 @@ const SortableItem = ({ id, modifier }: { id: string; modifier: Modifier }) => {
           )}
           <Separator className="my-6" />
           <div>
-            <Label className="text-xl font-semibold text-gray-800 mb-4 block">
-              Options
-            </Label>
+            <Label className="block mb-4 text-xl font-semibold">Options</Label>
             <ScrollArea className="h-[350px] pr-4">
               <div className="space-y-4">
                 {modifier.options.map((option, index) => (
                   <div
                     key={index}
-                    className="bg-gray-50 p-5 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
+                    className="p-5 bg-card border rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
                   >
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="font-semibold text-lg text-gray-800">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-lg font-semibold">
                         {option.name}
                       </span>
                       <Badge variant="outline" className="px-3 py-1">
-                        <DollarSign className="w-4 h-4 mr-1" />
+                        <IconBxShekel className="w-4 h-4 mr-1" />
                         {option.price.toFixed(2)}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       {option.multiple !== undefined && (
                         <div className="flex items-center">
-                          <Label className="mr-2 text-gray-600">
-                            Multiple:
-                          </Label>
+                          <Label className="mr-2">Multiple:</Label>
                           {option.multiple ? (
-                            <Check className="text-green-500 w-5 h-5" />
+                            <Check className="w-5 h-5 text-green-500" />
                           ) : (
-                            <X className="text-red-500 w-5 h-5" />
+                            <X className="w-5 h-5 text-red-500" />
                           )}
                         </div>
                       )}
                       {option.max !== undefined && (
                         <div className="flex items-center">
-                          <Label className="mr-2 text-gray-600">Max:</Label>
+                          <Label className="mr-2">Max:</Label>
                           <span className="font-medium">{option.max}</span>
                         </div>
                       )}
                       {option.vegan !== undefined && (
                         <div className="flex items-center">
-                          <Label className="mr-2 text-gray-600">Vegan:</Label>
+                          <Label className="mr-2">Vegan:</Label>
                           {option.vegan ? (
-                            <Check className="text-green-500 w-5 h-5" />
+                            <Check className="w-5 h-5 text-green-500" />
                           ) : (
-                            <X className="text-red-500 w-5 h-5" />
+                            <X className="w-5 h-5 text-red-500" />
                           )}
                         </div>
                       )}
@@ -183,27 +241,31 @@ const SortableItem = ({ id, modifier }: { id: string; modifier: Modifier }) => {
                         <div className="flex items-center">
                           <Label className="mr-2 text-gray-600">Spicy:</Label>
                           {option.isSpicy ? (
-                            <Flame className="text-red-500 w-5 h-5" />
+                            <Flame className="w-5 h-5 text-red-500" />
                           ) : (
-                            <X className="text-red-500 w-5 h-5" />
+                            <X className="w-5 h-5 text-red-500" />
                           )}
                         </div>
                       )}
                       {option.spiceLevel !== undefined && (
                         <div className="flex items-center">
-                          <Label className="mr-2 text-gray-600">
-                            Spice Level:
-                          </Label>
+                          <Label className="mr-2">Spice Level:</Label>
                           <div className="flex">
-                            {[...Array(option.spiceLevel)].map((_, i) => (
-                              <Flame key={i} className="text-red-500 w-4 h-4" />
-                            ))}
+                            {Array.from({ length: option.spiceLevel }).map(
+                              (_, i) => (
+                                <Flame
+                                  key={i}
+                                  className="w-4 h-4 text-red-500"
+                                />
+                              ),
+                            )}
                           </div>
                         </div>
                       )}
                       {option.indexDaysAvailable && (
                         <div className="col-span-2">
-                          <Label className="mr-2 text-gray-600">
+                          <Separator className="w-full my-4" />
+                          <Label className="mr-2 text-primary-foreground/50">
                             Days Available:
                           </Label>
                           <span className="font-medium">
@@ -236,20 +298,30 @@ const SortableItem = ({ id, modifier }: { id: string; modifier: Modifier }) => {
   );
 };
 
-const ItemModifiers: React.FC<ItemModifiersProps> = ({ item }) => {
+const ItemModifiers: React.FC<ItemModifiersProps> = ({
+  item,
+  updateItemModifiers,
+}) => {
   const { modifiers: allModifiers } = useMenuStore();
-  const { updateModifiers: updateItemModifiers } = useItems();
-  const [filteredModifiers, setFilteredModifiers] = useState<any[]>([]);
 
-  useEffect(() => {
-    const relevantModifiers = allModifiers.filter(
-      (mod: any) => item?.modifiers.includes(mod._id),
+  const [modifiers, setModifiers] = useState<Modifier[]>(() => {
+    if (item?.modifiers && allModifiers.length > 0) {
+      return allModifiers.filter((mod: Modifier) =>
+        item.modifiers.includes(mod._id),
+      );
+    } else {
+      return [];
+    }
+  });
+
+  const handleRemoveItem = (modifierId: string) => {
+    setModifiers((prevModifiers) =>
+      prevModifiers.filter((mod) => mod._id !== modifierId),
     );
-    setFilteredModifiers(relevantModifiers as any);
-  }, [allModifiers, item?.modifiers]);
+  };
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
@@ -258,17 +330,19 @@ const ItemModifiers: React.FC<ItemModifiersProps> = ({ item }) => {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (active.id !== over?.id) {
-      setFilteredModifiers((items) => {
-        const oldIndex = items.findIndex((item) => item._id === active.id);
-        const newIndex = items.findIndex((item) => item._id === over?.id);
+    if (active.id !== over?.id && over?.id) {
+      setModifiers((prevModifiers) => {
+        const oldIndex = prevModifiers.findIndex(
+          (mod) => mod._id === active.id,
+        );
+        const newIndex = prevModifiers.findIndex((mod) => mod._id === over.id);
 
-        const newItems = arrayMove(items, oldIndex, newIndex);
+        const newModifiers = arrayMove(prevModifiers, oldIndex, newIndex);
 
-        // Update the item.modifiers order based on the new order
-        updateItemModifiers(newItems.map((mod) => mod._id));
+        // Update the item's modifiers with the new order
+        updateItemModifiers(newModifiers.map((mod) => mod._id));
 
-        return newItems;
+        return newModifiers;
       });
     }
   };
@@ -277,41 +351,47 @@ const ItemModifiers: React.FC<ItemModifiersProps> = ({ item }) => {
     const updatedModifiers = allModifiers.filter((mod) =>
       newModifierIds.includes(mod._id),
     );
-    setFilteredModifiers(updatedModifiers);
+    setModifiers(updatedModifiers);
 
-    // Update the item.modifiers with the new list
+    // Update the item's modifiers with the new list
     updateItemModifiers(updatedModifiers.map((mod) => mod._id));
   };
 
   return (
-    <div className="flex flex-col items-center space-x-2">
+    <div className="flex flex-col items-center">
       <Separator className="w-full my-4" />
-      <div className="flex flex-row w-full items-center justify-between mt-4">
-        <span className="flex-grow font-semibold text-md text-primary-foreground">
+      <div className="flex items-center justify-between w-full mt-4">
+        <span className="flex-grow text-md font-semibold text-primary-foreground">
           Item Modifiers
         </span>
         <AddModifiersDialog
-          availableModifiers={allModifiers as any}
-          selectedModifierIds={filteredModifiers.map((mod) => mod._id)}
+          availableModifiers={allModifiers}
+          selectedModifierIds={modifiers.map((mod) => mod._id)}
           onSave={handleModifiersUpdate}
         />
       </div>
-      <Card className="flex w-full mx-auto p-8 bg-card rounded-xl shadow-lg">
-        <CardContent className="flex w-full">
+      <Card className="w-full p-8 mx-auto bg-card rounded-xl shadow-lg">
+        <CardContent className="w-full">
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
+            measuring={{
+              droppable: {
+                strategy: MeasuringStrategy.Always,
+              },
+            }}
           >
             <SortableContext
-              items={filteredModifiers.map((m) => m._id)}
+              items={modifiers.map((mod) => mod._id)}
               strategy={verticalListSortingStrategy}
             >
-              {filteredModifiers.map((modifier) => (
+              {modifiers.map((modifier) => (
                 <SortableItem
                   key={modifier._id}
                   id={modifier._id}
                   modifier={modifier}
+                  removeItem={handleRemoveItem}
                 />
               ))}
             </SortableContext>

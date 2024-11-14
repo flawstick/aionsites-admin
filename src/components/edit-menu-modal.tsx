@@ -46,6 +46,7 @@ export default function EditMenuItemDrawer({
   const [description, setDescription] = useState(item?.description || "");
   const [price, setPrice] = useState(item?.price.toString() || "");
   const [image, setImage] = useState<File | null>(null);
+  const [modifiers, setModifiers] = useState<string[]>(item?.modifiers || []);
   const [imagePreview, setImagePreview] = useState<string | null>(
     item?.imageUrl || null,
   );
@@ -71,6 +72,7 @@ export default function EditMenuItemDrawer({
       setDescription(item?.description);
       setPrice(item?.price.toString());
       setImagePreview(item?.imageUrl || null);
+      setModifiers(item?.modifiers || []);
       setSelectedDays(
         item?.indexDaysAvailable && item.indexDaysAvailable.length > 0
           ? item.indexDaysAvailable
@@ -162,7 +164,7 @@ export default function EditMenuItemDrawer({
       isSpicy,
       vegan: !!isVegan,
       indexDaysAvailable: selectedDays,
-      modifiers: [],
+      modifiers: modifiers,
       quantity: 1,
     };
 
@@ -349,7 +351,7 @@ export default function EditMenuItemDrawer({
                     ))}
                   </div>
                 </div>
-                <ItemModifiers item={item} />
+                <ItemModifiers item={item} updateItemModifiers={setModifiers} />
               </div>
             </ScrollArea>
             <div className="flex flex-row px-4 py-4 mb-2 border-t items-center justify-end gap-4">

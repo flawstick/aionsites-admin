@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import useAuth from "./useAuth";
 
-const CHUNK_SIZE = 1024 * 1024 * 4;
+const CHUNK_SIZE = 1024 * 512;
 
 const useUpload = () => {
   const [error, setError] = useState<string | null>(null);

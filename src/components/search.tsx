@@ -8,7 +8,7 @@ export function Search(props: SearchProps) {
       <Input
         type="search"
         placeholder="Search..."
-        className="md:w-[100px] lg:w-[300px]"
+        className="md:w-[100px] lg:w-[300px] rtl:text-left"
         style={{ background: "hsl(var(--background))" }}
       />
     </div>

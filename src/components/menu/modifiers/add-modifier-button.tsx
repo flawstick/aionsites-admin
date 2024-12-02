@@ -11,7 +11,7 @@ export function AddModifierButton({ onClick }: AddModifierButtonProps) {
 
   return (
     <motion.button
-      className="relative px-5 py-2 font-semibold text-white rounded-full shadow-lg flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-75 overflow-hidden"
+      className="relative px-5 py-2 font-semibold text-white rounded-full shadow-lg flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-opacity-75 overflow-hidden rtl:ml-2"
       initial={{
         background: "linear-gradient(90deg, #fd8000 0%, #cc5500 100%)",
         filter: "brightness(1)",

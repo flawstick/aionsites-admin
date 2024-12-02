@@ -20,33 +20,29 @@ export function Menu() {
   const { menuItems } = useMenuStore();
 
   return (
-    <Header>
-      <MenuSidebar breadcrumbs={breadCrumbsPath}>
-        <div className="grid min-h-screen grid-rows-[auto_1fr]">
-          <div className="flex flex-col">
-            <main className="flex flex-1 flex-col gap-4 md:gap-8">
-              {menuItems !== null && <MenuManager />}
-            </main>
-          </div>
-          {!menuItems && (
-            <div className="flex items-center justify-center flex-col my-10">
-              <p className="text-lg text-gray-500">
-                Your restaurant doesn&apos;t have a menu yet
-              </p>
-              <p className="text-lg font-bold text-gray-700">Create one?</p>
-              <Button
-                onClick={() => {
-                  createMenu(session.jwt);
-                }}
-                className="flex items-center"
-                variant="outline"
-              >
-                Create Menu
-              </Button>
-            </div>
-          )}
+    <div className="grid min-h-screen grid-rows-[auto_1fr]">
+      <div className="flex flex-col">
+        <main className="flex flex-1 flex-col gap-4 md:gap-8">
+          {menuItems !== null && <MenuManager />}
+        </main>
+      </div>
+      {!menuItems && (
+        <div className="flex items-center justify-center flex-col my-10">
+          <p className="text-lg text-gray-500">
+            Your restaurant doesn&apos;t have a menu yet
+          </p>
+          <p className="text-lg font-bold text-gray-700">Create one?</p>
+          <Button
+            onClick={() => {
+              createMenu(session.jwt);
+            }}
+            className="flex items-center"
+            variant="outline"
+          >
+            Create Menu
+          </Button>
         </div>
-      </MenuSidebar>
-    </Header>
+      )}
+    </div>
   );
 }

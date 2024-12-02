@@ -24,6 +24,7 @@ import { Category } from "@/types";
 import { MenuSidebar } from "@/components/menu-sidebar";
 import { Header } from "@/components/nav";
 import AuthProvider from "@/components/auth-provider";
+import { useDirection } from "@/hooks/use-direction";
 
 export default function MenuManager() {
   const {
@@ -33,6 +34,7 @@ export default function MenuManager() {
     updateCategoryOrder,
   } = useCategories();
   const { categories, setCategories, fetchCategories } = useMenuStore();
+  const { direction } = useDirection();
   const { selectedRestaurant } = useRestaurantStore();
 
   const [editDialogOpen, setEditDialogOpen] = React.useState<boolean>(false);
@@ -97,80 +99,67 @@ export default function MenuManager() {
     updateCategoryOrder(updatedOrder);
   };
 
-  let breadcrumbs = [
-    { title: "Menu", url: "/menu" },
-    { title: "Categories", url: "/menu/categories" },
-  ];
-
   return (
-    <AuthProvider>
-      <Header>
-        <MenuSidebar breadcrumbs={breadcrumbs}>
-          <main className="flex w-full">
-            <Card className="w-full shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between space-y-1">
-                <div className="flex flex-col">
-                  <CardTitle className="text-2xl">
-                    Draggable Categories
-                  </CardTitle>
-                  <CardDescription>
-                    Drag the categories to reorder them
-                  </CardDescription>
-                </div>
+    <main className="flex w-full mb-4">
+      <Card className="w-full shadow-lg" dir={direction}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-1">
+          <div className="flex flex-col">
+            <CardTitle className="text-2xl">Draggable Categories</CardTitle>
+            <CardDescription>
+              Drag the categories to reorder them
+            </CardDescription>
+          </div>
 
-                <AddCategoryButton onClick={() => setAddDialogOpen(true)} />
-              </CardHeader>
-              <CardContent>
-                {categories?.length > 0 && (
-                  <SortableCategoryList
-                    categories={categories}
-                    openEditDialog={openEditDialog}
-                    handleMoveCategory={handleMoveCategory}
-                    handleDeleteCategory={handleDeleteCategory}
-                  />
-                )}
-                <div className="mt-4 space-y-4">
-                  {editCategory && (
-                    <EditCategoryModal
-                      open={editDialogOpen}
-                      onOpenChange={setEditDialogOpen}
-                      category={editCategory}
-                    />
-                  )}
-                  {categories.length > 0 && (
-                    <div className="text-sm text-muted-foreground">
-                      Current order:{" "}
-                      {categories
-                        ?.sort((a, b) => a.index - b.index)
-                        .map((cat) => cat.name)
-                        .join(", ")}
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            <Sonner
-              className="toaster group z-50 bottom-20 right-4 fixed"
-              toastOptions={{
-                classNames: {
-                  toast:
-                    "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-                  description: "group-[.toast]:text-muted-foreground",
-                  actionButton:
-                    "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-                  cancelButton:
-                    "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
-                },
-              }}
+          <AddCategoryButton onClick={() => setAddDialogOpen(true)} />
+        </CardHeader>
+        <CardContent>
+          {categories?.length > 0 && (
+            <SortableCategoryList
+              categories={categories}
+              openEditDialog={openEditDialog}
+              handleMoveCategory={handleMoveCategory}
+              handleDeleteCategory={handleDeleteCategory}
             />
-            <AddCategoryModal
-              open={addDialogOpen}
-              onOpenChange={setAddDialogOpen}
-              onCategoryAdded={createCategory}
-            />
-          </main>
-        </MenuSidebar>
-      </Header>
-    </AuthProvider>
+          )}
+          <div className="mt-4 space-y-4">
+            {editCategory && (
+              <EditCategoryModal
+                open={editDialogOpen}
+                onOpenChange={setEditDialogOpen}
+                category={editCategory}
+              />
+            )}
+            {categories.length > 0 && (
+              <div className="text-sm text-muted-foreground">
+                Current order:{" "}
+                {categories
+                  ?.sort((a, b) => a.index - b.index)
+                  .map((cat) => cat.name)
+                  .join(", ")}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+      <Sonner
+        className="toaster group z-50 bottom-20 right-4 fixed"
+        toastOptions={{
+          classNames: {
+            toast:
+              "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
+            description: "group-[.toast]:text-muted-foreground",
+            actionButton:
+              "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
+            cancelButton:
+              "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+          },
+        }}
+      />
+      <AddCategoryModal
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onCategoryAdded={createCategory}
+      />
+    </main>
   );
 }

@@ -53,12 +53,12 @@ export function AddItemButton(props: AddItemButtonProps) {
       </motion.div>
       <motion.span
         className={cn(
-          "relative z-10 flex items-center justify-center",
+          "relative z-10 flex items-center justify-center rtl:flex-row-reverse",
           "group-hover:drop-shadow-lg transition-all duration-300 ease-in-out",
         )}
         transition={{ duration: 0.3 }}
       >
-        <Plus className="mr-1" size={18} strokeWidth={2.5} />
+        <Plus className="ltr:mr-1 rtl:ml-1" size={18} strokeWidth={2.5} />
         Add Item
       </motion.span>
     </motion.button>

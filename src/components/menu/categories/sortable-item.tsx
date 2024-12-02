@@ -68,7 +68,7 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
     >
       <div className="flex flex-row justify-center items-center gap-1 mr-4">
         <h3 className="font-medium">{category.name}</h3>
-        <DropdownMenu>
+        <DropdownMenu dir="rtl">
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
@@ -83,23 +83,24 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => openEditDialog(category)}>
-                <Edit className="h-4 w-4 mr-2" /> Edit
+                <Edit className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> Edit
               </DropdownMenuItem>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <MoveVertical className="h-4 w-4 mr-2" /> Move...
+                <DropdownMenuSubTrigger dir="rtl">
+                  <MoveVertical className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> Move...
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem
                       onClick={() => handleMoveCategory(index, "up")}
                     >
-                      <MoveUp className="h-4 w-4 mr-2" /> Move Up
+                      <MoveUp className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> Move Up
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleMoveCategory(index, "down")}
                     >
-                      <MoveDown className="h-4 w-4 mr-2" /> Move Down
+                      <MoveDown className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> Move
+                      Down
                     </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
@@ -110,7 +111,7 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
               className="text-red-500"
               onClick={() => handleDeleteCategory(category._id)}
             >
-              <Trash2 className="h-4 w-4 mr-2" /> Delete
+              <Trash2 className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

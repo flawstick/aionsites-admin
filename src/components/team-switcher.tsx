@@ -47,7 +47,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
 
   React.useEffect(() => {
     if (session) fetchRestaurants(session.jwt, session.user._id);
-  }, []);
+  }, [session]);
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>
@@ -60,7 +60,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
             aria-label="Select a team"
             className={cn("w-[200px] justify-between", className)}
           >
-            <Avatar className="mr-2 h-5 w-5">
+            <Avatar className="ltr:mr-2 rtl:ml-2 h-5 w-5">
               <AvatarImage
                 src={selectedRestaurant?.profile?.picture}
                 alt={selectedRestaurant?.name}
@@ -69,13 +69,13 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
               <AvatarFallback>SC</AvatarFallback>
             </Avatar>
             {selectedRestaurant ? selectedRestaurant.name : "Select a team"}
-            <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
+            <CaretSortIcon className="ltr:ml-auto rtl:mr-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[200px] p-0">
           <Command>
             <CommandList>
-              <CommandInput placeholder="Search team..." />
+              <CommandInput placeholder="Search team..." className="rtl:mr-2" />
               <CommandEmpty>No team found.</CommandEmpty>
               {restaurants.length > 0 && (
                 <CommandGroup heading="Teams">
@@ -88,7 +88,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
                       }}
                       className="text-sm"
                     >
-                      <Avatar className="mr-2 h-5 w-5">
+                      <Avatar className="ltr:mr-2 rtl:ml-2 h-5 w-5">
                         <AvatarImage
                           src={team?.profile?.picture}
                           alt={team.name}
@@ -99,7 +99,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
                       {team.name}
                       <CheckIcon
                         className={cn(
-                          "ml-auto h-4 w-4",
+                          "ltr:ml-auto rtl:mr-auto h-4 w-4",
                           selectedRestaurant?._id === team._id
                             ? "opacity-100"
                             : "opacity-0",
@@ -120,7 +120,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
                       setShowNewTeamDialog(true);
                     }}
                   >
-                    <PlusCircledIcon className="mr-2 h-5 w-5" />
+                    <PlusCircledIcon className="ltr:mr-2 rtl:ml-2 h-5 w-5" />
                     Create Team
                   </CommandItem>
                 </DialogTrigger>

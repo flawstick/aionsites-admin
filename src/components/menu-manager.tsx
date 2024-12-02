@@ -47,6 +47,7 @@ import { useItems } from "@/lib/hooks/useItems";
 import { RefreshCcw, RefreshCwIcon } from "lucide-react";
 import { AddItemButton } from "./menu/items/add-item-button";
 import { toast, Toaster as Sonner } from "sonner";
+import { useDirection } from "@/hooks/use-direction";
 
 type MenuItem = any;
 
@@ -115,11 +116,12 @@ export default function MenuManager() {
   };
 
   if (!menuItems) return null;
+  const { direction } = useDirection();
 
   // Component for rendering individual item rows
   const ItemRow = ({ item }: { item: MenuItem }) => (
-    <TableRow key={item._id}>
-      <TableCell className="font-medium flex items-center space-x-2">
+    <TableRow key={item._id} dir={direction}>
+      <TableCell className="font-medium flex items-center gap-2">
         {item.imageUrl && (
           <img
             src={item.imageUrl}
@@ -133,6 +135,19 @@ export default function MenuManager() {
       <TableCell>₪{item.price.toFixed(2)}</TableCell>
       <TableCell>
         <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleEditItem(item)}
+              >
+                <FilePenIcon className="w-4 h-4" />
+                <span className="sr-only">Edit</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Edit</TooltipContent>
+          </Tooltip>
           <Tooltip>
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -161,19 +176,6 @@ export default function MenuManager() {
             </AlertDialog>
             <TooltipContent>Delete</TooltipContent>
           </Tooltip>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleEditItem(item)}
-              >
-                <FilePenIcon className="w-4 h-4" />
-                <span className="sr-only">Edit</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Edit</TooltipContent>
-          </Tooltip>
         </TooltipProvider>
       </TableCell>
     </TableRow>
@@ -188,13 +190,13 @@ export default function MenuManager() {
     items: MenuItem[];
   }) => (
     <Card className="h-full">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center rtl:justify-end">
         <CardTitle>{categoryName}</CardTitle>
       </CardHeader>
       <CardContent className="overflow-auto">
-        <Table className="align-top min-w-full">
+        <Table className="align-top min-w-full" dir={direction}>
           <TableHeader>
-            <TableRow>
+            <TableRow dir={direction}>
               <TableHead className="align-top w-1/4">Item</TableHead>
               <TableHead className="align-top w-1/2">Description</TableHead>
               <TableHead className="align-top w-1/8">Price</TableHead>
@@ -281,18 +283,20 @@ export default function MenuManager() {
   };
 
   return (
-    <div className="container mx-auto pb-8">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-bold">Menu Items Manager</h1>
+    <div className={`container mx-auto pb-8`}>
+      <div className="flex items-center rtl:justify-end mb-4">
+        <h1 className="text-3xl font-bold rtl:self-start">
+          Menu Items Manager
+        </h1>
       </div>
 
       <Tabs defaultValue="all">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex rtl:flex-row-reverse items-center justify-between mb-4">
           <TabsList>
             <TabsTrigger value="all">All Items</TabsTrigger>
             <TabsTrigger value="categories">Categories</TabsTrigger>
           </TabsList>
-          <div className="flex items-center gap-4">
+          <div className="flex rtl:flex-row-reverse items-center gap-4">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -331,13 +335,13 @@ export default function MenuManager() {
         {/* All Items Tab with Pagination */}
         <TabsContent value="all">
           <Card className="mt-4">
-            <CardHeader>
+            <CardHeader dir={direction}>
               <CardTitle>All Items</CardTitle>
             </CardHeader>
             <CardContent className="overflow-auto">
-              <Table className="align-top min-w-full">
+              <Table className="align-top min-w-full" dir={direction}>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow dir={direction}>
                     <TableHead className="align-top w-1/4">Item</TableHead>
                     <TableHead className="align-top w-1/2">
                       Description
@@ -354,7 +358,7 @@ export default function MenuManager() {
               </Table>
               {/* Pagination Component */}
               <div className="mt-4 flex justify-center">
-                <Pagination>
+                <Pagination dir={direction}>
                   <PaginationContent>
                     {/* Previous Button */}
                     <PaginationItem>
@@ -362,6 +366,7 @@ export default function MenuManager() {
                         onClick={() =>
                           currentPage > 1 && paginate(currentPage - 1)
                         }
+                        dir={direction}
                         href="#"
                       />
                     </PaginationItem>
@@ -375,6 +380,7 @@ export default function MenuManager() {
                         onClick={() =>
                           currentPage < totalPages && paginate(currentPage + 1)
                         }
+                        dir={direction}
                         href="#"
                       />
                     </PaginationItem>

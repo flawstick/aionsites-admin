@@ -3,30 +3,37 @@
 import { useParams } from "next/navigation";
 import { ReactNode, useTransition } from "react";
 import { Locale, usePathname, useRouter } from "@/i18n/routing";
+import { useLocale } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { CheckIcon, Languages } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useDirection } from "@/hooks/use-direction";
 
-type Props = {
-  children: ReactNode;
-  defaultValue: string;
-  label: string;
-};
-
-export default function LocaleSwitcherSelect({
-  children,
-  defaultValue,
-  label,
-}: Props) {
+export function LocaleSwitcher() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const pathname = usePathname();
   const params = useParams();
+  const { direction } = useDirection();
+  const locale = useLocale();
+  const locales = ["en", "he"];
+  const localeMap: Record<Locale, string> = {
+    en: "English",
+    he: "עברית",
+  };
 
-  function onSelectChange(value: string) {
+  function onChange(value: string) {
     const nextLocale = value as Locale;
     startTransition(() => {
       router.replace(
@@ -40,20 +47,31 @@ export default function LocaleSwitcherSelect({
   }
 
   return (
-    <div className="w-full max-w-xs">
-      <label htmlFor="locale-switcher" className="sr-only">
-        {label}
-      </label>
-      <Select
-        defaultValue={defaultValue}
-        onValueChange={onSelectChange}
-        disabled={isPending}
-      >
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder={label} />
-        </SelectTrigger>
-        <SelectContent>{children}</SelectContent>
-      </Select>
-    </div>
+    <DropdownMenu dir={direction}>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" disabled={isPending}>
+                <Languages className="h-6 w-6" />
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>Language</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      <DropdownMenuContent>
+        {locales.map((value) => (
+          <DropdownMenuItem
+            onSelect={() => onChange(value)}
+            key={value}
+            className="flex items-center justify-between"
+          >
+            {localeMap[value as Locale]}
+            {value === locale && <CheckIcon className="h-3 w-3" />}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

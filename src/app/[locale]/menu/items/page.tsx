@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Menu } from "@/components/menu-admin";
-import AuthProvider from "@/components/auth-provider";
 import useAuth from "@/lib/hooks/useAuth";
 import Loading from "@/components/loading";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
@@ -33,9 +32,5 @@ const RestaurantMenu = () => {
 };
 
 export default function Page() {
-  return (
-    <AuthProvider>
-      <RestaurantMenu />
-    </AuthProvider>
-  );
+  return <RestaurantMenu />;
 }

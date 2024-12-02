@@ -27,9 +27,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Header } from "@/components/nav";
-import AuthProvider from "@/components/auth-provider";
-import { MenuSidebar } from "@/components/menu-sidebar";
 import { CreateModifierDrawer } from "@/components/menu/modifiers/add-modifier-drawer";
 import useMenuStore, { MenuItem, Modifier } from "@/lib/store/menuStore";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
@@ -38,6 +35,7 @@ import { useModifiers } from "@/lib/hooks/useModifiers";
 import { Toaster as Sonner, toast } from "sonner";
 import { AddModifierButton } from "@/components/menu/modifiers/add-modifier-button";
 import { DeleteModifier } from "@/components/menu/modifiers/detele-modifier";
+import { useDirection } from "@/hooks/use-direction";
 
 // Constants
 const MAX_ENTRIES = 20;
@@ -48,9 +46,7 @@ interface Category {
 }
 
 function ModifierManagement() {
-  const [activeTab, setActiveTab] = useState<"categories" | "all">(
-    "categories",
-  );
+  const [activeTab, setActiveTab] = useState<"categories" | "all">("all");
   const [open, setOpen] = useState<boolean>(false);
   const [editOpen, setEditOpen] = useState<boolean>(false);
   const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
@@ -62,6 +58,7 @@ function ModifierManagement() {
   let { modifiers, fetchMenuItems, fetchModifiers } = useMenuStore();
   const { createModifier, deleteModifier, undoDeleteModifier } = useModifiers();
   const { selectedRestaurant } = useRestaurantStore();
+  const { direction, rtl } = useDirection();
 
   // Fetch data on mount
   useEffect(() => {
@@ -122,7 +119,10 @@ function ModifierManagement() {
 
   return (
     <main className="flex flex-col min-h-screen w-full mx-auto">
-      <h1 className="mt-12 text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">
+      <h1
+        className="mt-12 text-2xl sm:text-3xl font-bold mb-4 sm:mb-6"
+        dir={direction}
+      >
         Modifier Management
       </h1>
 
@@ -131,113 +131,15 @@ function ModifierManagement() {
         onValueChange={(value) => setActiveTab(value as "categories" | "all")}
         className="mb-4 sm:mb-6 "
       >
-        <div className="flex items-center justify-between mb-6 mr-[0.25rem]">
-          <TabsList>
-            <TabsTrigger value="categories">By Category</TabsTrigger>
+        <div
+          className="flex items-center justify-between mb-6 mr-[0.25rem]"
+          dir={direction}
+        >
+          <TabsList defaultValue={activeTab}>
             <TabsTrigger value="all">All Modifiers</TabsTrigger>
           </TabsList>
           <AddModifierButton onClick={() => setOpen(true)} />
         </div>
-
-        <TabsContent value="categories">
-          <Accordion type="single" collapsible className="w-full space-y-4">
-            {categories?.map((category, index) => (
-              <AccordionItem value={`category-${index}`} key={index}>
-                <AccordionTrigger>{category.name}</AccordionTrigger>
-                <AccordionContent>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Modifiers in {category.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Modifier Name</TableHead>
-                            <TableHead className="hidden sm:table-cell">
-                              Options
-                            </TableHead>
-                            <TableHead className="hidden md:table-cell">
-                              Assigned Items
-                            </TableHead>
-                            <TableHead className="w-[100px]">Actions</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {getModifiersForItem(category.name).map(
-                            (modifier) => (
-                              <TableRow
-                                key={modifier._id}
-                                onClick={() => handleRowClick(modifier)}
-                                className="cursor-pointer"
-                              >
-                                <TableCell>{modifier.name}</TableCell>
-                                <TableCell className="hidden sm:table-cell">
-                                  {modifier.options
-                                    .map((opt) => opt.name)
-                                    .join(", ")}
-                                </TableCell>
-                                <TableCell className="hidden md:table-cell">
-                                  {getItemsForModifier(modifier, category)}
-                                </TableCell>
-                                <TableCell>
-                                  <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        className="h-8 w-8 p-0"
-                                      >
-                                        <span className="sr-only">
-                                          Open menu
-                                        </span>
-                                        <MoreHorizontal className="h-4 w-4" />
-                                      </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                      <DropdownMenuLabel>
-                                        Actions
-                                      </DropdownMenuLabel>
-                                      <DropdownMenuItem
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleEditModifier(modifier);
-                                        }}
-                                      >
-                                        Edit
-                                      </DropdownMenuItem>
-                                      <DropdownMenuItem
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleDuplicateModifier(modifier);
-                                        }}
-                                      >
-                                        Duplicate
-                                      </DropdownMenuItem>
-                                      <DropdownMenuSeparator />
-                                      <DropdownMenuItem
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleDeleteModifier(modifier);
-                                        }}
-                                        className="text-red-600"
-                                      >
-                                        Delete
-                                      </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                  </DropdownMenu>
-                                </TableCell>
-                              </TableRow>
-                            ),
-                          )}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </TabsContent>
 
         <TabsContent value="all">
           <Card>
@@ -245,9 +147,9 @@ function ModifierManagement() {
               <CardTitle>All Modifiers</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
+              <Table dir={direction}>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow dir={direction}>
                     <TableHead>Modifier Name</TableHead>
                     <TableHead className="hidden sm:table-cell">
                       Options
@@ -279,6 +181,7 @@ function ModifierManagement() {
                         key={modifier._id}
                         onClick={() => handleRowClick(modifier)}
                         className="cursor-pointer"
+                        dir={direction}
                       >
                         <TableCell>{modifier.name}</TableCell>
                         <TableCell className="hidden sm:table-cell">
@@ -291,7 +194,7 @@ function ModifierManagement() {
                           {assignedCategories.join(", ")}
                         </TableCell>
                         <TableCell>
-                          <DropdownMenu>
+                          <DropdownMenu dir={direction}>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" className="h-8 w-8 p-0">
                                 <span className="sr-only">Open menu</span>
@@ -377,19 +280,6 @@ function ModifierManagement() {
   );
 }
 
-const breadCrumbsPath = [
-  { title: "Menu", url: "/menu/items" },
-  { title: "Modifiers", url: "/menu/modifiers" },
-];
-
 export default function Page() {
-  return (
-    <AuthProvider>
-      <Header>
-        <MenuSidebar breadcrumbs={breadCrumbsPath}>
-          <ModifierManagement />
-        </MenuSidebar>
-      </Header>
-    </AuthProvider>
-  );
+  return <ModifierManagement />;
 }

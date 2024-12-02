@@ -22,13 +22,13 @@ import { AddModifiersDialog } from "./menu/items/add-item-modifiers-button";
 import ItemModifiers from "./menu/items/modifiers-list";
 
 const weekDays = [
+  "Sunday",
   "Monday",
   "Tuesday",
   "Wednesday",
   "Thursday",
   "Friday",
   "Saturday",
-  "Sunday",
 ];
 
 interface AddMenuItemDrawerProps {

@@ -22,13 +22,13 @@ import { IconBxShekel } from "./icons";
 import ItemModifiers from "./menu/items/modifiers-list";
 
 const weekDays = [
+  "Sunday",
   "Monday",
   "Tuesday",
   "Wednesday",
   "Thursday",
   "Friday",
   "Saturday",
-  "Sunday",
 ];
 
 interface EditMenuItemDrawerProps {

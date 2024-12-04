@@ -20,6 +20,7 @@ import { useItems } from "@/lib/hooks/useItems";
 import { toast } from "sonner";
 import { IconBxShekel } from "./icons";
 import ItemModifiers from "./menu/items/modifiers-list";
+import { useDirection } from "@/hooks/use-direction";
 
 const weekDays = [
   "Sunday",
@@ -65,6 +66,7 @@ export default function EditMenuItemDrawer({
   const { uploadImage } = useUpload();
   const { categories } = useMenuStore();
   const { editItem } = useItems();
+  const { direction } = useDirection();
 
   useEffect(() => {
     if (item) {
@@ -201,17 +203,24 @@ export default function EditMenuItemDrawer({
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="h-screen flex flex-col">
-        <div className="mx-auto w-full xl:max-w-[80vw] h-full flex flex-col">
-          <form onSubmit={handleSubmit} className="flex flex-col h-full">
+      <DrawerContent className="h-screen flex flex-col" dir={direction}>
+        <div
+          className="mx-auto w-full xl:max-w-[80vw] h-full flex flex-col"
+          dir={direction}
+        >
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col h-full"
+            dir={direction}
+          >
             <div className="px-4 py-4 border-b">
               <h2 className="text-lg font-semibold">Edit Menu Item</h2>
               <p className="text-sm text-muted-foreground">
                 Update the details for the menu item.
               </p>
             </div>
-            <ScrollArea className="flex-grow px-4 py-4">
-              <div className="space-y-6 pr-2 mx-2">
+            <ScrollArea className="flex-grow px-4" dir={direction}>
+              <div className="space-y-6 pr-2 mx-2 my-4">
                 {validationError && (
                   <div className="text-red-500">{validationError}</div>
                 )}
@@ -276,7 +285,7 @@ export default function EditMenuItemDrawer({
                           type="button"
                           variant="destructive"
                           size="icon"
-                          className="absolute -top-2 -right-2 h-6 w-6"
+                          className="absolute -top-2 ltr:-right-2 rtl:-left-2 h-6 w-6"
                           onClick={handleRemoveImage}
                         >
                           <X className="h-4 w-4" />
@@ -287,7 +296,11 @@ export default function EditMenuItemDrawer({
                 </div>
                 <div className="space-y-2">
                   <Label>Category</Label>
-                  <Select value={category} onValueChange={setCategory}>
+                  <Select
+                    value={category}
+                    onValueChange={setCategory}
+                    dir={direction}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
@@ -302,11 +315,11 @@ export default function EditMenuItemDrawer({
                 </div>
                 <div className="space-y-2">
                   <Label>Properties</Label>
-                  <div className="flex space-x-4">
+                  <div className="flex gap-4">
                     <Button
                       type="button"
                       variant={isSpicy ? "default" : "outline"}
-                      className="flex items-center space-x-2"
+                      className="flex items-center gap-2"
                       onClick={() => setIsSpicy(!isSpicy)}
                     >
                       <Flame

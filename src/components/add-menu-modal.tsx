@@ -18,18 +18,9 @@ import useUpload from "@/lib/hooks/useUpload";
 import useMenuStore from "@/lib/store/menuStore";
 import { useItems } from "@/lib/hooks/useItems";
 import { IconBxShekel } from "./icons";
-import { AddModifiersDialog } from "./menu/items/add-item-modifiers-button";
 import ItemModifiers from "./menu/items/modifiers-list";
-
-const weekDays = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+import { useDirection } from "@/hooks/use-direction";
+import { useTranslations } from "next-intl";
 
 interface AddMenuItemDrawerProps {
   isOpen: boolean;
@@ -40,6 +31,17 @@ export default function AddMenuItemDrawer({
   isOpen,
   onClose,
 }: AddMenuItemDrawerProps) {
+  const t = useTranslations("item");
+  const days = [
+    t("days.sunday"),
+    t("days.monday"),
+    t("days.tuesday"),
+    t("days.wednesday"),
+    t("days.thursday"),
+    t("days.friday"),
+    t("days.saturday"),
+  ];
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -48,7 +50,7 @@ export default function AddMenuItemDrawer({
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<number[]>([
     0, 1, 2, 3, 4, 5, 6,
-  ]); // All days selected by default
+  ]);
   const [isSpicy, setIsSpicy] = useState(false);
   const [isVegan, setIsVegan] = useState(false);
   const [category, setCategory] = useState("");
@@ -95,7 +97,7 @@ export default function AddMenuItemDrawer({
     setPrice("");
     setImage(null);
     setImagePreview(null);
-    setSelectedDays([0, 1, 2, 3, 4, 5, 6]); // Reset to all days selected
+    setSelectedDays([0, 1, 2, 3, 4, 5, 6]);
     setIsSpicy(false);
     setIsVegan(false);
     setCategory("");
@@ -105,9 +107,8 @@ export default function AddMenuItemDrawer({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Validation
     if (!name || !description || !price || !category) {
-      setValidationError("All fields must be filled.");
+      setValidationError(t("validationError"));
       return;
     }
 
@@ -116,10 +117,10 @@ export default function AddMenuItemDrawer({
       try {
         imageUrl = (await uploadImage(image)) as string;
         if (!imageUrl) {
-          throw new Error("Image upload failed.");
+          throw new Error(t("failedImageUpload"));
         }
       } catch (error) {
-        setValidationError("Failed to upload image.");
+        setValidationError(t("failedImageUpload"));
         return;
       }
     }
@@ -134,40 +135,48 @@ export default function AddMenuItemDrawer({
       imageUrl,
       isSpicy,
       isVegan,
-      availableDays: selectedDays.map((index) => index + 1), // Convert to 1-based indexing if needed
-      modifiers: modifiers,
+      availableDays: selectedDays.map((index) => index + 1),
+      modifiers,
     };
 
     try {
       createItem(newItem);
-      // Reset form fields after submission
       resetForm();
-      onClose(); // Close the drawer after successful submission
+      onClose();
     } catch (error) {
-      setValidationError("Failed to add menu item.");
+      setValidationError(t("failedAddItem"));
     } finally {
       setAddLoading(false);
     }
   };
 
+  const { direction } = useDirection();
+
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
-      <DrawerContent className="h-screen flex flex-col">
+      <DrawerContent className="h-screen flex flex-col" dir={direction}>
         <div className="mx-auto w-full xl:max-w-[80vw] h-full flex flex-col">
-          <form onSubmit={handleSubmit} className="flex flex-col h-full">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col h-full"
+            dir={direction}
+          >
             <div className="px-4 py-4 border-b">
-              <h2 className="text-lg font-semibold">Add New Menu Item</h2>
+              <h2 className="text-lg font-semibold">{t("addNewItem")}</h2>
               <p className="text-sm text-muted-foreground">
-                Fill in the details for the new menu item.
+                {t("fillDetails")}
               </p>
             </div>
-            <ScrollArea className="flex-grow px-4 py-4">
-              <div className="space-y-6 pr-2 mx-2">
+            <ScrollArea className="flex-grow px-4" dir={direction}>
+              <div
+                className="space-y-6 ltr:pr-2 rtl:pl-2 mx-2 my-4"
+                dir={direction}
+              >
                 {validationError && (
                   <div className="text-red-500">{validationError}</div>
                 )}
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">{t("name")}</Label>
                   <Input
                     id="name"
                     value={name}
@@ -176,7 +185,7 @@ export default function AddMenuItemDrawer({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">{t("description")}</Label>
                   <Textarea
                     id="description"
                     value={description}
@@ -184,7 +193,7 @@ export default function AddMenuItemDrawer({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price</Label>
+                  <Label htmlFor="price">{t("price")}</Label>
                   <div className="flex flex-row items-center gap-2 justify-center">
                     <IconBxShekel className="h-6 w-6" />
                     <Input
@@ -199,7 +208,7 @@ export default function AddMenuItemDrawer({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="image">Image</Label>
+                  <Label htmlFor="image">{t("image")}</Label>
                   <div className="flex items-center space-x-2">
                     <Input
                       id="image"
@@ -214,20 +223,20 @@ export default function AddMenuItemDrawer({
                       variant="outline"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      Select Image
+                      {t("selectImage")}
                     </Button>
                     {imagePreview && (
                       <div className="relative">
                         <img
                           src={imagePreview}
-                          alt="Menu item preview"
+                          alt={t("menuItemPreview")}
                           className="w-16 h-16 object-cover rounded"
                         />
                         <Button
                           type="button"
                           variant="destructive"
                           size="icon"
-                          className="absolute -top-2 -right-2 h-6 w-6"
+                          className="absolute -top-2 ltr:-right-2 rtl:-left-2 h-6 w-6"
                           onClick={handleRemoveImage}
                         >
                           <X className="h-4 w-4" />
@@ -237,10 +246,14 @@ export default function AddMenuItemDrawer({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Category</Label>
-                  <Select value={category} onValueChange={setCategory}>
+                  <Label>{t("category")}</Label>
+                  <Select
+                    value={category}
+                    onValueChange={setCategory}
+                    dir={direction}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder={t("selectCategory")} />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((cat) => (
@@ -252,12 +265,11 @@ export default function AddMenuItemDrawer({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Properties</Label>
-                  <div className="flex space-x-4">
+                  <Label>{t("properties")}</Label>
+                  <div className="flex gap-4">
                     <Button
                       type="button"
                       variant={isSpicy ? "default" : "outline"}
-                      className="flex items-center space-x-2"
                       onClick={() => setIsSpicy(!isSpicy)}
                     >
                       <Flame
@@ -265,29 +277,24 @@ export default function AddMenuItemDrawer({
                           isSpicy ? "text-red-100 drop-shadow-md" : ""
                         }`}
                       />
-                      <span className={`${isSpicy ? "drop-shadow-md" : ""}`}>
-                        Spicy
-                      </span>
+                      <span>{t("spicy")}</span>
                     </Button>
                     <Button
                       type="button"
                       variant={isVegan ? "default" : "outline"}
-                      className="flex items-center space-x-2"
                       onClick={() => setIsVegan(!isVegan)}
                     >
                       <Leaf
                         className={`h-4 w-4 ${isVegan ? "text-green-500" : ""}`}
                       />
-                      <span className={`${isVegan ? "drop-shadow-md" : ""}`}>
-                        Vegan
-                      </span>
+                      <span>{t("vegan")}</span>
                     </Button>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Available Days</Label>
+                  <Label>{t("availableDays")}</Label>
                   <div className="flex flex-wrap gap-2">
-                    {weekDays.map((day, index) => (
+                    {days.map((day: string, index: number) => (
                       <Button
                         key={day}
                         type="button"
@@ -295,9 +302,8 @@ export default function AddMenuItemDrawer({
                           selectedDays.includes(index) ? "default" : "outline"
                         }
                         onClick={() => handleDayChange(index)}
-                        className="px-3 py-2 flex items-center space-x-2"
                       >
-                        <span>{day}</span>
+                        {day}
                       </Button>
                     ))}
                   </div>
@@ -313,10 +319,10 @@ export default function AddMenuItemDrawer({
                   onClose();
                 }}
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button type="submit" disabled={addLoading}>
-                {addLoading ? "Adding..." : "Add to Menu"}
+                {addLoading ? t("adding") : t("addToMenu")}
               </Button>
             </div>
           </form>

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Pizza, Sparkles, Layers3 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { useLocale } from "next-intl";
 
 import {
   Sidebar,
@@ -28,8 +29,8 @@ import {
 import { ScrollArea } from "./ui/scroll-area";
 import { useDirection } from "@/hooks/use-direction";
 import { Navbar } from "@/components/nav";
-import { SessionProvider } from "next-auth/react";
 import AuthProvider from "./auth-provider";
+import { cn } from "@/lib/utils";
 
 const data = {
   navMain: [
@@ -40,12 +41,12 @@ const data = {
     },
     {
       title: "Modifiers",
-      url: "/menu/modifiers/",
+      url: "/menu/modifiers",
       icon: Sparkles,
     },
     {
       title: "Categories",
-      url: "/menu/categories/",
+      url: "/menu/categories",
       icon: Layers3,
     },
   ],
@@ -58,33 +59,40 @@ interface MenuItemProps {
 export function MenuSidebar({ children }: MenuItemProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
-
-  const route = usePathname();
-  const breadcrumbs = [
-    {
-      title: "Menu",
-      url: "/menu",
-    },
-    {
-      title:
-        route.split("/")[3]?.charAt(0)?.toUpperCase() +
-        route.split("/")[3]?.slice(1),
-      url: "/menu/" + route.split("/")[2],
-    },
-  ];
+  const pathname = usePathname();
+  const locale = useLocale();
+  const { rtl, direction } = useDirection();
 
   const [isIntersecting, setIntersecting] = React.useState(true);
+
+  // Observe the intersection of the header
   React.useEffect(() => {
     if (!ref.current) return;
     const observer = new IntersectionObserver(([entry]) =>
       setIntersecting(entry.isIntersecting),
     );
-    observer.observe(ref?.current);
+    observer.observe(ref.current);
     return () => observer.disconnect();
   }, []);
 
-  let selected = usePathname().split("/")[2];
-  const { rtl, direction } = useDirection();
+  // Derive breadcrumbs from the current pathname
+  const breadcrumbs = React.useMemo(() => {
+    const segments = pathname.split("/").filter(Boolean).slice(1);
+    return segments.map((segment, index) => {
+      const url = `/${segments.slice(0, index + 1).join("/")}`;
+      const title = segment
+        .replace(/-/g, " ")
+        .replace(/^\w/, (c) => c.toUpperCase());
+      return { title, url };
+    });
+  }, [pathname]);
+
+  // Check if a sidebar item is selected
+  const selectedItem = React.useMemo(
+    () =>
+      data.navMain.find((item) => pathname.startsWith(`/${locale}${item.url}`)),
+    [pathname, locale],
+  );
 
   return (
     <AuthProvider>
@@ -98,12 +106,13 @@ export function MenuSidebar({ children }: MenuItemProps) {
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       tooltip={item.title}
-                      onClick={() => router.push(item.url)}
-                      className={
-                        selected === item.url.split("/")[2]
-                          ? "bg-primary/20 "
-                          : ""
-                      }
+                      onClick={() => router.push(`/${locale}${item.url}`)}
+                      className={cn(
+                        selectedItem?.url === item.url
+                          ? "text-white dark:text-primary-foreground bg-primary hover:bg-primary/90 dark:bg-primary/20 dark:hover:bg-primary/30"
+                          : "",
+                        "transition-colors",
+                      )}
                     >
                       {item.icon && <item.icon />}
                       <span>{item.title}</span>
@@ -119,7 +128,7 @@ export function MenuSidebar({ children }: MenuItemProps) {
           <Navbar />
           <div className="flex mt-16" ref={ref}>
             <header
-              className={`${"fixed"} flex flex-row justify-between h-16 shrink-0 items-center gap-2 transition-[width,height]
+              className={`fixed flex flex-row justify-between h-16 shrink-0 items-center gap-2 transition-[width,height]
               ${isIntersecting ? "border-none" : "border-b"}
               ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 backdrop-blur-2xl
               bg-background z-50 w-full`}
@@ -132,8 +141,8 @@ export function MenuSidebar({ children }: MenuItemProps) {
                 />
                 <Breadcrumb>
                   <BreadcrumbList>
-                    {breadcrumbs?.map((item, index: number) => (
-                      <>
+                    {breadcrumbs.map((item, index) => (
+                      <React.Fragment key={item.url}>
                         {index !== 0 && (
                           <BreadcrumbSeparator
                             className="hidden md:block"
@@ -141,11 +150,11 @@ export function MenuSidebar({ children }: MenuItemProps) {
                           />
                         )}
                         <BreadcrumbItem className="hidden md:block">
-                          <BreadcrumbLink href={item.url}>
+                          <BreadcrumbLink href={`/${item.url}`}>
                             {item.title}
                           </BreadcrumbLink>
                         </BreadcrumbItem>
-                      </>
+                      </React.Fragment>
                     ))}
                   </BreadcrumbList>
                 </Breadcrumb>

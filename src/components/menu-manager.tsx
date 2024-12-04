@@ -38,20 +38,21 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Trash2Icon, FilePenIcon, RefreshIcon } from "./icons";
-import { SaveMenuButton } from "./save-menu-button";
+import { Trash2Icon, FilePenIcon } from "./icons";
 import AddItemModal from "./add-menu-modal";
 import EditMenuModal from "./edit-menu-modal";
 import useMenuStore from "@/lib/store/menuStore";
 import { useItems } from "@/lib/hooks/useItems";
-import { RefreshCcw, RefreshCwIcon } from "lucide-react";
+import { RefreshCwIcon } from "lucide-react";
 import { AddItemButton } from "./menu/items/add-item-button";
 import { toast, Toaster as Sonner } from "sonner";
 import { useDirection } from "@/hooks/use-direction";
+import { useTranslations } from "next-intl";
 
 type MenuItem = any;
 
 export default function MenuManager() {
+  const t = useTranslations("menu");
   const { fetchMenuItems, menuItems, categories } = useMenuStore();
   const { deleteItem, undoDeleteItem } = useItems();
 
@@ -71,7 +72,7 @@ export default function MenuManager() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 20;
 
   const handleAddNewItem = () => {
     setModalState((prev) => ({ ...prev, newItem: true }));
@@ -84,25 +85,28 @@ export default function MenuManager() {
   const handleDeleteItem = useCallback(
     async (itemId: string) => {
       if (await deleteItem(itemId)) {
-        toast("Item deleted successfully", {
+        toast(t("itemDeletedSuccessfully"), {
           actionButtonStyle: {
             backgroundColor: "hsl(var(--primary))",
             color: "hsl(var(--primary-foreground))",
           },
           action: {
-            label: "Undo",
+            label: t("undo"),
             onClick: () => {
               undoDeleteItem(itemId);
             },
           },
         });
       } else {
-        toast("Failed to delete item", {
+        toast(t("failedToDeleteItem"), {
           actionButtonStyle: {
             backgroundColor: "hsl(var(--destructive))",
             color: "hsl(var(--primary-foreground))",
           },
-          action: { label: "Retry", onClick: () => handleDeleteItem(itemId) },
+          action: {
+            label: t("retry"),
+            onClick: () => handleDeleteItem(itemId),
+          },
         });
       }
     },
@@ -122,13 +126,6 @@ export default function MenuManager() {
   const ItemRow = ({ item }: { item: MenuItem }) => (
     <TableRow key={item._id} dir={direction}>
       <TableCell className="font-medium flex items-center gap-2">
-        {item.imageUrl && (
-          <img
-            src={item.imageUrl}
-            alt={item.name}
-            className="w-12 h-12 object-cover rounded"
-          />
-        )}
         <span>{item.name}</span>
       </TableCell>
       <TableCell>{item.description}</TableCell>
@@ -143,10 +140,10 @@ export default function MenuManager() {
                 onClick={() => handleEditItem(item)}
               >
                 <FilePenIcon className="w-4 h-4" />
-                <span className="sr-only">Edit</span>
+                <span className="sr-only">{t("edit")}</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Edit</TooltipContent>
+            <TooltipContent>{t("edit")}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <AlertDialog>
@@ -154,27 +151,26 @@ export default function MenuManager() {
                 <TooltipTrigger asChild>
                   <Button variant="ghost" size="icon">
                     <Trash2Icon className="w-4 h-4" />
-                    <span className="sr-only">Delete</span>
+                    <span className="sr-only">{t("delete")}</span>
                   </Button>
                 </TooltipTrigger>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogTitle>{t("areYouSure")}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    this item.
+                    {t("deleteConfirmation")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
                   <AlertDialogAction onClick={() => handleDeleteItem(item._id)}>
-                    Continue
+                    {t("continue")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <TooltipContent>Delete</TooltipContent>
+            <TooltipContent>{t("delete")}</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </TableCell>
@@ -197,10 +193,12 @@ export default function MenuManager() {
         <Table className="align-top min-w-full" dir={direction}>
           <TableHeader>
             <TableRow dir={direction}>
-              <TableHead className="align-top w-1/4">Item</TableHead>
-              <TableHead className="align-top w-1/2">Description</TableHead>
-              <TableHead className="align-top w-1/8">Price</TableHead>
-              <TableHead className="align-top w-1/8">Actions</TableHead>
+              <TableHead className="align-top w-1/4">{t("item")}</TableHead>
+              <TableHead className="align-top w-1/2">
+                {t("description")}
+              </TableHead>
+              <TableHead className="align-top w-1/8">{t("price")}</TableHead>
+              <TableHead className="align-top w-1/8">{t("actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -214,14 +212,22 @@ export default function MenuManager() {
   );
 
   // Group items by category
-  const categorizedItems = categories.map((category) => ({
-    category,
-    items: menuItems.filter((item) => item.category === category._id),
-  }));
+  const categorizedItems = React.useMemo(() => {
+    return categories
+      .sort((a, b) => a.index - b.index)
+      .map((category) => ({
+        category,
+        items: menuItems.filter((item) => item.category === category._id),
+      }));
+  }, [menuItems, categories]);
 
   // Uncategorized items
-  const uncategorizedItems = menuItems.filter((item) =>
-    categories.every((cat) => cat._id !== item.category),
+  const uncategorizedItems = React.useMemo(
+    () =>
+      menuItems.filter((item) =>
+        categories.every((cat) => cat._id !== item.category),
+      ),
+    [menuItems, categories],
   );
 
   // Pagination logic for all items
@@ -286,27 +292,27 @@ export default function MenuManager() {
     <div className={`container mx-auto pb-8`}>
       <div className="flex items-center rtl:justify-end mb-4">
         <h1 className="text-3xl font-bold rtl:self-start">
-          Menu Items Manager
+          {t("menuItemsManager")}
         </h1>
       </div>
 
       <Tabs defaultValue="all">
         <div className="flex rtl:flex-row-reverse items-center justify-between mb-4">
           <TabsList>
-            <TabsTrigger value="all">All Items</TabsTrigger>
-            <TabsTrigger value="categories">Categories</TabsTrigger>
+            <TabsTrigger value="all">{t("allItems")}</TabsTrigger>
+            <TabsTrigger value="categories">{t("categories")}</TabsTrigger>
           </TabsList>
-          <div className="flex rtl:flex-row-reverse items-center gap-4">
+          <div className="flex rtl:flex-row-reverse ltr:flex-row items-center justify-center gap-4">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button size="icon" variant="ghost" onClick={refreshMenu}>
+                  <Button size="icon" variant="outline" onClick={refreshMenu}>
                     <RefreshCwIcon
                       className={`${isSpinning ? "animate-spin" : ""} w-6 h-6`}
                     />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Refresh</TooltipContent>
+                <TooltipContent>{t("refresh")}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <AddItemButton onClick={handleAddNewItem} />
@@ -325,7 +331,7 @@ export default function MenuManager() {
             ))}
             {uncategorizedItems.length > 0 && (
               <ItemTable
-                categoryName="Uncategorized"
+                categoryName={t("uncategorized")}
                 items={uncategorizedItems}
               />
             )}
@@ -336,18 +342,24 @@ export default function MenuManager() {
         <TabsContent value="all">
           <Card className="mt-4">
             <CardHeader dir={direction}>
-              <CardTitle>All Items</CardTitle>
+              <CardTitle>{t("allItems")}</CardTitle>
             </CardHeader>
             <CardContent className="overflow-auto">
               <Table className="align-top min-w-full" dir={direction}>
                 <TableHeader>
                   <TableRow dir={direction}>
-                    <TableHead className="align-top w-1/4">Item</TableHead>
-                    <TableHead className="align-top w-1/2">
-                      Description
+                    <TableHead className="align-top w-1/4">
+                      {t("item")}
                     </TableHead>
-                    <TableHead className="align-top w-1/8">Price</TableHead>
-                    <TableHead className="align-top w-1/8">Actions</TableHead>
+                    <TableHead className="align-top w-1/2">
+                      {t("description")}
+                    </TableHead>
+                    <TableHead className="align-top w-1/8">
+                      {t("price")}
+                    </TableHead>
+                    <TableHead className="align-top w-1/8">
+                      {t("actions")}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useCategories } from "@/lib/hooks/useCategories";
+import { useDirection } from "@/hooks/use-direction";
 
 interface AddCategoryModalProps {
   open: boolean;
@@ -25,6 +26,7 @@ export function AddCategoryModal({
   onCategoryAdded,
 }: AddCategoryModalProps) {
   const { createCategory } = useCategories();
+  const { direction } = useDirection();
   const [formData, setFormData] = useState({ name: "", description: "" });
 
   const handleAddCategory = async () => {
@@ -63,7 +65,7 @@ export function AddCategoryModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent dir={direction}>
         <DialogHeader>
           <DialogTitle>Create Category</DialogTitle>
         </DialogHeader>

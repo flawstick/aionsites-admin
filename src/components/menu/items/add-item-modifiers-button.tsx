@@ -6,6 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Modifier } from "@/types";
 import { availableMemory } from "process";
+import { useDirection } from "@/hooks/use-direction";
 
 interface AddModifiersDialogProps {
   availableModifiers: Modifier[];
@@ -35,6 +37,7 @@ export const AddModifiersDialog: React.FC<AddModifiersDialogProps> = ({
   const [open, setOpen] = useState(false);
   const [tempSelectedIds, setTempSelectedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const { direction } = useDirection();
 
   const handleModifierToggle = (modifierId: string) => {
     setTempSelectedIds((prev) => {
@@ -71,7 +74,7 @@ export const AddModifiersDialog: React.FC<AddModifiersDialogProps> = ({
           Add Modifiers
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-2/3" dir={direction}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold mb-4">
             Add Modifiers
@@ -87,7 +90,10 @@ export const AddModifiersDialog: React.FC<AddModifiersDialogProps> = ({
             />
           </div>
         </DialogHeader>
-        <ScrollArea className="h-[60vh] pr-4 mt-4">
+        <ScrollArea
+          className="h-[60vh] ltr:pr-4 rtl:pl-4 -mb-4 "
+          dir={direction}
+        >
           {filteredModifiers.length > 0 ? (
             filteredModifiers.map((modifier) => {
               const isSelected = tempSelectedIds.includes(modifier._id);
@@ -126,7 +132,10 @@ export const AddModifiersDialog: React.FC<AddModifiersDialogProps> = ({
             </p>
           )}
         </ScrollArea>
-        <DialogFooter>
+        <DialogFooter className="border-t py-4">
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
           <Button onClick={handleSave}>Add Selected Modifiers</Button>
         </DialogFooter>
       </DialogContent>

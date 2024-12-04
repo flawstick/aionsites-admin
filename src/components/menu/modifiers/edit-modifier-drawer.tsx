@@ -31,6 +31,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useModifiers } from "@/lib/hooks/useModifiers";
 import { toast } from "sonner";
+import { useDirection } from "@/hooks/use-direction";
 
 interface IAddition {
   name: string;
@@ -72,6 +73,7 @@ export function EditModifierDrawer({
   modifierData,
 }: EditModifierDrawerProps) {
   const { editModifier: updateModifier } = useModifiers();
+  const { direction } = useDirection();
   const [modifier, setModifier] = useState<IModifier>(modifierData);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,14 +207,17 @@ export function EditModifierDrawer({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="flex w-screen h-full h-screen items-center">
-        <div className="flex flex-col h-full min-w-[80%]">
+      <DrawerContent
+        className="flex w-screen h-full h-screen items-center"
+        dir={direction}
+      >
+        <div className="flex flex-col h-full min-w-[80%]" dir={direction}>
           <DrawerHeader className="border-b border-border">
             <DrawerTitle className="text-2xl font-bold">
               Edit Modifier
             </DrawerTitle>
           </DrawerHeader>
-          <ScrollArea className="flex">
+          <ScrollArea className="flex" dir={direction}>
             <form onSubmit={handleSubmit} className="space-y-6 p-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Modifier Name</Label>
@@ -259,6 +264,7 @@ export function EditModifierDrawer({
                         max: value === "infinity" ? undefined : parseInt(value),
                       }))
                     }
+                    dir={direction}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select max selections" />
@@ -342,8 +348,9 @@ export function EditModifierDrawer({
                               <Label htmlFor={`multiple-${index}`}>
                                 Multiple
                               </Label>
-                              <div className="flex items-center space-x-2">
+                              <div className="flex items-center gap-2">
                                 <Switch
+                                  dir="ltr"
                                   id={`multiple-${index}`}
                                   checked={option.multiple || false}
                                   onCheckedChange={(checked) =>
@@ -362,6 +369,7 @@ export function EditModifierDrawer({
                                 <Label htmlFor={`max-${index}`}>Max</Label>
                                 <Select
                                   value={option.max?.toString() || "infinity"}
+                                  dir={direction}
                                   onValueChange={(value) =>
                                     handleOptionChange(
                                       index,
@@ -426,7 +434,7 @@ export function EditModifierDrawer({
                                           : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                                       }`}
                                 >
-                                  <Flame className="w-4 h-4 mr-2" />
+                                  <Flame className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
                                   Spicy
                                 </button>
                                 <button
@@ -441,7 +449,7 @@ export function EditModifierDrawer({
                                           : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                                       }`}
                                 >
-                                  <Leaf className="w-4 h-4 mr-2" />
+                                  <Leaf className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
                                   Vegan
                                 </button>
                               </div>
@@ -459,12 +467,13 @@ export function EditModifierDrawer({
                                       value,
                                     )
                                   }
+                                  dir={direction}
                                   className="flex flex-col space-y-2"
                                 >
                                   {SPICE_LEVELS.map((level) => (
                                     <div
                                       key={level.value}
-                                      className="flex items-center space-x-2"
+                                      className="flex items-center gap-2"
                                     >
                                       <RadioGroupItem
                                         value={level.value}

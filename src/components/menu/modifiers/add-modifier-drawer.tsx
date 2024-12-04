@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Plus, Trash2, Hash, Flame, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,9 +29,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Toaster as Sonner } from "sonner";
 import { useModifiers } from "@/lib/hooks/useModifiers";
 import { toast } from "sonner";
+import { useDirection } from "@/hooks/use-direction";
 
 interface IAddition {
   name: string;
@@ -73,6 +71,7 @@ export function CreateModifierDrawer({
   onOpenChange,
 }: CreateModifierDrawerProps) {
   const { createModifier } = useModifiers();
+  const { direction } = useDirection();
   const [modifier, setModifier] = useState<IModifier>({
     name: "",
     required: false,
@@ -197,14 +196,17 @@ export function CreateModifierDrawer({
   return (
     <>
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="flex w-screen h-full max-h-[100vh] items-center">
-          <div className="flex flex-col h-full min-w-[80%]">
+        <DrawerContent
+          className="flex w-screen h-full max-h-[100vh] items-center"
+          dir={direction}
+        >
+          <div className="flex flex-col h-full min-w-[80%]" dir={direction}>
             <DrawerHeader className="border-b border-border">
               <DrawerTitle className="text-2xl font-bold">
                 Create New Modifier
               </DrawerTitle>
             </DrawerHeader>
-            <ScrollArea className="flex">
+            <ScrollArea className="flex" dir={direction}>
               <form onSubmit={handleSubmit} className="space-y-6 p-6">
                 <div className="space-y-2">
                   <Label htmlFor="name">Modifier Name</Label>
@@ -252,6 +254,7 @@ export function CreateModifierDrawer({
                             value === "infinity" ? undefined : parseInt(value),
                         }))
                       }
+                      dir={direction}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select max selections" />
@@ -364,6 +367,7 @@ export function CreateModifierDrawer({
                                           : parseInt(value),
                                       )
                                     }
+                                    dir={direction}
                                   >
                                     <SelectTrigger className="w-full">
                                       <SelectValue placeholder="Select max" />
@@ -453,6 +457,7 @@ export function CreateModifierDrawer({
                                       )
                                     }
                                     className="flex flex-col space-y-2"
+                                    dir={direction}
                                   >
                                     {SPICE_LEVELS.map((level) => (
                                       <div

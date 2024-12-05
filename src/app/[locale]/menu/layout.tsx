@@ -10,6 +10,7 @@ import { getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { MenuSidebar } from "@/components/menu-sidebar";
 import AuthProvider from "@/components/auth-provider";
+import { Header } from "@/components/nav";
 
 export const metadata: Metadata = {
   description: "Grub - Restaurant Menu",
@@ -31,7 +32,6 @@ export default async function RootLayout({
   params: { locale },
 }: RootLayoutProps) {
   if (!routing.locales.includes(locale as any)) notFound();
-  const messages = await getMessages();
   let rtl = isRTL(locale);
 
   return (
@@ -39,13 +39,9 @@ export default async function RootLayout({
       className={cn("min-h-screen font-sans antialiased", fontSans.variable)}
       dir={rtl ? "rtl" : "ltr"}
     >
-      <AuthProvider>
-        <NextIntlClientProvider messages={messages}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <MenuSidebar>{children}</MenuSidebar>
-          </ThemeProvider>
-        </NextIntlClientProvider>
-      </AuthProvider>
+      <Header>
+        <MenuSidebar>{children}</MenuSidebar>
+      </Header>
     </body>
   );
 }

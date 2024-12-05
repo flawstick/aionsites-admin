@@ -1,9 +1,8 @@
 "use client";
 
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TeamSwitcher from "@/components/team-switcher";
 import { MainNav } from "@/components/main-nav";
-import { Search } from "@/components/search";
 import { UserNav } from "@/components/user-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "./mobile-nav";
@@ -11,7 +10,7 @@ import { GrubIcon } from "@/components/icons";
 import { Slash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { LocaleSwitcher } from "./locale-select";
-import useAuth from "@/lib/hooks/useAuth";
+import { useDirection } from "@/hooks/use-direction";
 
 interface NavbarProps {
   bg?: string;
@@ -20,10 +19,9 @@ interface NavbarProps {
 
 export function Navbar({ bg, noBorder }: NavbarProps) {
   const ref = useRef<HTMLElement>(null);
+  const { direction } = useDirection();
   const [isIntersecting, setIntersecting] = useState(true);
   const router = useRouter();
-  const { status } = useAuth();
-  let loading = React.useMemo(() => status === "loading", [status]);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -36,7 +34,7 @@ export function Navbar({ bg, noBorder }: NavbarProps) {
   }, []);
 
   return (
-    <header ref={ref}>
+    <header ref={ref} dir={direction}>
       <div
         className={`fixed flex h-16 inset-x-0 pr-4 rtl:pr-0 rtl:pl-4 items-center top-0 z-50 backdrop-blur-2xl duration-200 border-b ${
           isIntersecting
@@ -47,7 +45,7 @@ export function Navbar({ bg, noBorder }: NavbarProps) {
         <MobileNav />
         <span
           className="hidden md:flex cursor-pointer invert-[0.75] dark:invert-0 ltr:-ml-1 rtl:-mr-1"
-          onClick={() => router.push("/")}
+          onClick={() => router.replace("/")}
         >
           <GrubIcon className="h-[3.75rem] w-[4.25rem]" />
         </span>

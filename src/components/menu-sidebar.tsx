@@ -28,8 +28,6 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ScrollArea } from "./ui/scroll-area";
 import { useDirection } from "@/hooks/use-direction";
-import { Navbar } from "@/components/nav";
-import AuthProvider from "./auth-provider";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import useAuth from "@/lib/hooks/useAuth";
@@ -129,8 +127,7 @@ export function MenuSidebar({ children }: MenuItemProps) {
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <Navbar />
-        <div className="flex mt-16" ref={ref}>
+        <div className="flex" ref={ref}>
           <header
             className={`fixed flex flex-row justify-between h-16 shrink-0 items-center gap-2 transition-[width,height]
                   ${isIntersecting ? "border-none" : "border-b"}

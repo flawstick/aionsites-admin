@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { useDirection } from "@/hooks/use-direction";
 
 export function MainNav({

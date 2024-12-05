@@ -54,14 +54,14 @@ export function Navbar({ bg, noBorder }: NavbarProps) {
         <span className="hidden md:flex text-2xl font-bold ltr:-ml-2 rtl:-mr-2 ltr:mr-2 rtl:ml-2 text-gray-500">
           <Slash className="h-5 w-5 -rotate-[20deg]" />
         </span>
-        {!loading && <TeamSwitcher />}
+        <TeamSwitcher />
         <MainNav className="hidden md:flex mx-6" />
         <div className="ml-auto rtl:ml-2 rtl:mr-auto flex items-center gap-4">
           <div className="flex flex-row gap-2 items-center justify-center w-full">
             <ThemeToggle />
             <LocaleSwitcher />
           </div>
-          {!loading && <UserNav />}
+          <UserNav />
         </div>
       </div>
     </header>

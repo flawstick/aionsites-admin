@@ -16,40 +16,38 @@ import {
 import useAuth from "@/lib/hooks/useAuth";
 import { useTranslations } from "next-intl";
 import { useDirection } from "@/hooks/use-direction";
+import { useMemo } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 export function UserNav() {
-  const { session, status } = useAuth();
+  const { session } = useAuth();
   const t = useTranslations("UserNav");
 
-  const { user }: any = session;
+  const user = useMemo(() => session?.user, [session]) as any;
   const { direction } = useDirection();
-  if (status === "loading" || !session || !session.user) {
-    return null;
-  }
 
   return (
     <DropdownMenu dir={direction}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={user.profilePicture || "/avatars/01.png"}
-              alt={t("userAlt", { firstName: user.firstName })}
-            />
-            <AvatarFallback>
-              {user.firstName && user.lastName
-                ? user.firstName[0] + user.lastName[0]
-                : t("unknownUserInitial")}
-            </AvatarFallback>
+            {user?.profilePicture ? (
+              <AvatarImage
+                src={user?.profilePicture || "/avatars/01.png"}
+                alt={t("userAlt", { firstName: user?.firstName })}
+              />
+            ) : (
+              <Skeleton className="h-8 w-8 rounded-full" />
+            )}
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
+            <p className="text-sm font-medium leading-none">{user?.name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>

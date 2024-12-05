@@ -355,7 +355,7 @@ const OrderTableHeader: React.FC<OrderTableHeaderProps> = ({
       <span className="text-xl">Orders</span>
       <TooltipProvider>
         <Tooltip>
-          <TooltipTrigger>
+          <TooltipTrigger asChild>
             <Button
               size="icon"
               variant="ghost"

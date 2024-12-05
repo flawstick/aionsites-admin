@@ -27,6 +27,7 @@ import {
 import useAuth from "@/lib/hooks/useAuth";
 import RegisterRestaurant from "./create-resturant";
 import { useRestaurantStore } from "@/lib/store/restaurantStore";
+import { Skeleton } from "./ui/skeleton";
 
 type PopoverTriggerProps = React.ComponentPropsWithoutRef<
   typeof PopoverTrigger
@@ -48,6 +49,10 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
   React.useEffect(() => {
     if (session) fetchRestaurants(session.jwt, session.user._id);
   }, [session]);
+
+  if (!selectedRestaurant) {
+    return <Skeleton className="h-8 w-[200px] rounded-lg" />;
+  }
 
   return (
     <Dialog open={showNewTeamDialog} onOpenChange={setShowNewTeamDialog}>

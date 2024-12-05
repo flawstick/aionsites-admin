@@ -44,7 +44,7 @@ export default async function RootLayout({
         <AuthProvider>
           <NextIntlClientProvider messages={messages}>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-              <Header>{children}</Header>
+              {children}
             </ThemeProvider>
           </NextIntlClientProvider>
         </AuthProvider>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import TeamSwitcher from "@/components/team-switcher";
 import { MainNav } from "@/components/main-nav";
 import { Search } from "@/components/search";
@@ -11,6 +11,7 @@ import { GrubIcon } from "@/components/icons";
 import { Slash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { LocaleSwitcher } from "./locale-select";
+import useAuth from "@/lib/hooks/useAuth";
 
 interface NavbarProps {
   bg?: string;
@@ -21,6 +22,8 @@ export function Navbar({ bg, noBorder }: NavbarProps) {
   const ref = useRef<HTMLElement>(null);
   const [isIntersecting, setIntersecting] = useState(true);
   const router = useRouter();
+  const { status } = useAuth();
+  let loading = React.useMemo(() => status === "loading", [status]);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -51,14 +54,14 @@ export function Navbar({ bg, noBorder }: NavbarProps) {
         <span className="hidden md:flex text-2xl font-bold ltr:-ml-2 rtl:-mr-2 ltr:mr-2 rtl:ml-2 text-gray-500">
           <Slash className="h-5 w-5 -rotate-[20deg]" />
         </span>
-        <TeamSwitcher />
+        {!loading && <TeamSwitcher />}
         <MainNav className="hidden md:flex mx-6" />
         <div className="ml-auto rtl:ml-2 rtl:mr-auto flex items-center gap-4">
           <div className="flex flex-row gap-2 items-center justify-center w-full">
             <ThemeToggle />
             <LocaleSwitcher />
           </div>
-          <UserNav />
+          {!loading && <UserNav />}
         </div>
       </div>
     </header>

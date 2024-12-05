@@ -20,7 +20,6 @@ import RestaurantProfileSettings from "./general";
 
 export default function RestaurantSettings() {
   const [activeSection, setActiveSection] = useState("general");
-  const { selectedRestaurant } = useRestaurantStore();
 
   const renderContent = () => {
     switch (activeSection) {
@@ -80,42 +79,40 @@ export default function RestaurantSettings() {
   };
 
   return (
-    <Header>
-      <div className="flex bg-background">
-        <aside className="w-64 bg-background p-6">
-          <div className="mb-6">
-            <Input type="search" placeholder="Search..." className="w-full" />
-          </div>
-          <nav className="space-y-2">
-            {[
-              { name: "General", icon: ChevronsUpDown, id: "general" },
-              {
-                name: "Restaurant Details",
-                icon: UtensilsCrossed,
-                id: "details",
-              },
-              { name: "Operating Hours", icon: Clock, id: "hours" },
-            ].map((item) => (
-              <Button
-                key={item.id}
-                variant={activeSection === item.id ? "default" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => setActiveSection(item.id)}
-              >
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.name}
-              </Button>
-            ))}
-          </nav>
-          <div className="mt-auto pt-6">
-            <Button variant="ghost" className="w-full justify-start">
-              <Bell className="mr-2 h-4 w-4" />
-              Notifications
+    <div className="flex bg-background">
+      <aside className="w-64 bg-background p-6">
+        <div className="mb-6">
+          <Input type="search" placeholder="Search..." className="w-full" />
+        </div>
+        <nav className="space-y-2">
+          {[
+            { name: "General", icon: ChevronsUpDown, id: "general" },
+            {
+              name: "Restaurant Details",
+              icon: UtensilsCrossed,
+              id: "details",
+            },
+            { name: "Operating Hours", icon: Clock, id: "hours" },
+          ].map((item) => (
+            <Button
+              key={item.id}
+              variant={activeSection === item.id ? "default" : "ghost"}
+              className="w-full justify-start"
+              onClick={() => setActiveSection(item.id)}
+            >
+              <item.icon className="mr-2 h-4 w-4" />
+              {item.name}
             </Button>
-          </div>
-        </aside>
-        <main className="flex-1 p-6 overflow-auto">{renderContent()}</main>
-      </div>
-    </Header>
+          ))}
+        </nav>
+        <div className="mt-auto pt-6">
+          <Button variant="ghost" className="w-full justify-start">
+            <Bell className="mr-2 h-4 w-4" />
+            Notifications
+          </Button>
+        </div>
+      </aside>
+      <main className="flex-1 p-6 overflow-auto">{renderContent()}</main>
+    </div>
   );
 }

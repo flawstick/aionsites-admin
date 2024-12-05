@@ -39,11 +39,13 @@ export default async function RootLayout({
       className={cn("min-h-screen font-sans antialiased", fontSans.variable)}
       dir={rtl ? "rtl" : "ltr"}
     >
-      <NextIntlClientProvider messages={messages}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <MenuSidebar>{children}</MenuSidebar>
-        </ThemeProvider>
-      </NextIntlClientProvider>
+      <AuthProvider>
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <MenuSidebar>{children}</MenuSidebar>
+          </ThemeProvider>
+        </NextIntlClientProvider>
+      </AuthProvider>
     </body>
   );
 }

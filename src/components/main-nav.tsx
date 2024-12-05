@@ -3,8 +3,8 @@
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
 import { useDirection } from "@/hooks/use-direction";
+import Link from "next/link";
 
 export function MainNav({
   className,

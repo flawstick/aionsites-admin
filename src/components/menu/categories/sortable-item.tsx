@@ -54,7 +54,7 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
     id: category._id,
   });
 
-  const t = useTranslations("category");
+  const t = useTranslations("categories");
   const { direction } = useDirection();
 
   const style = {
@@ -71,7 +71,7 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
       style={style}
       className="group flex items-center justify-between p-4 rounded-lg bg-muted hover:bg-muted/80 transition-colors duration-200"
     >
-      <div className="flex flex-row justify-center items-center gap-1 mr-4">
+      <div className="flex flex-row justify-center items-center gap-1 ltr:mr-4 rtl:ml-4">
         <h3 className="font-medium">{category.name}</h3>
         <DropdownMenu dir={direction}>
           <DropdownMenuTrigger asChild>
@@ -91,7 +91,7 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
                 <Edit className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> {t("edit")}
               </DropdownMenuItem>
               <DropdownMenuSub>
-                <DropdownMenuSubTrigger dir="rtl">
+                <DropdownMenuSubTrigger dir={direction}>
                   <MoveVertical className="h-4 w-4 ltr:mr-2 rtl:ml-2" />{" "}
                   {t("move")}...
                 </DropdownMenuSubTrigger>

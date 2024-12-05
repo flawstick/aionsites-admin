@@ -4,7 +4,7 @@
     "allItems": "All Items",
     "categories": "Categories",
     "refresh": "Refresh",
-    "addNewItem": "Add New Item",
+    "addNewItem": "Add Item",
     "item": "Item",
     "description": "Description",
     "price": "Price",
@@ -24,6 +24,11 @@
     "paginationNext": "Next"
   },
   "item": {
+    "editMenuItem": "Edit Menu Item",
+    "updateDetails": "Update the details for the menu item.",
+    "updating": "Updating...",
+    "updateItem": "Update Item",
+    "failedUpdate": "Failed to update menu item.",
     "addNewItem": "Add New Menu Item",
     "fillDetails": "Fill in the details for the new menu item.",
     "validationError": "All fields must be filled.",
@@ -55,10 +60,47 @@
       "saturday": "Saturday"
     }
   },
+  "itemModifiers": {
+    "actions": "Actions",
+    "remove": "Remove",
+    "required": "Required",
+    "optional": "Optional",
+    "multiple": "Multiple",
+    "single": "Single",
+    "max": "Max",
+    "availableDays": "Available Days",
+    "options": "Options",
+    "vegan": "Vegan",
+    "spicy": "Spicy",
+    "spiceLevel": "Spice Level",
+    "daysAvailable": "Days Available",
+    "itemModifiers": "Item Modifiers",
+    "days": {
+      "sunday": "Sunday",
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    }
+  },
+  "AddModifiersDialog": {
+    "addModifiers": "Add Modifiers",
+    "searchModifiers": "Search modifiers...",
+    "required": "Required",
+    "multiple": "Multiple",
+    "selected": "Selected",
+    "clickToSelect": "Click to select",
+    "noModifiersFound": "No modifiers found.",
+    "cancel": "Cancel",
+    "addSelectedModifiers": "Add Selected Modifiers"
+  },
   "categories": {
     "draggableCategories": "Draggable Categories",
     "dragToReorder": "Drag the categories to reorder them",
     "addCategory": "Add Category",
+    "addCategory2": "Create new",
     "editCategory": "Edit Category",
     "deleteCategory": "Delete Category",
     "categoryDeletedSuccessfully": "Category deleted successfully",
@@ -66,23 +108,45 @@
     "deletionUndoneSuccessfully": "Deletion undone successfully",
     "failedToUndoDeletion": "Failed to undo deletion",
     "currentOrder": "Current order",
-    "undo": "Undo"
+    "undo": "Undo",
+    "categoryDeletedSuccessfully": "Category deleted successfully",
+    "undo": "Undo",
+    "deletionUndoneSuccessfully": "Deletion undone successfully",
+    "failedToUndoDeletion": "Failed to undo deletion",
+    "failedToDeleteCategory": "Failed to delete category",
+    "draggableCategories": "Draggable Categories",
+    "dragCategoriesToReorder": "Drag the categories to reorder them",
+    "currentOrder": "Current order",
+    "actions": "Actions",
+    "edit": "Edit",
+    "move": "Move",
+    "moveUp": "Move Up",
+    "moveDown": "Move Down",
+    "delete": "Delete"
   },
   "category": {
-    "editCategory": "Edit Category",
-    "name": "Name",
-    "description": "Description",
-    "categoryNamePlaceholder": "Category name",
-    "categoryDescriptionPlaceholder": "Category description",
     "save": "Save",
     "cancel": "Cancel",
+    "retry": "Retry",
+    "categoryNameIsRequired": "Category name is required",
+    "ok": "OK",
     "categoryUpdatedSuccessfully": "Category updated successfully",
+    "yay": "Yay!",
     "failedToUpdateCategory": "Failed to update category",
-    "categoryNameRequired": "Category name is required",
-    "retry": "Retry"
+    "retry": "Retry",
+    "editCategory": "Edit Category",
+    "name": "Name",
+    "categoryName": "Category name",
+    "description": "Description",
+    "categoryDescription": "Category description",
+    "categoryAddedSuccessfully": "Category added successfully",
+    "failedToAddCategory": "Failed to add category",
+    "createCategory": "Create Category",
+    "create": "Create"
   },
   "modifiers": {
     "modifierManagement": "Modifier Management",
+    "modifierName": "Name",
     "allModifiers": "All Modifiers",
     "actions": "Actions",
     "edit": "Edit",
@@ -101,9 +165,9 @@
     "addModifier": "Add Modifier",
     "categories": "Categories",
     "actionsMenu": {
-      "edit": "Edit Modifier",
-      "duplicate": "Duplicate Modifier",
-      "delete": "Delete Modifier"
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "delete": "Delete"
     }
   },
   "modifier": {
@@ -131,6 +195,26 @@
     "create": "Create Modifier",
     "modifierAddedSuccessfully": "Modifier added successfully",
     "failedToSaveMenu": "Failed to save menu",
+    "editModifier": "Edit Modifier",
+    "modifierUpdatedSuccessfully": "Modifier updated successfully",
+    "failedToUpdateModifier": "Failed to update modifier",
+    "updateModifier": "Update Modifier",
+    "addition": "Addition",
+    "additionName": "Addition name",
+    "selectMaxSelections": "Select max selections",
+    "selectMax": "Select max",
+    "properties": "Properties",
+    "yes": "Yes",
+    "no": "No",
+    "yay": "Yay!",
+    "modifierDeletedSuccessfully": "Modifier deleted successfully",
+    "undo": "Undo",
+    "deletionUndoneSuccessfully": "Deletion undone successfully",
+    "failedToDeleteModifier": "Failed to delete modifier",
+    "retry": "Retry",
+    "deleteConfirmationTitle": "Are you sure you want to delete?",
+    "deleteConfirmationDescription": "This will permanently delete the modifier from the database.",
+    "delete": "Delete",
     "days": {
       "sunday": "Sun",
       "monday": "Mon",
@@ -141,14 +225,47 @@
       "saturday": "Sat"
     }
   },
-  "deleteModifier": {
-    "title": "Are you sure you want to delete this?",
-    "description": "This deletes it off the database, all gone.",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "success": "Modifier deleted successfully",
-    "failed": "Failed to delete modifier",
-    "undoSuccess": "Deletion undone successfully",
-    "retry": "Retry"
+  "menuLayout": {
+    "menu": "Menu",
+    "menuItems": "Menu Items",
+    "modifiers": "Modifiers",
+    "categories": "Categories",
+    "breadcrumbs": {
+      "menu": "Menu",
+      "items": "Items",
+      "modifiers": "Modifiers",
+      "categories": "Categories"
+    }
+  },
+  "MobileNav": {
+    "navigation": "Navigation",
+    "overview": "Overview",
+    "orders": "Orders",
+    "menu": "Menu",
+    "settings": "Settings"
+  },
+  "UserNav": {
+    "userAlt": "@{firstName}",
+    "unknownUserInitial": "?",
+    "profile": "Profile",
+    "billing": "Billing",
+    "settings": "Settings",
+    "logOut": "Log out"
+  },
+  "LocaleSwitcher": {
+    "language": "Language"
+  },
+  "ThemeToggle": {
+    "toggleTheme": "Toggle theme",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "MainNav": {
+    "overview": "Overview",
+    "orders": "Orders",
+    "menu": "Menu",
+    "settings": "Settings"
   }
 }

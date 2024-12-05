@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { ReactNode, useTransition } from "react";
+import { useTransition } from "react";
 import { Locale, usePathname, useRouter } from "@/i18n/routing";
 import { useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useDirection } from "@/hooks/use-direction";
+import { useTranslations } from "next-intl";
 
 export function LocaleSwitcher() {
   const router = useRouter();
@@ -27,7 +28,9 @@ export function LocaleSwitcher() {
   const params = useParams();
   const { direction } = useDirection();
   const locale = useLocale();
-  const locales = ["en", "he"];
+  const t = useTranslations("LocaleSwitcher");
+  const locales: Locale[] = ["en", "he"];
+
   const localeMap: Record<Locale, string> = {
     en: "English",
     he: "עברית",
@@ -57,7 +60,7 @@ export function LocaleSwitcher() {
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent>Language</TooltipContent>
+          <TooltipContent>{t("language")}</TooltipContent>
         </Tooltip>
       </TooltipProvider>
       <DropdownMenuContent>
@@ -67,7 +70,7 @@ export function LocaleSwitcher() {
             key={value}
             className="flex items-center justify-between"
           >
-            {localeMap[value as Locale]}
+            {localeMap[value]}
             {value === locale && <CheckIcon className="h-3 w-3" />}
           </DropdownMenuItem>
         ))}

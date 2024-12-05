@@ -26,7 +26,7 @@ export default function RestaurantProfileSettings() {
 
   useEffect(() => {
     // @ts-ignore
-    fetchSelectedRestaurant(session.jwt);
+    fetchSelectedRestaurant(session?.jwt);
   }, []);
 
   useEffect(() => {

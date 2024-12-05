@@ -8,7 +8,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Toaster as Sonner, toast } from "sonner";
 import { useCategories } from "@/lib/hooks/useCategories";
 
@@ -21,12 +20,11 @@ import { useRestaurantStore } from "@/lib/store/restaurantStore";
 import SortableCategoryList from "@/components/menu/categories/sortable-list";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Category } from "@/types";
-import { MenuSidebar } from "@/components/menu-sidebar";
-import { Header } from "@/components/nav";
-import AuthProvider from "@/components/auth-provider";
 import { useDirection } from "@/hooks/use-direction";
+import { useTranslations } from "next-intl";
 
 export default function MenuManager() {
+  const t = useTranslations("categories");
   const {
     createCategory,
     deleteCategory,
@@ -57,24 +55,24 @@ export default function MenuManager() {
 
   const handleDeleteCategory = async (categoryId: string) => {
     if (await deleteCategory(categoryId)) {
-      toast("Category deleted successfully", {
+      toast(t("categoryDeletedSuccessfully"), {
         actionButtonStyle: {
           backgroundColor: "hsl(var(--primary))",
           color: "hsl(var(--primary-foreground))",
         },
         action: {
-          label: "Undo",
+          label: t("undo"),
           onClick: async () => {
             if (await undoDeleteCategory(categoryId)) {
-              toast("Deletion undone successfully");
+              toast(t("deletionUndoneSuccessfully"));
             } else {
-              toast("Failed to undo deletion");
+              toast(t("failedToUndoDeletion"));
             }
           },
         },
       });
     } else {
-      toast("Failed to delete category");
+      toast(t("failedToDeleteCategory"));
     }
   };
 
@@ -104,10 +102,10 @@ export default function MenuManager() {
       <Card className="w-full shadow-lg" dir={direction}>
         <CardHeader className="flex flex-row items-center justify-between space-y-1">
           <div className="flex flex-col">
-            <CardTitle className="text-2xl">Draggable Categories</CardTitle>
-            <CardDescription>
-              Drag the categories to reorder them
-            </CardDescription>
+            <CardTitle className="text-2xl">
+              {t("draggableCategories")}
+            </CardTitle>
+            <CardDescription>{t("dragCategoriesToReorder")}</CardDescription>
           </div>
 
           <AddCategoryButton onClick={() => setAddDialogOpen(true)} />
@@ -131,7 +129,7 @@ export default function MenuManager() {
             )}
             {categories.length > 0 && (
               <div className="text-sm text-muted-foreground">
-                Current order:{" "}
+                {t("currentOrder")}:{" "}
                 {categories
                   ?.sort((a, b) => a.index - b.index)
                   .map((cat) => cat.name)

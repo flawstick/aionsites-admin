@@ -25,7 +25,7 @@ export default function LiveOrders() {
 
   return (
     <AuthProvider>
-      <Header noBorder>
+      <Header>
         <div className="mx-auto px-4 py-8">
           <header className="mb-8 flex items-center">
             <Link href="#" className="mr-4" prefetch={false}>

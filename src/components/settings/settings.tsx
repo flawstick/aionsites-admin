@@ -80,7 +80,7 @@ export default function RestaurantSettings() {
   };
 
   return (
-    <Header noBorder>
+    <Header>
       <div className="flex bg-background">
         <aside className="w-64 bg-background p-6">
           <div className="mb-6">

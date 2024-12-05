@@ -31,21 +31,22 @@ import { useDirection } from "@/hooks/use-direction";
 import { Navbar } from "@/components/nav";
 import AuthProvider from "./auth-provider";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 const data = {
   navMain: [
     {
-      title: "Menu Items",
+      title: "menuItems",
       url: "/menu/items",
       icon: Pizza,
     },
     {
-      title: "Modifiers",
+      title: "modifiers",
       url: "/menu/modifiers",
       icon: Sparkles,
     },
     {
-      title: "Categories",
+      title: "categories",
       url: "/menu/categories",
       icon: Layers3,
     },
@@ -57,6 +58,7 @@ interface MenuItemProps {
 }
 
 export function MenuSidebar({ children }: MenuItemProps) {
+  const t = useTranslations("menuLayout");
   const ref = React.useRef<HTMLDivElement>(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -80,12 +82,11 @@ export function MenuSidebar({ children }: MenuItemProps) {
     const segments = pathname.split("/").filter(Boolean).slice(1);
     return segments.map((segment, index) => {
       const url = `/${segments.slice(0, index + 1).join("/")}`;
-      const title = segment
-        .replace(/-/g, " ")
-        .replace(/^\w/, (c) => c.toUpperCase());
+      const titleKey = segment.replace(/-/g, "");
+      const title = t(`breadcrumbs.${titleKey}`, { default: segment });
       return { title, url };
     });
-  }, [pathname]);
+  }, [pathname, t]);
 
   // Check if a sidebar item is selected
   const selectedItem = React.useMemo(
@@ -100,22 +101,22 @@ export function MenuSidebar({ children }: MenuItemProps) {
         <Sidebar collapsible="icon" side={rtl ? "right" : "left"}>
           <SidebarContent>
             <SidebarGroup className="mt-16">
-              <SidebarGroupLabel>Menu</SidebarGroupLabel>
+              <SidebarGroupLabel>{t("menu")}</SidebarGroupLabel>
               <SidebarMenu>
                 {data.navMain.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
-                      tooltip={item.title}
+                      tooltip={t(item.title)}
                       onClick={() => router.push(`/${locale}${item.url}`)}
                       className={cn(
                         selectedItem?.url === item.url
-                          ? "text-white dark:text-primary-foreground bg-primary hover:bg-primary/90 dark:bg-primary/20 dark:hover:bg-primary/30"
+                          ? "text-white dark:text-primary-foreground bg-primary hover:bg-primary/90 hover:text-white dark:bg-primary/20 dark:hover:bg-primary/30"
                           : "",
                         "transition-colors",
                       )}
                     >
                       {item.icon && <item.icon />}
-                      <span>{item.title}</span>
+                      <span>{t(item.title)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -129,12 +130,15 @@ export function MenuSidebar({ children }: MenuItemProps) {
           <div className="flex mt-16" ref={ref}>
             <header
               className={`fixed flex flex-row justify-between h-16 shrink-0 items-center gap-2 transition-[width,height]
-              ${isIntersecting ? "border-none" : "border-b"}
-              ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 backdrop-blur-2xl
-              bg-background z-50 w-full`}
+                  ${isIntersecting ? "border-none" : "border-b"}
+                  ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 backdrop-blur-2xl
+                  bg-background z-50 w-full`}
             >
               <div className="flex items-center gap-2 px-4">
-                <SidebarTrigger className="rtl:-ml-1 ltr:-mr-1" />
+                <SidebarTrigger
+                  className="rtl:-ml-1 ltr:-mr-1"
+                  dir={direction}
+                />
                 <Separator
                   orientation="vertical"
                   className="rtl:ml-2 ltr:mr-2 h-4"
@@ -143,13 +147,8 @@ export function MenuSidebar({ children }: MenuItemProps) {
                   <BreadcrumbList>
                     {breadcrumbs.map((item, index) => (
                       <React.Fragment key={item.url}>
-                        {index !== 0 && (
-                          <BreadcrumbSeparator
-                            className="hidden md:block"
-                            dir={direction}
-                          />
-                        )}
-                        <BreadcrumbItem className="hidden md:block">
+                        {index !== 0 && <BreadcrumbSeparator dir={direction} />}
+                        <BreadcrumbItem>
                           <BreadcrumbLink href={`/${item.url}`}>
                             {item.title}
                           </BreadcrumbLink>

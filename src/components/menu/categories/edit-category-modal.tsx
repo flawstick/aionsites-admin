@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useCategories } from "@/lib/hooks/useCategories";
+import { useTranslations } from "next-intl";
 
 interface EditCategoryModalProps {
   open: boolean;
@@ -24,6 +25,7 @@ export function EditCategoryModal({
   onOpenChange,
   category,
 }: EditCategoryModalProps) {
+  const t = useTranslations("category");
   const { editCategory } = useCategories();
   const [formData, setFormData] = useState({ name: "", description: "" });
 
@@ -39,13 +41,13 @@ export function EditCategoryModal({
 
   const handleSaveCategory = async () => {
     if (formData.name.trim() === "") {
-      toast("Category name is required", {
+      toast(t("categoryNameIsRequired"), {
         actionButtonStyle: {
           backgroundColor: "hsl(var(--destructive))",
           color: "hsl(var(--primary-foreground))",
         },
         action: {
-          label: "ok",
+          label: t("ok"),
           onClick: () => {},
         },
       });
@@ -53,25 +55,25 @@ export function EditCategoryModal({
     }
     const updatedCategory = { ...category, ...formData };
     if (await editCategory(updatedCategory)) {
-      toast("Category updated successfully", {
+      toast(t("categoryUpdatedSuccessfully"), {
         actionButtonStyle: {
           backgroundColor: "hsl(var(--primary))",
           color: "hsl(var(--primary-foreground))",
         },
         action: {
-          label: "yay!",
+          label: t("yay"),
           onClick: () => {},
         },
       });
     } else {
-      toast("Failed to update category", {
+      toast(t("failedToUpdateCategory"), {
         actionButtonStyle: {
           backgroundColor: "hsl(var(--destructive))",
           color: "hsl(var(--primary-foreground))",
         },
 
         action: {
-          label: "Retry",
+          label: t("retry"),
           onClick: () => {
             handleSaveCategory();
           },
@@ -85,7 +87,7 @@ export function EditCategoryModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Category</DialogTitle>
+          <DialogTitle>{t("editCategory")}</DialogTitle>
         </DialogHeader>
         <form
           onSubmit={(e) => {
@@ -94,31 +96,31 @@ export function EditCategoryModal({
           }}
         >
           <div className="flex flex-col">
-            <span className="text-sm font-bold mt-2">Name</span>
+            <span className="text-sm font-bold mt-2">{t("name")}</span>
             <Input
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder="Category name"
+              placeholder={t("categoryName")}
               required
             />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-bold mt-2">Description</span>
+            <span className="text-sm font-bold mt-2">{t("description")}</span>
             <Input
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              placeholder="Category description"
+              placeholder={t("categoryDescription")}
             />
           </div>
           <DialogFooter className="mt-2">
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">{t("cancel")}</Button>
             </DialogClose>
-            <Button type="submit">Save</Button>
+            <Button type="submit">{t("save")}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

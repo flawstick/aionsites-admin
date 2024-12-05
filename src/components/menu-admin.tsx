@@ -9,11 +9,6 @@ import { AddItemButton } from "./menu/items/add-item-button";
 import { ReactNode, useState } from "react";
 import AddMenuItemDrawer from "./add-menu-modal";
 
-const breadCrumbsPath = [
-  { title: "Menu", url: "/menu/items" },
-  { title: "Items", url: "/menu/items" },
-];
-
 export function Menu() {
   const { session }: any = useAuth();
   const { createMenu } = useRestaurantStore();

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   DndContext,
   closestCenter,
@@ -38,6 +38,7 @@ import {
   Flame,
   MoreHorizontal,
   Trash2Icon,
+  ChevronLeft,
 } from "lucide-react";
 import useMenuStore from "@/lib/store/menuStore";
 import { AddModifiersDialog } from "./add-item-modifiers-button";
@@ -54,6 +55,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTranslations } from "next-intl";
+import { useDirection } from "@/hooks/use-direction";
 
 interface ItemModifiersProps {
   item: any;
@@ -71,6 +74,7 @@ const SortableItem: React.FC<SortableItemProps> = ({
   modifier,
   removeItem,
 }) => {
+  const t = useTranslations("itemModifiers");
   const {
     attributes,
     listeners,
@@ -80,21 +84,43 @@ const SortableItem: React.FC<SortableItemProps> = ({
     isDragging,
   } = useSortable({ id });
 
+  const DAYS = [
+    t("days.sunday"),
+    t("days.monday"),
+    t("days.tuesday"),
+    t("days.wednesday"),
+    t("days.thursday"),
+    t("days.friday"),
+    t("days.saturday"),
+  ];
+
+  const DAYS_MAP: Record<number, string> = {
+    0: t("days.sunday"),
+    1: t("days.monday"),
+    2: t("days.tuesday"),
+    3: t("days.wednesday"),
+    4: t("days.thursday"),
+    5: t("days.friday"),
+    6: t("days.saturday"),
+  };
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     zIndex: isDragging ? 2 : 1,
   };
 
+  const { direction, rtl } = useDirection();
   return (
     <Dialog>
       <div
         ref={setNodeRef}
         style={style}
+        dir={direction}
         className="flex items-center w-full p-4 mb-3 bg-muted border rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-all duration-300 group"
       >
         <div
-          className="mr-3 w-8 flex justify-center items-center py-2 rounded-full hover:bg-gray-500/20 transition-colors duration-200 cursor-move"
+          className="ltr:mr-3 rtl:ml-3 w-8 flex justify-center items-center py-2 rounded-full hover:bg-gray-500/20 transition-colors duration-200 cursor-move"
           {...attributes}
           {...listeners}
         >
@@ -114,15 +140,15 @@ const SortableItem: React.FC<SortableItemProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem
                     className="text-red-500"
                     onClick={() => removeItem(id)}
                   >
-                    <Trash2Icon className="w-4 h-4 mr-1" />
-                    Remove
+                    <Trash2Icon className="w-4 h-4 ltr:mr-1 rtl:ml-2" />
+                    {t("remove")}
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -131,13 +157,17 @@ const SortableItem: React.FC<SortableItemProps> = ({
         </div>
         <Badge
           variant={modifier.required ? "default" : "secondary"}
-          className="mr-2"
+          className="ltr:mr-2 rtl:ml-2"
         >
-          {modifier.required ? "Required" : "Optional"}
+          {modifier.required ? t("required") : t("optional")}
         </Badge>
         <DialogTrigger asChild>
           <div className="flex items-center justify-center border bg-background rounded-lg p-1 cursor-pointer">
-            <ChevronRight className="text-primary-foreground/70 group-hover:text-primary-foreground transition-colors duration-300" />
+            {rtl ? (
+              <ChevronLeft className="text-primary-foreground/70 group-hover:text-primary-foreground transition-colors duration-300" />
+            ) : (
+              <ChevronRight className="text-primary-foreground/70 group-hover:text-primary-foreground transition-colors duration-300" />
+            )}
           </div>
         </DialogTrigger>
       </div>
@@ -153,48 +183,45 @@ const SortableItem: React.FC<SortableItemProps> = ({
               variant={modifier.required ? "default" : "secondary"}
               className="text-sm px-3 py-1"
             >
-              {modifier.required ? "Required" : "Optional"}
+              {modifier.required ? t("required") : t("optional")}
             </Badge>
             <Badge
               variant={modifier.multiple ? "default" : "secondary"}
               className="text-sm px-3 py-1"
             >
-              {modifier.multiple ? "Multiple" : "Single"}
+              {modifier.multiple ? t("multiple") : t("single")}
             </Badge>
             {modifier.max !== undefined && (
               <Badge variant="outline" className="text-sm px-3 py-1">
-                Max: {modifier.max}
+                {t("max")}: {modifier.max}
               </Badge>
             )}
           </div>
           {modifier.indexDaysAvailable && (
             <div>
               <Label className="block mb-2 text-sm font-medium text-primary-foreground/50">
-                Available Days
+                {t("availableDays")}
               </Label>
               <div className="flex flex-wrap gap-2">
-                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
-                  (day, index) => (
-                    <Badge
-                      key={day}
-                      variant={
-                        modifier.indexDaysAvailable?.includes(index)
-                          ? "default"
-                          : "secondary"
-                      }
-                      className="px-3 py-1 text-xs font-medium"
-                    >
-                      {day}
-                    </Badge>
-                  ),
-                )}
+                {DAYS.map((day: string, index: number) => (
+                  <Badge
+                    key={day}
+                    variant={
+                      modifier.indexDaysAvailable?.includes(index)
+                        ? "default"
+                        : "secondary"
+                    }
+                    className="px-3 py-1 text-xs font-medium"
+                  >
+                    {day}
+                  </Badge>
+                ))}
               </div>
             </div>
           )}
-          <Separator className="my-6" />
+          <Separator className="mt-6" />
           <div>
-            <Label className="block mb-4 text-xl font-semibold">Options</Label>
-            <ScrollArea className="h-[350px] pr-4">
+            <ScrollArea className="h-[350px] ltr:pr-4 rtl:pl-4" dir={direction}>
               <div className="space-y-4">
                 {modifier.options.map((option, index) => (
                   <div
@@ -206,14 +233,16 @@ const SortableItem: React.FC<SortableItemProps> = ({
                         {option.name}
                       </span>
                       <Badge variant="outline" className="px-3 py-1">
-                        <IconBxShekel className="w-4 h-4 mr-1" />
+                        <IconBxShekel className="w-4 h-4 ltr:mr-1 rtl:ml-1" />
                         {option.price.toFixed(2)}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       {option.multiple !== undefined && (
                         <div className="flex items-center">
-                          <Label className="mr-2">Multiple:</Label>
+                          <Label className="ltr:mr-2 rtl:ml-2">
+                            {t("multiple")}:
+                          </Label>
                           {option.multiple ? (
                             <Check className="w-5 h-5 text-green-500" />
                           ) : (
@@ -223,13 +252,17 @@ const SortableItem: React.FC<SortableItemProps> = ({
                       )}
                       {option.max !== undefined && (
                         <div className="flex items-center">
-                          <Label className="mr-2">Max:</Label>
+                          <Label className="ltr:mr-2 rtl:ml-2">
+                            {t("max")}:
+                          </Label>
                           <span className="font-medium">{option.max}</span>
                         </div>
                       )}
                       {option.vegan !== undefined && (
                         <div className="flex items-center">
-                          <Label className="mr-2">Vegan:</Label>
+                          <Label className="ltr:mr-2 rtl:ml-2">
+                            {t("vegan")}:
+                          </Label>
                           {option.vegan ? (
                             <Check className="w-5 h-5 text-green-500" />
                           ) : (
@@ -239,7 +272,9 @@ const SortableItem: React.FC<SortableItemProps> = ({
                       )}
                       {option.isSpicy !== undefined && (
                         <div className="flex items-center">
-                          <Label className="mr-2 text-gray-600">Spicy:</Label>
+                          <Label className="ltr:mr-2 rtl:ml-2 text-gray-600">
+                            {t("spicy")}:
+                          </Label>
                           {option.isSpicy ? (
                             <Flame className="w-5 h-5 text-red-500" />
                           ) : (
@@ -249,7 +284,9 @@ const SortableItem: React.FC<SortableItemProps> = ({
                       )}
                       {option.spiceLevel !== undefined && (
                         <div className="flex items-center">
-                          <Label className="mr-2">Spice Level:</Label>
+                          <Label className="ltr:mr-2 rtl:ml-2">
+                            {t("spiceLevel")}:
+                          </Label>
                           <div className="flex">
                             {Array.from({ length: option.spiceLevel }).map(
                               (_, i) => (
@@ -265,22 +302,13 @@ const SortableItem: React.FC<SortableItemProps> = ({
                       {option.indexDaysAvailable && (
                         <div className="col-span-2">
                           <Separator className="w-full my-4" />
-                          <Label className="mr-2 text-primary-foreground/50">
-                            Days Available:
+                          <Label className="ltr:mr-2 rtl:ml-2 text-primary-foreground/50">
+                            {t("daysAvailable")}:
                           </Label>
                           <span className="font-medium">
                             {option.indexDaysAvailable
                               ?.map(
-                                (day) =>
-                                  [
-                                    "Sun",
-                                    "Mon",
-                                    "Tue",
-                                    "Wed",
-                                    "Thu",
-                                    "Fri",
-                                    "Sat",
-                                  ][day],
+                                (day) => DAYS_MAP[day as keyof typeof DAYS_MAP],
                               )
                               .join(", ")}
                           </span>
@@ -302,6 +330,7 @@ const ItemModifiers: React.FC<ItemModifiersProps> = ({
   item,
   updateItemModifiers,
 }) => {
+  const t = useTranslations("itemModifiers");
   const { modifiers: allModifiers } = useMenuStore();
 
   const [modifiers, setModifiers] = useState<Modifier[]>(() => {
@@ -362,7 +391,7 @@ const ItemModifiers: React.FC<ItemModifiersProps> = ({
       <Separator className="w-full my-4" />
       <div className="flex items-center justify-between w-full mt-4">
         <span className="flex-grow text-md font-semibold text-primary-foreground">
-          Item Modifiers
+          {t("itemModifiers")}
         </span>
         <AddModifiersDialog
           availableModifiers={allModifiers}

@@ -8,6 +8,8 @@ import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
+import { Header } from "@/components/nav";
+import AuthProvider from "@/components/auth-provider";
 
 export const metadata: Metadata = {
   description: "Aionsites Admin Dashboard",
@@ -39,11 +41,13 @@ export default async function RootLayout({
         className={cn("min-h-screen font-sans antialiased", fontSans.variable)}
         dir={rtl ? "rtl" : "ltr"}
       >
-        <NextIntlClientProvider messages={messages}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
-          </ThemeProvider>
-        </NextIntlClientProvider>
+        <AuthProvider>
+          <NextIntlClientProvider messages={messages}>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <Header>{children}</Header>
+            </ThemeProvider>
+          </NextIntlClientProvider>
+        </AuthProvider>
       </body>
     </html>
   );

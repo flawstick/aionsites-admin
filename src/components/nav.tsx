@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import TeamSwitcher from "@/components/team-switcher";
 import { MainNav } from "@/components/main-nav";
 import { Search } from "@/components/search";
@@ -43,18 +43,17 @@ export function Navbar({ bg, noBorder }: NavbarProps) {
       >
         <MobileNav />
         <span
-          className="flex cursor-pointer invert-[0.75] dark:invert-0 ltr:-ml-1 rtl:-mr-1"
+          className="hidden md:flex cursor-pointer invert-[0.75] dark:invert-0 ltr:-ml-1 rtl:-mr-1"
           onClick={() => router.push("/")}
         >
           <GrubIcon className="h-[3.75rem] w-[4.25rem]" />
         </span>
-        <span className="text-2xl font-bold ltr:-ml-2 rtl:-mr-2 ltr:mr-2 rtl:ml-2 text-gray-500">
+        <span className="hidden md:flex text-2xl font-bold ltr:-ml-2 rtl:-mr-2 ltr:mr-2 rtl:ml-2 text-gray-500">
           <Slash className="h-5 w-5 -rotate-[20deg]" />
         </span>
         <TeamSwitcher />
         <MainNav className="hidden md:flex mx-6" />
         <div className="ml-auto rtl:ml-2 rtl:mr-auto flex items-center gap-4">
-          <Search />
           <div className="flex flex-row gap-2 items-center justify-center w-full">
             <ThemeToggle />
             <LocaleSwitcher />

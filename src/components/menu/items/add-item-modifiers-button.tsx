@@ -20,8 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Modifier } from "@/types";
-import { availableMemory } from "process";
 import { useDirection } from "@/hooks/use-direction";
+import { useTranslations } from "next-intl";
 
 interface AddModifiersDialogProps {
   availableModifiers: Modifier[];
@@ -34,6 +34,7 @@ export const AddModifiersDialog: React.FC<AddModifiersDialogProps> = ({
   selectedModifierIds,
   onSave,
 }) => {
+  const t = useTranslations("AddModifiersDialog");
   const [open, setOpen] = useState(false);
   const [tempSelectedIds, setTempSelectedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -71,19 +72,19 @@ export const AddModifiersDialog: React.FC<AddModifiersDialogProps> = ({
       <DialogTrigger asChild>
         <Button variant="default" className="mb-4">
           <Search size={16} />
-          Add Modifiers
+          {t("addModifiers")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2/3" dir={direction}>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold mb-4">
-            Add Modifiers
+            {t("addModifiers")}
           </DialogTitle>
           <div className="relative">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
             <Input
               type="text"
-              placeholder="Search modifiers..."
+              placeholder={t("searchModifiers")}
               className="pl-8"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -104,6 +105,7 @@ export const AddModifiersDialog: React.FC<AddModifiersDialogProps> = ({
                     isSelected ? "border-primary" : "border-border"
                   }`}
                   onClick={() => handleModifierToggle(modifier._id)}
+                  dir={direction}
                 >
                   <CardHeader>
                     <CardTitle className="text-lg flex justify-between items-center">
@@ -111,16 +113,16 @@ export const AddModifiersDialog: React.FC<AddModifiersDialogProps> = ({
                       <div>
                         {modifier.required && (
                           <Badge variant="destructive" className="mr-2">
-                            Required
+                            {t("required")}
                           </Badge>
                         )}
                         {modifier.multiple && (
-                          <Badge variant="secondary">Multiple</Badge>
+                          <Badge variant="secondary">{t("multiple")}</Badge>
                         )}
                       </div>
                     </CardTitle>
                     <CardDescription>
-                      {isSelected ? "Selected" : "Click to select"}
+                      {isSelected ? t("selected") : t("clickToSelect")}
                     </CardDescription>
                   </CardHeader>
                 </Card>
@@ -128,15 +130,15 @@ export const AddModifiersDialog: React.FC<AddModifiersDialogProps> = ({
             })
           ) : (
             <p className="text-center text-muted-foreground">
-              No modifiers found.
+              {t("noModifiersFound")}
             </p>
           )}
         </ScrollArea>
         <DialogFooter className="border-t py-4">
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t("cancel")}</Button>
           </DialogClose>
-          <Button onClick={handleSave}>Add Selected Modifiers</Button>
+          <Button onClick={handleSave}>{t("addSelectedModifiers")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

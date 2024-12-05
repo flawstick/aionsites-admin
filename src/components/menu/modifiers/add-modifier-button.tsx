@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface AddModifierButtonProps {
   onClick: () => void;
@@ -8,6 +9,7 @@ interface AddModifierButtonProps {
 
 export function AddModifierButton({ onClick }: AddModifierButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const t = useTranslations("modifiers");
 
   return (
     <motion.button
@@ -59,7 +61,7 @@ export function AddModifierButton({ onClick }: AddModifierButtonProps) {
           textShadow: isHovered ? "0 0 8px rgba(255,255,255,0.3)" : "none",
         }}
       >
-        Add Modifier
+        {t("addModifier")}
       </motion.span>
       <motion.div
         className="absolute inset-0 rounded-full"

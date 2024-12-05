@@ -88,260 +88,256 @@ export default function OrderLayout() {
   }, [fetchOrders, restaurants]);
 
   return (
-    <Header noBorder>
-      <div className="flex min-h-screen flex-col">
-        <main className="grid flex-1 mt-4 items-start gap-4 p-4 sm:px-6 sm:py-2 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-          <div className="lg:col-span-2">
-            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 mb-4">
-              <Card className="sm:col-span-2">
-                <CardHeader className="pb-3">
-                  <CardTitle>
-                    <span className="text-lg">Live Order Feed</span>
-                  </CardTitle>
-                  <CardDescription className="max-w-lg text-balance leading-relaxed">
-                    Introducing Our Dynamic Live Orders page. Get Real-Time
-                    Updates on Orders Placed by Your Customers.
+    <div className="flex flex-col">
+      <main className="grid flex-1 mt-4 items-start gap-4 p-4 sm:px-6 sm:py-2 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
+        <div className="lg:col-span-2">
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 mb-4">
+            <Card className="sm:col-span-2">
+              <CardHeader className="pb-3">
+                <CardTitle>
+                  <span className="text-lg">Live Order Feed</span>
+                </CardTitle>
+                <CardDescription className="max-w-lg text-balance leading-relaxed">
+                  Introducing Our Dynamic Live Orders page. Get Real-Time
+                  Updates on Orders Placed by Your Customers.
+                </CardDescription>
+              </CardHeader>
+              <CardFooter>
+                <Button onClick={() => (window.location.href = "/orders/live")}>
+                  Go To Live Orders
+                  <ArrowUpRightIcon className="h-4 w-4 ml-1" />
+                </Button>
+              </CardFooter>
+            </Card>
+            {analytics ? (
+              <>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription>This Week</CardDescription>
+                    <CardTitle className="text-4xl">
+                      ₪{analytics.weeklyTotal}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xs text-muted-foreground">
+                      {analytics.weeklyIncrease > 0
+                        ? `+${analytics.weeklyIncrease.toFixed(2)}%`
+                        : `${analytics.weeklyIncrease.toFixed(2)}%`}{" "}
+                      from last week
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Progress
+                      value={analytics.weeklyIncrease}
+                      aria-label={`${analytics.weeklyIncrease.toFixed(
+                        2,
+                      )}% increase`}
+                    />
+                  </CardFooter>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription>This Month</CardDescription>
+                    <CardTitle className="text-4xl">
+                      ₪{analytics.monthlyTotal}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-xs text-muted-foreground">
+                      {analytics.monthlyIncrease > 0
+                        ? `+${analytics.monthlyIncrease.toFixed(2)}%`
+                        : `${analytics.monthlyIncrease.toFixed(2)}%`}{" "}
+                      from last month
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Progress
+                      value={analytics.monthlyIncrease}
+                      aria-label={`${analytics.monthlyIncrease.toFixed(
+                        2,
+                      )}% increase`}
+                    />
+                  </CardFooter>
+                </Card>{" "}
+              </>
+            ) : null}
+          </div>
+          <Tabs defaultValue="all">
+            <div className="flex items-center">
+              <div className="ml-auto flex items-center gap-2">
+                <CalendarDateRangePicker setDate={setDate} date={date} />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" className="h-7 gap-1 text-sm">
+                      <FileText className="h-3.5 w-3.5" />
+                      <span className="sr-only sm:not-sr-only">Export</span>
+                      <ChevronDown className="h-3.5 w-3.5 ml-1" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        exportAsXLSX(
+                          orders,
+                          date?.from as Date,
+                          date?.to as Date,
+                        )
+                      }
+                    >
+                      <FileSpreadsheet className="h-4 w-4 mr-2" />
+                      Excel Spreadsheet
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        exportAsDOCX(
+                          orders,
+                          date?.from as Date,
+                          date?.to as Date,
+                        )
+                      }
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Word Document
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+            <TabsContent value="live">
+              <Card>
+                <CardHeader className="px-7">
+                  <OrderTableHeader
+                    onRefresh={refreshOrders}
+                    isSpinning={isSpinning}
+                  />
+                  <CardDescription>
+                    Recent orders from your store.
                   </CardDescription>
                 </CardHeader>
-                <CardFooter>
-                  <Button
-                    onClick={() => (window.location.href = "/orders/live")}
-                  >
-                    Go To Live Orders
-                    <ArrowUpRightIcon className="h-4 w-4 ml-1" />
-                  </Button>
-                </CardFooter>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Customer</TableHead>
+                        <TableHead className="hidden sm:table-cell">
+                          Status
+                        </TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Date
+                        </TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {orders.length > 0
+                        ? orders
+                            .filter(
+                              (order) =>
+                                order?.status === "confirmed" ||
+                                order?.status === "pending",
+                            )
+                            .map((order) => (
+                              <OrderListItem
+                                key={order?._id}
+                                order={order}
+                                onHover={setHoveredOrder}
+                              />
+                            ))
+                        : null}
+                    </TableBody>
+                  </Table>
+                </CardContent>
               </Card>
-              {analytics ? (
-                <>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardDescription>This Week</CardDescription>
-                      <CardTitle className="text-4xl">
-                        ₪{analytics.weeklyTotal}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-xs text-muted-foreground">
-                        {analytics.weeklyIncrease > 0
-                          ? `+${analytics.weeklyIncrease.toFixed(2)}%`
-                          : `${analytics.weeklyIncrease.toFixed(2)}%`}{" "}
-                        from last week
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Progress
-                        value={analytics.weeklyIncrease}
-                        aria-label={`${analytics.weeklyIncrease.toFixed(
-                          2,
-                        )}% increase`}
-                      />
-                    </CardFooter>
-                  </Card>
-                  <Card>
-                    <CardHeader className="pb-2">
-                      <CardDescription>This Month</CardDescription>
-                      <CardTitle className="text-4xl">
-                        ₪{analytics.monthlyTotal}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-xs text-muted-foreground">
-                        {analytics.monthlyIncrease > 0
-                          ? `+${analytics.monthlyIncrease.toFixed(2)}%`
-                          : `${analytics.monthlyIncrease.toFixed(2)}%`}{" "}
-                        from last month
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Progress
-                        value={analytics.monthlyIncrease}
-                        aria-label={`${analytics.monthlyIncrease.toFixed(
-                          2,
-                        )}% increase`}
-                      />
-                    </CardFooter>
-                  </Card>{" "}
-                </>
-              ) : null}
-            </div>
-            <Tabs defaultValue="all">
-              <div className="flex items-center">
-                <div className="ml-auto flex items-center gap-2">
-                  <CalendarDateRangePicker setDate={setDate} date={date} />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="sm" className="h-7 gap-1 text-sm">
-                        <FileText className="h-3.5 w-3.5" />
-                        <span className="sr-only sm:not-sr-only">Export</span>
-                        <ChevronDown className="h-3.5 w-3.5 ml-1" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          exportAsXLSX(
-                            orders,
-                            date?.from as Date,
-                            date?.to as Date,
-                          )
-                        }
-                      >
-                        <FileSpreadsheet className="h-4 w-4 mr-2" />
-                        Excel Spreadsheet
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() =>
-                          exportAsDOCX(
-                            orders,
-                            date?.from as Date,
-                            date?.to as Date,
-                          )
-                        }
-                      >
-                        <FileText className="h-4 w-4 mr-2" />
-                        Word Document
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-              <TabsContent value="live">
-                <Card>
-                  <CardHeader className="px-7">
-                    <OrderTableHeader
-                      onRefresh={refreshOrders}
-                      isSpinning={isSpinning}
-                    />
-                    <CardDescription>
-                      Recent orders from your store.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Customer</TableHead>
-                          <TableHead className="hidden sm:table-cell">
-                            Status
-                          </TableHead>
-                          <TableHead className="hidden md:table-cell">
-                            Date
-                          </TableHead>
-                          <TableHead className="text-right">Amount</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {orders.length > 0
-                          ? orders
-                              .filter(
-                                (order) =>
-                                  order?.status === "confirmed" ||
-                                  order?.status === "pending",
-                              )
-                              .map((order) => (
-                                <OrderListItem
-                                  key={order?._id}
-                                  order={order}
-                                  onHover={setHoveredOrder}
-                                />
-                              ))
-                          : null}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="done">
-                <Card>
-                  <CardHeader className="px-7">
-                    <OrderTableHeader
-                      onRefresh={refreshOrders}
-                      isSpinning={isSpinning}
-                    />
-                    <CardDescription>
-                      Recent orders from your store.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Customer</TableHead>
-                          <TableHead className="hidden sm:table-cell">
-                            Status
-                          </TableHead>
-                          <TableHead className="hidden md:table-cell">
-                            Date
-                          </TableHead>
-                          <TableHead className="text-right">Amount</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {orders.length > 0
-                          ? orders
-                              .filter((order) => order?.status === "done")
-                              .map((order) => (
-                                <OrderListItem
-                                  key={order._id}
-                                  order={order}
-                                  onHover={setHoveredOrder}
-                                />
-                              ))
-                          : null}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              <TabsContent value="all">
-                <Card>
-                  <CardHeader className="px-7">
-                    <OrderTableHeader
-                      onRefresh={refreshOrders}
-                      isSpinning={isSpinning}
-                    />
-                    <CardDescription>
-                      Recent orders from your store.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Customer</TableHead>
-                          <TableHead className="hidden sm:table-cell">
-                            Status
-                          </TableHead>
-                          <TableHead className="hidden md:table-cell">
-                            Date
-                          </TableHead>
-                          <TableHead className="text-right">Amount</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {orders.length > 0
-                          ? orders.map((order) => (
+            </TabsContent>
+            <TabsContent value="done">
+              <Card>
+                <CardHeader className="px-7">
+                  <OrderTableHeader
+                    onRefresh={refreshOrders}
+                    isSpinning={isSpinning}
+                  />
+                  <CardDescription>
+                    Recent orders from your store.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Customer</TableHead>
+                        <TableHead className="hidden sm:table-cell">
+                          Status
+                        </TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Date
+                        </TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {orders.length > 0
+                        ? orders
+                            .filter((order) => order?.status === "done")
+                            .map((order) => (
                               <OrderListItem
                                 key={order._id}
                                 order={order}
                                 onHover={setHoveredOrder}
                               />
                             ))
-                          : null}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-          <div>
-            <OrderCard hoveredOrder={hoveredOrder} />
-          </div>
-        </main>
-      </div>
-    </Header>
+                        : null}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="all">
+              <Card>
+                <CardHeader className="px-7">
+                  <OrderTableHeader
+                    onRefresh={refreshOrders}
+                    isSpinning={isSpinning}
+                  />
+                  <CardDescription>
+                    Recent orders from your store.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Customer</TableHead>
+                        <TableHead className="hidden sm:table-cell">
+                          Status
+                        </TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Date
+                        </TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {orders.length > 0
+                        ? orders.map((order) => (
+                            <OrderListItem
+                              key={order._id}
+                              order={order}
+                              onHover={setHoveredOrder}
+                            />
+                          ))
+                        : null}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+        <div>
+          <OrderCard hoveredOrder={hoveredOrder} />
+        </div>
+      </main>
+    </div>
   );
 }
 

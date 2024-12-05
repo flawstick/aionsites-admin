@@ -32,9 +32,6 @@ const SortableCategoryList: React.FC<SortableCategoryListProps> = ({
   handleDeleteCategory,
 }) => {
   const { setCategories, categories } = useMenuStore();
-  useEffect(() => {
-    console.log(categories);
-  }, [categories]);
   const { updateCategoryOrder } = useCategories();
 
   // DnD Kit sensors

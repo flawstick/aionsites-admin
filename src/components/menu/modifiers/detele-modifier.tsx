@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useCallback } from "react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface DeleteModifierProps {
   open: boolean;
@@ -27,6 +28,8 @@ export function DeleteModifier({
   handleDelete,
   handleUndo,
 }: DeleteModifierProps) {
+  const t = useTranslations("modifier");
+
   React.useEffect(() => {
     if (open) {
       document.body.style.pointerEvents = "auto";
@@ -39,44 +42,44 @@ export function DeleteModifier({
 
   const handleAction = useCallback(async () => {
     if (await handleDelete(modifierId)) {
-      toast("Modifier deleted successfully", {
+      toast(t("modifierDeletedSuccessfully"), {
         actionButtonStyle: {
           backgroundColor: "hsl(var(--primary))",
           color: "hsl(var(--primary-foreground))",
         },
         action: {
-          label: "Undo",
+          label: t("undo"),
           onClick: async () => {
             if (await handleUndo(modifierId))
-              toast("Deletion undone successfully");
+              toast(t("deletionUndoneSuccessfully"));
           },
         },
       });
     } else {
-      toast("Failed to delete modifier", {
+      toast(t("failedToDeleteModifier"), {
         actionButtonStyle: {
           backgroundColor: "hsl(var(--primary))",
           color: "hsl(var(--primary-foreground))",
         },
         action: {
-          label: "Retry",
+          label: t("retry"),
           onClick: handleAction, // Recursively retry
         },
       });
     }
-  }, [modifierId, handleDelete, handleUndo]);
+  }, [modifierId, handleDelete, handleUndo, t]);
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
-        <AlertDialogTitle>You sure you wanna?</AlertDialogTitle>
+        <AlertDialogTitle>{t("deleteConfirmationTitle")}</AlertDialogTitle>
         <AlertDialogHeader>
-          This deletes it off the database, all gone.
+          {t("deleteConfirmationDescription")}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction onClick={handleAction} asChild>
-            <Button variant="destructive">Delete</Button>
+            <Button variant="destructive">{t("delete")}</Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

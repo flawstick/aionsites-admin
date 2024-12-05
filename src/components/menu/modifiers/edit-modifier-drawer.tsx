@@ -32,6 +32,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useModifiers } from "@/lib/hooks/useModifiers";
 import { toast } from "sonner";
 import { useDirection } from "@/hooks/use-direction";
+import { useTranslations } from "next-intl";
 
 interface IAddition {
   name: string;
@@ -53,13 +54,7 @@ interface IModifier {
   indexDaysAvailable: number[];
 }
 
-const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
-const SPICE_LEVELS = [
-  { value: "mild", label: "Mildly Spicy" },
-  { value: "medium", label: "Medium Spice" },
-  { value: "hot", label: "Tongue Thrasher" },
-];
 
 interface EditModifierDrawerProps {
   open: boolean;
@@ -72,9 +67,25 @@ export function EditModifierDrawer({
   onOpenChange,
   modifierData,
 }: EditModifierDrawerProps) {
+  const t = useTranslations("modifier");
   const { editModifier: updateModifier } = useModifiers();
   const { direction } = useDirection();
   const [modifier, setModifier] = useState<IModifier>(modifierData);
+
+  const DAYS_OF_WEEK = [
+    t("days.sunday"),
+    t("days.monday"),
+    t("days.tuesday"),
+    t("days.wednesday"),
+    t("days.thursday"),
+    t("days.friday"),
+    t("days.saturday"),
+  ];
+  const SPICE_LEVELS = [
+    { value: "mild", label: t("mildlySpicy") },
+    { value: "medium", label: t("mediumSpice") },
+    { value: "hot", label: t("tongueThrasher") },
+  ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -181,19 +192,19 @@ export function EditModifierDrawer({
     e.preventDefault();
     try {
       if (await updateModifier(modifier)) {
-        toast("Modifier updated successfully", {
+        toast(t("modifierUpdatedSuccessfully"), {
           actionButtonStyle: {
             backgroundColor: "hsl(var(--primary))",
             color: "hsl(var(--primary-foreground))",
           },
           action: {
-            label: "Yay!",
+            label: t("yay"),
             onClick: () => {},
           },
         });
       }
     } catch (error) {
-      toast("Failed to update modifier");
+      toast(t("failedToUpdateModifier"));
       console.error(error);
     }
     onOpenChange(false);
@@ -214,48 +225,48 @@ export function EditModifierDrawer({
         <div className="flex flex-col h-full min-w-[80%]" dir={direction}>
           <DrawerHeader className="border-b border-border">
             <DrawerTitle className="text-2xl font-bold">
-              Edit Modifier
+              {t("editModifier")}
             </DrawerTitle>
           </DrawerHeader>
           <ScrollArea className="flex" dir={direction}>
             <form onSubmit={handleSubmit} className="space-y-6 p-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Modifier Name</Label>
+                <Label htmlFor="name">{t("modifierName")}</Label>
                 <Input
                   id="name"
                   name="name"
                   value={modifier?.name}
                   onChange={handleInputChange}
-                  placeholder="Enter modifier?.name"
+                  placeholder={t("enterModifierName")}
                   className="w-full"
                   required
                 />
               </div>
               <div className="flex flex-col space-y-2">
-                <Label htmlFor="required">Required</Label>
+                <Label htmlFor="required">{t("required")}</Label>
                 <div className="flex items-center gap-2">
                   <Switch
                     id="required"
                     checked={modifier?.required}
                     onCheckedChange={handleSwitchChange("required")}
                   />
-                  {modifier?.required ? "Yes" : "No"}
+                  {modifier?.required ? t("yes") : t("no")}
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="multiple">Allow Multiple</Label>
+                <Label htmlFor="multiple">{t("allowMultiple")}</Label>
                 <div className="flex items-center gap-2">
                   <Switch
                     id="multiple"
                     checked={modifier?.multiple}
                     onCheckedChange={handleSwitchChange("multiple")}
                   />
-                  {modifier?.multiple ? "Yes" : "No"}
+                  {modifier?.multiple ? t("yes") : t("no")}
                 </div>
               </div>
               {modifier?.multiple && (
                 <div className="space-y-2">
-                  <Label htmlFor="max">Max Selections</Label>
+                  <Label htmlFor="max">{t("maxSelections")}</Label>
                   <Select
                     value={modifier?.max?.toString() || "infinity"}
                     onValueChange={(value) =>
@@ -267,7 +278,7 @@ export function EditModifierDrawer({
                     dir={direction}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select max selections" />
+                      <SelectValue placeholder={t("selectMaxSelections")} />
                     </SelectTrigger>
                     <SelectContent>
                       {[...Array(10)].map((_, i) => (
@@ -275,13 +286,13 @@ export function EditModifierDrawer({
                           {i + 1}
                         </SelectItem>
                       ))}
-                      <SelectItem value="infinity">Infinity</SelectItem>
+                      <SelectItem value="infinity">{t("infinity")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               )}
               <div className="space-y-2">
-                <Label>Days Available</Label>
+                <Label>{t("daysAvailable")}</Label>
                 <div className="flex gap-2">
                   {DAYS_OF_WEEK.map((day, i) => (
                     <button
@@ -301,18 +312,20 @@ export function EditModifierDrawer({
                 </div>
               </div>
               <div className="space-y-4">
-                <Label>Additions</Label>
+                <Label>{t("additions")}</Label>
                 <Accordion type="single" collapsible className="w-full">
                   {modifier?.options.map((option, index) => (
                     <AccordionItem key={index} value={`item-${index}`}>
                       <AccordionTrigger className="hover:no-underline">
-                        {option.name || `Addition ${index + 1}`}
+                        {option.name || `${t("addition")} ${index + 1}`}
                       </AccordionTrigger>
                       <AccordionContent>
                         <Card>
                           <CardContent className="space-y-4 pt-4">
                             <div className="space-y-2">
-                              <Label htmlFor={`name-${index}`}>Name</Label>
+                              <Label htmlFor={`name-${index}`}>
+                                {t("name")}
+                              </Label>
                               <Input
                                 id={`name-${index}`}
                                 value={option.name}
@@ -323,12 +336,14 @@ export function EditModifierDrawer({
                                     e.target.value,
                                   )
                                 }
-                                placeholder="Addition name"
+                                placeholder={t("additionName")}
                                 className="w-full"
                               />
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor={`price-${index}`}>Price</Label>
+                              <Label htmlFor={`price-${index}`}>
+                                {t("price")}
+                              </Label>
                               <Input
                                 id={`price-${index}`}
                                 type="number"
@@ -340,13 +355,13 @@ export function EditModifierDrawer({
                                     parseFloat(e.target.value),
                                   )
                                 }
-                                placeholder="Price"
+                                placeholder={t("price")}
                                 className="w-full"
                               />
                             </div>
                             <div className="space-y-2">
                               <Label htmlFor={`multiple-${index}`}>
-                                Multiple
+                                {t("multiple")}
                               </Label>
                               <div className="flex items-center gap-2">
                                 <Switch
@@ -361,12 +376,16 @@ export function EditModifierDrawer({
                                     )
                                   }
                                 />
-                                <span>{option.multiple ? "Yes" : "No"}</span>
+                                <span>
+                                  {option.multiple ? t("yes") : t("no")}
+                                </span>
                               </div>
                             </div>
                             {option.multiple && (
                               <div className="space-y-2">
-                                <Label htmlFor={`max-${index}`}>Max</Label>
+                                <Label htmlFor={`max-${index}`}>
+                                  {t("max")}
+                                </Label>
                                 <Select
                                   value={option.max?.toString() || "infinity"}
                                   dir={direction}
@@ -381,7 +400,7 @@ export function EditModifierDrawer({
                                   }
                                 >
                                   <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select max" />
+                                    <SelectValue placeholder={t("selectMax")} />
                                   </SelectTrigger>
                                   <SelectContent>
                                     {[...Array(10)].map((_, i) => (
@@ -393,14 +412,14 @@ export function EditModifierDrawer({
                                       </SelectItem>
                                     ))}
                                     <SelectItem value="infinity">
-                                      Infinity
+                                      {t("infinity")}
                                     </SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
                             )}
                             <div className="space-y-2">
-                              <Label>Days Available</Label>
+                              <Label>{t("daysAvailable")}</Label>
                               <div className="flex gap-2">
                                 {DAYS_OF_WEEK.map((day, i) => (
                                   <button
@@ -420,7 +439,7 @@ export function EditModifierDrawer({
                               </div>
                             </div>
                             <div className="space-y-2">
-                              <Label>Properties</Label>
+                              <Label>{t("properties")}</Label>
                               <div className="flex gap-2">
                                 <button
                                   type="button"
@@ -435,7 +454,7 @@ export function EditModifierDrawer({
                                       }`}
                                 >
                                   <Flame className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
-                                  Spicy
+                                  {t("spicy")}
                                 </button>
                                 <button
                                   type="button"
@@ -450,13 +469,13 @@ export function EditModifierDrawer({
                                       }`}
                                 >
                                   <Leaf className="w-4 h-4 ltr:mr-2 rtl:ml-2" />
-                                  Vegan
+                                  {t("vegan")}
                                 </button>
                               </div>
                             </div>
                             {option.isSpicy && (
                               <div className="space-y-2">
-                                <Label>Spice Level</Label>
+                                <Label>{t("spiceLevel")}</Label>
                                 <RadioGroup
                                   defaultValue={SPICE_LEVELS[0].value}
                                   value={option.spiceLevel}
@@ -494,7 +513,7 @@ export function EditModifierDrawer({
                                 {option.max && (
                                   <Badge variant="secondary">
                                     <Hash className="w-3 h-3 mr-1" />
-                                    Max: {option.max}
+                                    {t("max")}: {option.max}
                                   </Badge>
                                 )}
                               </div>
@@ -519,18 +538,18 @@ export function EditModifierDrawer({
                   variant="outline"
                   className="w-full"
                 >
-                  <Plus className="mr-2 h-4 w-4" /> Add Addition
+                  <Plus className="mr-2 h-4 w-4" /> {t("addAddition")}
                 </Button>
               </div>
             </form>
           </ScrollArea>
           <DrawerFooter className="bg-background border-t border-border mt-auto pb-2">
             <Button type="submit" onClick={handleSubmit} className="w-full">
-              Update Modifier
+              {t("updateModifier")}
             </Button>
             <DrawerClose asChild>
               <Button variant="outline" className="w-full">
-                Cancel
+                {t("cancel")}
               </Button>
             </DrawerClose>
           </DrawerFooter>

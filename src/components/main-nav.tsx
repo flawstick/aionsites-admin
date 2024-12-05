@@ -3,16 +3,21 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useDirection } from "@/hooks/use-direction";
 
 export function MainNav({
   className,
   ...props
 }: React.HTMLAttributes<HTMLElement>) {
   const pathname = usePathname();
+  const t = useTranslations("MainNav");
+  const { direction } = useDirection();
 
   return (
     <nav
       className={cn("flex items-center gap-4 lg:gap-6", className)}
+      dir={direction}
       {...props}
     >
       <Link
@@ -22,7 +27,7 @@ export function MainNav({
           pathname === "/" && "text-primary",
         )}
       >
-        Overview
+        {t("overview")}
       </Link>
       <Link
         href="/orders"
@@ -31,7 +36,7 @@ export function MainNav({
           pathname.startsWith("/orders") && "text-primary",
         )}
       >
-        Orders
+        {t("orders")}
       </Link>
       <Link
         href="/menu"
@@ -40,7 +45,7 @@ export function MainNav({
           pathname.startsWith("/menu") && "text-primary",
         )}
       >
-        Menu
+        {t("menu")}
       </Link>
       <Link
         href="/settings"
@@ -49,7 +54,7 @@ export function MainNav({
           pathname.startsWith("/settings") && "text-primary",
         )}
       >
-        Settings
+        {t("settings")}
       </Link>
     </nav>
   );

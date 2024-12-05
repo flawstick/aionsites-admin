@@ -21,16 +21,7 @@ import { toast } from "sonner";
 import { IconBxShekel } from "./icons";
 import ItemModifiers from "./menu/items/modifiers-list";
 import { useDirection } from "@/hooks/use-direction";
-
-const weekDays = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
+import { useTranslations } from "next-intl";
 
 interface EditMenuItemDrawerProps {
   isOpen: boolean;
@@ -43,6 +34,17 @@ export default function EditMenuItemDrawer({
   onClose,
   item,
 }: EditMenuItemDrawerProps) {
+  const t = useTranslations("item");
+  const days = [
+    t("days.sunday"),
+    t("days.monday"),
+    t("days.tuesday"),
+    t("days.wednesday"),
+    t("days.thursday"),
+    t("days.friday"),
+    t("days.saturday"),
+  ];
+
   const [name, setName] = useState(item?.name || "");
   const [description, setDescription] = useState(item?.description || "");
   const [price, setPrice] = useState(item?.price.toString() || "");
@@ -70,19 +72,19 @@ export default function EditMenuItemDrawer({
 
   useEffect(() => {
     if (item) {
-      setName(item?.name);
-      setDescription(item?.description);
-      setPrice(item?.price.toString());
-      setImagePreview(item?.imageUrl || null);
-      setModifiers(item?.modifiers || []);
+      setName(item.name || "");
+      setDescription(item.description || "");
+      setPrice(item.price.toString() || "");
+      setImagePreview(item.imageUrl || null);
+      setModifiers(item.modifiers || []);
       setSelectedDays(
-        item?.indexDaysAvailable && item.indexDaysAvailable.length > 0
+        item.indexDaysAvailable && item.indexDaysAvailable.length > 0
           ? item.indexDaysAvailable
           : [0, 1, 2, 3, 4, 5, 6],
       );
-      setIsSpicy(item?.isSpicy);
-      setIsVegan(item?.vegan);
-      setCategory(item?.category);
+      setIsSpicy(item.isSpicy || false);
+      setIsVegan(item.vegan || false);
+      setCategory(item.category || "");
     }
   }, [item]);
 
@@ -130,13 +132,12 @@ export default function EditMenuItemDrawer({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !description || !price || !category) {
-      setValidationError("All fields must be filled.");
+      setValidationError(t("validationError"));
       return;
     }
 
-    // Optional: Prevent submission if no days are selected
     if (selectedDays.length === 0) {
-      setValidationError("Please select at least one available day.");
+      setValidationError(t("pleaseSelectDay"));
       return;
     }
 
@@ -145,10 +146,10 @@ export default function EditMenuItemDrawer({
       try {
         imageUrl = (await uploadImage(image)) as string;
         if (!imageUrl) {
-          throw new Error("Image upload failed.");
+          throw new Error(t("failedImageUpload"));
         }
       } catch (error) {
-        setValidationError("Failed to upload image.");
+        setValidationError(t("failedImageUpload"));
         return;
       }
     }
@@ -164,38 +165,35 @@ export default function EditMenuItemDrawer({
       category,
       imageUrl,
       isSpicy,
-      vegan: !!isVegan,
+      vegan: isVegan,
       indexDaysAvailable: selectedDays,
-      modifiers: modifiers,
-      quantity: 1,
+      modifiers,
     };
 
     try {
       if (await editItem(updatedItem)) {
-        toast("Menu item updated successfully", {
+        toast(t("menuItemUpdated"), {
           actionButtonStyle: {
             backgroundColor: "hsl(var(--primary))",
             color: "hsl(var(--primary-foreground))",
           },
-          action: { label: "yay!", onClick: () => {} },
+          action: { label: "OK", onClick: () => {} },
         });
       } else {
-        toast("Failed to update menu item", {
+        toast(t("failedUpdate"), {
           actionButtonStyle: {
             backgroundColor: "hsl(var(--destructive))",
             color: "hsl(var(--primary-foreground))",
           },
           action: {
-            label: "Retry",
-            onClick: () => {
-              handleSubmit(e);
-            },
+            label: t("retry"),
+            onClick: () => handleSubmit(e),
           },
         });
       }
       onClose();
     } catch (error) {
-      setValidationError("Failed to edit menu item.");
+      setValidationError(t("failedUpdate"));
     } finally {
       setEditLoading(false);
     }
@@ -204,28 +202,21 @@ export default function EditMenuItemDrawer({
   return (
     <Drawer open={isOpen} onOpenChange={onClose}>
       <DrawerContent className="h-screen flex flex-col" dir={direction}>
-        <div
-          className="mx-auto w-full xl:max-w-[80vw] h-full flex flex-col"
-          dir={direction}
-        >
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col h-full"
-            dir={direction}
-          >
+        <div className="mx-auto w-full xl:max-w-[80vw] h-full flex flex-col">
+          <form onSubmit={handleSubmit} className="flex flex-col h-full">
             <div className="px-4 py-4 border-b">
-              <h2 className="text-lg font-semibold">Edit Menu Item</h2>
+              <h2 className="text-lg font-semibold">{t("editMenuItem")}</h2>
               <p className="text-sm text-muted-foreground">
-                Update the details for the menu item.
+                {t("updateDetails")}
               </p>
             </div>
             <ScrollArea className="flex-grow px-4" dir={direction}>
-              <div className="space-y-6 pr-2 mx-2 my-4">
+              <div className="space-y-6 ltr:pr-2 rtl:pl-2 mx-2 my-4">
                 {validationError && (
                   <div className="text-red-500">{validationError}</div>
                 )}
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
+                  <Label htmlFor="name">{t("name")}</Label>
                   <Input
                     id="name"
                     value={name}
@@ -234,7 +225,7 @@ export default function EditMenuItemDrawer({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description">{t("description")}</Label>
                   <Textarea
                     id="description"
                     value={description}
@@ -242,8 +233,8 @@ export default function EditMenuItemDrawer({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price</Label>
-                  <div className="flex flex-row items-center justify-center gap-2 w-full">
+                  <Label htmlFor="price">{t("price")}</Label>
+                  <div className="flex flex-row items-center justify-center gap-2">
                     <IconBxShekel className="h-6 w-6 text-primary-foreground" />
                     <Input
                       id="price"
@@ -257,8 +248,8 @@ export default function EditMenuItemDrawer({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="image">Image</Label>
-                  <div className="flex items-center space-x-2">
+                  <Label htmlFor="image">{t("image")}</Label>
+                  <div className="flex items-center gap-2">
                     <Input
                       id="image"
                       type="file"
@@ -272,13 +263,13 @@ export default function EditMenuItemDrawer({
                       variant="outline"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      Select Image
+                      {t("selectImage")}
                     </Button>
                     {imagePreview && (
                       <div className="relative">
                         <img
                           src={imagePreview}
-                          alt="Menu item preview"
+                          alt={t("menuItemPreview")}
                           className="w-16 h-16 object-cover rounded"
                         />
                         <Button
@@ -295,14 +286,14 @@ export default function EditMenuItemDrawer({
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Category</Label>
+                  <Label>{t("category")}</Label>
                   <Select
                     value={category}
                     onValueChange={setCategory}
                     dir={direction}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder={t("selectCategory")} />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((cat) => (
@@ -314,52 +305,43 @@ export default function EditMenuItemDrawer({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Properties</Label>
+                  <Label>{t("properties")}</Label>
                   <div className="flex gap-4">
                     <Button
                       type="button"
                       variant={isSpicy ? "default" : "outline"}
-                      className="flex items-center gap-2"
                       onClick={() => setIsSpicy(!isSpicy)}
                     >
                       <Flame
-                        className={`h-4 w-4 ${
-                          isSpicy ? "text-red-100 drop-shadow-md" : ""
-                        }`}
+                        className={`h-4 w-4 ${isSpicy ? "text-red-500" : ""}`}
                       />
-                      <span className={`${isSpicy ? "drop-shadow-md" : ""}`}>
-                        Spicy
-                      </span>
+                      {t("spicy")}
                     </Button>
                     <Button
                       type="button"
                       variant={isVegan ? "default" : "outline"}
-                      className="flex items-center space-x-2"
                       onClick={() => setIsVegan(!isVegan)}
                     >
                       <Leaf
                         className={`h-4 w-4 ${isVegan ? "text-green-500" : ""}`}
                       />
-                      <span className={`${isVegan ? "drop-shadow-md" : ""}`}>
-                        Vegan
-                      </span>
+                      {t("vegan")}
                     </Button>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Available Days</Label>
+                  <Label>{t("availableDays")}</Label>
                   <div className="flex flex-wrap gap-2">
-                    {weekDays.map((day, index) => (
+                    {days.map((day: string, index: number) => (
                       <Button
-                        key={day}
+                        key={index}
                         type="button"
                         variant={
                           selectedDays.includes(index) ? "default" : "outline"
                         }
                         onClick={() => handleDayChange(index)}
-                        className="px-3 py-2 flex items-center space-x-2"
                       >
-                        <span>{day}</span>
+                        {day}
                       </Button>
                     ))}
                   </div>
@@ -367,7 +349,7 @@ export default function EditMenuItemDrawer({
                 <ItemModifiers item={item} updateItemModifiers={setModifiers} />
               </div>
             </ScrollArea>
-            <div className="flex flex-row px-4 py-4 mb-2 border-t items-center justify-end gap-4">
+            <div className="flex flex-row px-4 py-4 border-t justify-end gap-4">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -375,10 +357,10 @@ export default function EditMenuItemDrawer({
                   onClose();
                 }}
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button type="submit" disabled={editLoading}>
-                {editLoading ? "Updating..." : "Update Item"}
+                {editLoading ? t("updating") : t("updateItem")}
               </Button>
             </div>
           </form>

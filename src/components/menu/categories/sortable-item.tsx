@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Category } from "@/types";
+import { useTranslations } from "next-intl";
+import { useDirection } from "@/hooks/use-direction";
 
 interface SortableCategoryItemProps {
   category: Category;
@@ -52,6 +54,9 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
     id: category._id,
   });
 
+  const t = useTranslations("category");
+  const { direction } = useDirection();
+
   const style = {
     transform: transform ? CSS.Transform.toString(transform) : undefined,
     transition: transition || undefined,
@@ -68,7 +73,7 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
     >
       <div className="flex flex-row justify-center items-center gap-1 mr-4">
         <h3 className="font-medium">{category.name}</h3>
-        <DropdownMenu dir="rtl">
+        <DropdownMenu dir={direction}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
@@ -79,28 +84,30 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuLabel>{t("actions")}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => openEditDialog(category)}>
-                <Edit className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> Edit
+                <Edit className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> {t("edit")}
               </DropdownMenuItem>
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger dir="rtl">
-                  <MoveVertical className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> Move...
+                  <MoveVertical className="h-4 w-4 ltr:mr-2 rtl:ml-2" />{" "}
+                  {t("move")}...
                 </DropdownMenuSubTrigger>
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem
                       onClick={() => handleMoveCategory(index, "up")}
                     >
-                      <MoveUp className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> Move Up
+                      <MoveUp className="h-4 w-4 ltr:mr-2 rtl:ml-2" />{" "}
+                      {t("moveUp")}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() => handleMoveCategory(index, "down")}
                     >
-                      <MoveDown className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> Move
-                      Down
+                      <MoveDown className="h-4 w-4 ltr:mr-2 rtl:ml-2" />{" "}
+                      {t("moveDown")}
                     </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
@@ -111,7 +118,7 @@ const SortableCategoryItem: React.FC<SortableCategoryItemProps> = ({
               className="text-red-500"
               onClick={() => handleDeleteCategory(category._id)}
             >
-              <Trash2 className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> Delete
+              <Trash2 className="h-4 w-4 ltr:mr-2 rtl:ml-2" /> {t("delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -286,7 +286,11 @@ const SidebarTrigger = React.forwardRef<
       }}
       {...props}
     >
-      <PanelLeft />
+      {props.dir === "rtl" ? (
+        <PanelLeft className="origin-center rotate-180" />
+      ) : (
+        <PanelLeft />
+      )}
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

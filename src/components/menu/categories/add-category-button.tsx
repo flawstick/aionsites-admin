@@ -4,11 +4,13 @@ import { useState } from "react";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface AddCategoryButtonProps extends ButtonProps {}
 
 export function AddCategoryButton(props: AddCategoryButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const t = useTranslations("categories");
 
   return (
     <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
@@ -33,7 +35,7 @@ export function AddCategoryButton(props: AddCategoryButtonProps) {
           transition={{ duration: 0.3 }}
         >
           <Plus className="w-5 h-5" />
-          <span>Add Category</span>
+          <span>{t("addCategory")}</span>
         </motion.div>
         <motion.div
           className="absolute inset-0 flex items-center justify-center"
@@ -41,7 +43,7 @@ export function AddCategoryButton(props: AddCategoryButtonProps) {
           animate={{ y: isHovered ? 0 : 30, opacity: isHovered ? 1 : 0 }}
           transition={{ duration: 0.3 }}
         >
-          <span>Create New</span>
+          <span>{t("addCategory2")}</span>
         </motion.div>
       </Button>
     </motion.div>

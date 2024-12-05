@@ -55,6 +55,7 @@ export default function MenuManager() {
   const t = useTranslations("menu");
   const { fetchMenuItems, menuItems, categories } = useMenuStore();
   const { deleteItem, undoDeleteItem } = useItems();
+  const { direction } = useDirection();
 
   // Modal state
   const [modalState, setModalState] = useState<{
@@ -73,6 +74,25 @@ export default function MenuManager() {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+
+  // Group items by category
+  const categorizedItems = React.useMemo(() => {
+    return categories
+      .sort((a, b) => a.index - b.index)
+      .map((category) => ({
+        category,
+        items: menuItems.filter((item) => item.category === category._id),
+      }));
+  }, [menuItems, categories]);
+
+  // Uncategorized items
+  const uncategorizedItems = React.useMemo(
+    () =>
+      menuItems.filter((item) =>
+        categories.every((cat) => cat._id !== item.category),
+      ),
+    [menuItems, categories],
+  );
 
   const handleAddNewItem = () => {
     setModalState((prev) => ({ ...prev, newItem: true }));
@@ -120,7 +140,6 @@ export default function MenuManager() {
   };
 
   if (!menuItems) return null;
-  const { direction } = useDirection();
 
   // Component for rendering individual item rows
   const ItemRow = ({ item }: { item: MenuItem }) => (
@@ -128,7 +147,9 @@ export default function MenuManager() {
       <TableCell className="font-medium flex items-center gap-2">
         <span>{item.name}</span>
       </TableCell>
-      <TableCell>{item.description}</TableCell>
+      <TableCell className="max-w-[20ch] truncate md:max-w-none md:whitespace-normal">
+        {item.description}
+      </TableCell>
       <TableCell>₪{item.price.toFixed(2)}</TableCell>
       <TableCell>
         <TooltipProvider>
@@ -211,25 +232,6 @@ export default function MenuManager() {
     </Card>
   );
 
-  // Group items by category
-  const categorizedItems = React.useMemo(() => {
-    return categories
-      .sort((a, b) => a.index - b.index)
-      .map((category) => ({
-        category,
-        items: menuItems.filter((item) => item.category === category._id),
-      }));
-  }, [menuItems, categories]);
-
-  // Uncategorized items
-  const uncategorizedItems = React.useMemo(
-    () =>
-      menuItems.filter((item) =>
-        categories.every((cat) => cat._id !== item.category),
-      ),
-    [menuItems, categories],
-  );
-
   // Pagination logic for all items
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -289,7 +291,7 @@ export default function MenuManager() {
   };
 
   return (
-    <div className={`container mx-auto pb-8`}>
+    <div className={`pb-8 w-full`}>
       <div className="flex items-center rtl:justify-end mb-4">
         <h1 className="text-3xl font-bold rtl:self-start">
           {t("menuItemsManager")}
@@ -379,6 +381,7 @@ export default function MenuManager() {
                           currentPage > 1 && paginate(currentPage - 1)
                         }
                         dir={direction}
+                        buttonLabel={t("paginationPrevious")}
                         href="#"
                       />
                     </PaginationItem>
@@ -393,6 +396,7 @@ export default function MenuManager() {
                           currentPage < totalPages && paginate(currentPage + 1)
                         }
                         dir={direction}
+                        buttonLabel={t("paginationNext")}
                         href="#"
                       />
                     </PaginationItem>

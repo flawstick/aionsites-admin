@@ -4,11 +4,13 @@ import { useState } from "react";
 import { HTMLMotionProps, motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface AddItemButtonProps extends HTMLMotionProps<"button"> {}
 
 export function AddItemButton(props: AddItemButtonProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const t = useTranslations("menu");
 
   return (
     <motion.button
@@ -59,7 +61,7 @@ export function AddItemButton(props: AddItemButtonProps) {
         transition={{ duration: 0.3 }}
       >
         <Plus className="ltr:mr-1 rtl:ml-1" size={18} strokeWidth={2.5} />
-        Add Item
+        {t("addNewItem")}
       </motion.span>
     </motion.button>
   );

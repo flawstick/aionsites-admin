@@ -72,10 +72,13 @@ export interface IOrder {
   items: IOrderItem[];
   status: OrderStatus;
   customerName: string;
+  customerProfile: any;
   orderNumber: string;
   createdAt: string; // ISO 8601 date string
+  updatedAt: string; // ISO 8601 date string
   companyName: string;
   companyProfile: any;
+  tenantId: string;
   address: string;
   messageToKitchen: string;
   tip: number;

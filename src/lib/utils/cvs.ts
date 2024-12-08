@@ -1,4 +1,4 @@
-import { Order } from "@/lib/store/orderStore";
+import { IOrder as Order } from "@/types";
 import {
   Document,
   Packer,
@@ -76,7 +76,7 @@ export const exportAsDOCX = (orders: Order[], fromDate: Date, toDate: Date) => {
               ].map(
                 (cell) =>
                   new TableCell({
-                    children: [new Paragraph(cell.toString())],
+                    children: [new Paragraph(cell?.toString() as string)],
                     width: { size: 20, type: WidthType.PERCENTAGE },
                   }),
               ),

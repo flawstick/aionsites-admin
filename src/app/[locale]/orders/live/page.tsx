@@ -11,7 +11,7 @@ import AuthProvider from "@/components/auth-provider";
 
 export default function LiveOrders() {
   const { orders, fetchOrders } = useOrderStore();
-  const pendingOrders = orders.filter(
+  const pendingOrders = orders?.filter(
     (order: any) => order.status === "pending" || order.status === "confirmed",
   );
 
@@ -24,25 +24,21 @@ export default function LiveOrders() {
   }, []);
 
   return (
-    <AuthProvider>
-      <Header>
-        <div className="mx-auto px-4 py-8">
-          <header className="mb-8 flex items-center">
-            <Link href="#" className="mr-4" prefetch={false}>
-              <Button variant="outline" onClick={() => window.history.back()}>
-                <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                Back
-              </Button>
-            </Link>
-            <h1 className="text-2xl font-bold">Live Orders</h1>
-          </header>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {pendingOrders.map((order: any) => (
-              <OrderLiveCard key={order._id} order={order} />
-            ))}
-          </div>
-        </div>
-      </Header>
-    </AuthProvider>
+    <div className="mx-auto px-4 py-8">
+      <header className="mb-8 flex items-center">
+        <Link href="#" className="mr-4" prefetch={false}>
+          <Button variant="outline" onClick={() => window.history.back()}>
+            <ArrowLeftIcon className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </Link>
+        <h1 className="text-2xl font-bold">Live Orders</h1>
+      </header>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {pendingOrders.map((order: any) => (
+          <OrderLiveCard key={order._id} order={order} />
+        ))}
+      </div>
+    </div>
   );
 }

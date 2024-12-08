@@ -13,7 +13,6 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { CalendarDateRangePicker } from "@/components/date-range-picker";
 import { Overview } from "@/components/overview";
 import { RecentSales } from "@/components/recent-sales";
-import AuthProvider from "@/components/auth-provider";
 import { DateRange } from "react-day-picker";
 import { addDays } from "date-fns";
 import { Header } from "@/components/nav";

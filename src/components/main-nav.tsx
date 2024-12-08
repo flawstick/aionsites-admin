@@ -129,7 +129,7 @@ export function MainNav({
     <nav
       ref={navRef}
       className={cn(
-        "flex items-center gap-4 lg:gap-4 relative cursor-pointer",
+        "flex items-center gap-0 lg:gap-0 relative cursor-pointer",
         className,
       )}
       dir={direction}
@@ -143,13 +143,13 @@ export function MainNav({
       <motion.div
         className="absolute top-0 h-full bg-accent z-0 rounded-lg"
         initial={{
-          left: indicatorStyles.left - 10,
-          width: indicatorStyles.width + 20,
+          left: indicatorStyles.left,
+          width: indicatorStyles.width,
           opacity: indicatorVisible ? 1 : 0,
         }}
         animate={{
-          left: indicatorStyles.left - 10,
-          width: indicatorStyles.width + 20,
+          left: indicatorStyles.left,
+          width: indicatorStyles.width,
           opacity: indicatorVisible ? 1 : 0,
         }}
         transition={
@@ -172,7 +172,7 @@ export function MainNav({
 
       <div
         className={cn(
-          "relative z-10 text-sm font-medium p-2 text-muted-foreground transition-colors hover:text-primary",
+          "relative z-10 text-sm font-medium p-2 text-muted-foreground transition-colors hover:text-primary duration-300 px-4",
           currentPath === "/" && "text-primary",
         )}
         ref={overviewRef}
@@ -184,7 +184,7 @@ export function MainNav({
       </div>
       <div
         className={cn(
-          "relative z-10 text-sm font-medium p-2 text-muted-foreground transition-colors hover:text-primary",
+          "relative z-10 text-sm font-medium p-2 text-muted-foreground transition-colors hover:text-primary duration-300 px-4",
           currentPath.startsWith("/orders") && "text-primary",
         )}
         ref={ordersRef}
@@ -196,7 +196,7 @@ export function MainNav({
       </div>
       <div
         className={cn(
-          "relative z-10 text-sm font-medium p-2 text-muted-foreground transition-colors hover:text-primary",
+          "relative z-10 text-sm font-medium p-2 text-muted-foreground transition-colors hover:text-primary duration-300 px-4",
           currentPath.startsWith("/menu") && "text-primary",
         )}
         ref={menuRef}
@@ -208,7 +208,7 @@ export function MainNav({
       </div>
       <div
         className={cn(
-          "relative z-10 text-sm font-medium p-2 text-muted-foreground transition-colors hover:text-primary",
+          "relative z-10 text-sm font-medium p-2 text-muted-foreground transition-colors hover:text-primary duration-300 px-4",
           currentPath.startsWith("/settings") && "text-primary",
         )}
         ref={settingsRef}

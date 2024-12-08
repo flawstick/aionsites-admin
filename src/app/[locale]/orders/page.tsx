@@ -1,5 +1,4 @@
-import AuthProvider from "@/components/auth-provider";
-import OrdersLayout from "@/components/orders-layout";
+import OrdersLayout from "@/components/orders/orders-layout";
 
 export default function LiveOrders() {
   return <OrdersLayout />;

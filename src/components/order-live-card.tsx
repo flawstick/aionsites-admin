@@ -136,7 +136,7 @@ export default function OrderLiveCard({ order }: any) {
       </CardHeader>
       <CardContent className="p-4 text-sm flex-grow">
         <div className="grid gap-3 mt-4">
-          <div className="font-semibold">{order.user.name}</div>
+          <div className="font-semibold">{order.customerName}</div>
           <ul className="grid gap-3">
             {order.items.map((item: any, index: number) => (
               <li key={index} className="flex flex-col">

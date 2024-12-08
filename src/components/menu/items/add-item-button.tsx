@@ -14,7 +14,7 @@ export function AddItemButton(props: AddItemButtonProps) {
 
   return (
     <motion.button
-      className="group relative overflow-hidden px-4 py-2 rounded-full text-white font-semibold text-md shadow-lg"
+      className="group relative overflow-hidden px-4 py-2 rounded-full text-white font-semibold text-md shadow-lg ltr:mr-2 rtl:ml-2"
       style={{
         background: "linear-gradient(135deg, #fd8000 0%, #ffa500 100%)",
       }}

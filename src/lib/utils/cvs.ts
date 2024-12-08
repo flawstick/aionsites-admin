@@ -40,7 +40,7 @@ const createSummarizedOrderDetails = (order: Order) => {
 
 // Function to filter orders by date range
 const filterOrdersByDate = (orders: Order[], fromDate: Date, toDate: Date) => {
-  return orders.filter((order: Order) => {
+  return orders?.filter((order: Order) => {
     const orderDate = new Date(order.createdAt);
     return orderDate >= fromDate && orderDate <= toDate;
   });
@@ -67,7 +67,7 @@ export const exportAsDOCX = (orders: Order[], fromDate: Date, toDate: Date) => {
             new TableRow({
               children: [
                 order._id,
-                order.user.name,
+                order.customerName,
                 createSummarizedOrderDetails(order),
                 order.totalPrice.toString(),
                 order.status,
@@ -117,7 +117,7 @@ export const exportAsXLSX = (orders: Order[], fromDate: Date, toDate: Date) => {
   const worksheet = XLSX.utils.json_to_sheet(
     filteredOrders.map((order: Order) => ({
       [hebrewHeaders["Order ID"]]: order._id,
-      [hebrewHeaders["User Name"]]: order.user.name,
+      [hebrewHeaders["User Name"]]: order.customerName,
       [hebrewHeaders["Items"]]: createSummarizedOrderDetails(order),
       [hebrewHeaders["Total Price"]]: order.totalPrice,
       [hebrewHeaders["Status"]]: order.status,

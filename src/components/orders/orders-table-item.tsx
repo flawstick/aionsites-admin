@@ -1,8 +1,6 @@
-"use client";
-
 import { Badge } from "@/components/ui/badge";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Order } from "@/lib/store/orderStore";
+import { IOrder as Order } from "@/types";
 import {
   ClockIcon,
   CircleCheckIcon,
@@ -58,12 +56,12 @@ const getStatusColor = (status: string) => {
   }
 };
 
-export function OrderListItem({ order, onHover }: OrderListItemProps) {
+export function OrdersTableItem({ order, onHover }: OrderListItemProps) {
   return (
     <TableRow onMouseEnter={() => onHover(order)}>
       <TableCell>
         <OrderUserHoverCard order={order} />
-        <div className="text-sm text-muted-foreground">{order._id}</div>
+        <div className="text-sm text-muted-foreground">{order.companyName}</div>
       </TableCell>
       <TableCell className="hidden sm:table-cell">
         <div className="flex items-center gap-1">
@@ -82,7 +80,7 @@ export function OrderListItem({ order, onHover }: OrderListItemProps) {
       </TableCell>
       <TableCell className="flex flex-row justify-end items-center">
         <IconBxShekel className="w-4 h-4 " />
-        {order.totalPrice}
+        {order.totalPrice - 2}
       </TableCell>
     </TableRow>
   );
@@ -97,22 +95,22 @@ export function OrderUserHoverCard({ order }: OrderUserHoverCardProps) {
     <HoverCard>
       <HoverCardTrigger asChild>
         <div className="text-sm font-medium cursor-pointer hover:underline underline-offset-4">
-          {order.user.name}
+          {order.customerName}
         </div>
       </HoverCardTrigger>
       <HoverCardContent className="w-70">
         <div className="flex justify-between space-x-4">
           <Avatar>
-            <AvatarImage src={order.user?.profile?.profilePicture} />
-            <AvatarFallback>{order.user?.name[0]}</AvatarFallback>
+            <AvatarImage src={order.customerProfile?.profilePicture} />
+            <AvatarFallback>{order.customerName[0]}</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <h4 className="text-sm font-semibold">{order.user.name}</h4>
-            <p className="text-sm">{order.user?.profile?.bio}</p>
+            <h4 className="text-sm font-semibold">{order.customerName}</h4>
+            <p className="text-sm">{order.customerProfile?.bio}</p>
             <div className="flex items-center pt-2">
               <CalendarDays className="mr-2 h-4 w-4 opacity-70" />{" "}
               <span className="text-xs text-muted-foreground">
-                Joined {formatDate(order.user?.createdAt)}
+                Joined {formatDate(order.customerProfile?.joinedAt)}
               </span>
             </div>
           </div>

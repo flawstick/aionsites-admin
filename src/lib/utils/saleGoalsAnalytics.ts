@@ -1,6 +1,6 @@
 import useOrderStore from "../store/orderStore";
 
-export function calculateSaleGoals() {
+export async function calculateSaleGoals() {
   const orders = useOrderStore.getState().orders;
   const now = new Date();
 
@@ -40,11 +40,11 @@ export function calculateSaleGoals() {
   let totalCurrentMonth = 0;
   let totalPreviousMonth = 0;
 
-  const deliveredOrders = orders.filter((order) => order.status === "done");
+  const deliveredOrders = orders?.filter((order) => order.status === "done");
 
   deliveredOrders.forEach((order) => {
     const orderDate = new Date(order.createdAt);
-    const orderAmount = order.totalPrice;
+    const orderAmount = order.totalPrice as any;
 
     if (orderDate >= startOfCurrentWeek) {
       totalCurrentWeek += orderAmount;

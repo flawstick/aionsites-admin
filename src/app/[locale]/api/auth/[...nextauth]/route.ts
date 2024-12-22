@@ -53,7 +53,7 @@ const handler = NextAuth({
       // Fetch user data from backend using the JWT token
       try {
         const response = await axios.get(
-          `http://api.aionsites.com/accounts/${token.jwt}`,
+          `https://api.aionsites.com/accounts/${token.jwt}`,
           {
             headers: {
               "Content-Type": "application/json",
